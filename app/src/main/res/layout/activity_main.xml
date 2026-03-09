@@ -198,7 +198,7 @@
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
                 android:backgroundTint="@color/dark_blue"
-                android:text="Login as Organizer"
+                android:text="Login"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="16sp"
