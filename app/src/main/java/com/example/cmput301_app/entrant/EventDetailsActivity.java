@@ -2,6 +2,7 @@ package com.example.cmput301_app.entrant;
 
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,13 +20,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Transaction;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class EventDetailsActivity extends AppCompatActivity {
-    private TextView tvTitle, tvDescription, tvCount;
+    private static final String TAG = "EventDetails";
+    private TextView tvTitle, tvDescription, tvDate, tvTime;
     private Button btnJoin;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -45,44 +48,50 @@ public class EventDetailsActivity extends AppCompatActivity {
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                // We keep top padding 0 for the immersive header image, but add bottom padding for navigation
+                v.setPadding(0, 0, 0, systemBars.bottom);
                 return insets;
             });
         }
 
         tvTitle = findViewById(R.id.tv_event_title);
         tvDescription = findViewById(R.id.tv_event_description);
-        tvCount = findViewById(R.id.tv_waiting_list_count);
+        tvDate = findViewById(R.id.tv_event_date);
+        tvTime = findViewById(R.id.tv_event_time);
         btnJoin = findViewById(R.id.btn_join_waiting_list);
+
+        // Back button functionality
+        View btnBack = findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         eventId = getIntent().getStringExtra("eventId");
 
         if (eventId != null) {
             loadEventDetails();
         } else {
-            Toast.makeText(this, "No event ID provided", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
     private void loadEventDetails() {
-        db.collection("events").document(eventId).addSnapshotListener((documentSnapshot, e) -> {
+        db.collection("events").document(eventId).addSnapshotListener((doc, e) -> {
             if (e != null) {
-                Toast.makeText(this, "Error loading event details", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Listen failed.", e);
                 return;
             }
-            if (documentSnapshot != null && documentSnapshot.exists()) {
+            if (doc != null && doc.exists()) {
                 try {
-                    currentEvent = documentSnapshot.toObject(Event.class);
+                    currentEvent = doc.toObject(Event.class);
                     if (currentEvent != null) {
-                        currentEvent.setEventId(documentSnapshot.getId());
+                        currentEvent.setEventId(doc.getId());
                         updateUI();
                     }
                 } catch (Exception ex) {
-                    Toast.makeText(this, "Data format error: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Error parsing event", ex);
                 }
-            } else {
-                Toast.makeText(this, "Event not found in database", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -90,52 +99,76 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void updateUI() {
         if (currentEvent == null) return;
         
-        tvTitle.setText(currentEvent.getTitle() != null ? currentEvent.getTitle() : "No Title");
-        tvDescription.setText(currentEvent.getDescription() != null ? currentEvent.getDescription() : "No Description");
-        tvCount.setText("Waiting List: " + currentEvent.getWaitingListCount() + " entrants");
+        if (tvTitle != null) tvTitle.setText(currentEvent.getTitle());
+        if (tvDescription != null) tvDescription.setText(currentEvent.getDescription());
 
-        if (currentEvent.isRegistrationOpen()) {
-            btnJoin.setVisibility(View.VISIBLE);
-            btnJoin.setOnClickListener(v -> joinWaitingList());
-        } else {
-            btnJoin.setVisibility(View.GONE);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+
+        if (currentEvent.getRegistrationStart() != null) {
+            if (tvDate != null) tvDate.setText(dateFormat.format(currentEvent.getRegistrationStart()));
+            if (tvTime != null) {
+                String end = currentEvent.getRegistrationEnd() != null ? timeFormat.format(currentEvent.getRegistrationEnd()) : "End";
+                tvTime.setText(timeFormat.format(currentEvent.getRegistrationStart()) + " - \n" + end);
+            }
+        }
+
+        // Acceptance Criteria: The button is only shown when the event registration period is open
+        if (btnJoin != null) {
+            if (currentEvent.isRegistrationOpen()) {
+                btnJoin.setVisibility(View.VISIBLE);
+                btnJoin.setOnClickListener(v -> joinWaitingList());
+            } else {
+                // For development/debugging, you might want to keep it visible but disabled
+                // btnJoin.setVisibility(View.GONE);
+                btnJoin.setVisibility(View.VISIBLE);
+                btnJoin.setEnabled(false);
+                btnJoin.setText("Registration Closed");
+                btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFBDBDBD));
+            }
         }
     }
 
     private void joinWaitingList() {
-        String userId = auth.getUid();
-        if (userId == null) {
-            Toast.makeText(this, "Please log in to join", Toast.LENGTH_SHORT).show();
+        if (currentEvent == null || eventId == null) return;
+        String uid = auth.getUid();
+        if (uid == null) {
+            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        DocumentReference eventRef = db.collection("events").document(eventId);
-        DocumentReference waitingListRef = eventRef.collection("waiting_list").document(userId);
-
         btnJoin.setEnabled(false);
+        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference waitRef = eventRef.collection("waiting_list").document(uid);
 
-        waitingListRef.get().addOnCompleteListener(task -> {
+        waitRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                Toast.makeText(this, "You are already on the waiting list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EventDetailsActivity.this, "Already joined the waiting list.", Toast.LENGTH_SHORT).show();
                 btnJoin.setEnabled(true);
             } else {
-                db.runTransaction((Transaction.Function<Void>) transaction -> {
+                db.runTransaction(transaction -> {
                     Map<String, Object> data = new HashMap<>();
-                    data.put("userId", userId);
+                    data.put("userId", uid);
                     data.put("deviceId", deviceId);
                     data.put("joinedAt", FieldValue.serverTimestamp());
 
-                    transaction.set(waitingListRef, data);
+                    transaction.set(waitRef, data);
                     transaction.update(eventRef, "waitingListCount", FieldValue.increment(1));
                     return null;
                 }).addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Successfully joined!", Toast.LENGTH_LONG).show();
-                    btnJoin.setEnabled(true);
-                }).addOnFailureListener(err -> {
-                    Toast.makeText(this, "Error joining: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                    btnJoin.setEnabled(true);
+                    if (!isFinishing()) {
+                        Toast.makeText(EventDetailsActivity.this, "Joined successfully!", Toast.LENGTH_SHORT).show();
+                        btnJoin.setEnabled(true);
+                        btnJoin.setText("Already Joined");
+                    }
+                }).addOnFailureListener(e -> {
+                    if (!isFinishing()) {
+                        Log.e(TAG, "Transaction failed", e);
+                        Toast.makeText(EventDetailsActivity.this, "Error joining: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        btnJoin.setEnabled(true);
+                    }
                 });
             }
         });

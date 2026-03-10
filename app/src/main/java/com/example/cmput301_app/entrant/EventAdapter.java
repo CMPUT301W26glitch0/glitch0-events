@@ -17,8 +17,6 @@ import com.example.cmput301_app.models.Event;
 
 import java.util.List;
 
-import com.example.cmput301_app.EventDetailsActivity;
-
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     private List<Event> eventList;
@@ -66,6 +64,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
 
         holder.btnJoin.setOnClickListener(v -> {
+            // Updated to point to the correct EventDetailsActivity in the entrant package
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);

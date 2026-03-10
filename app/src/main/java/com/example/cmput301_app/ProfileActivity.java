@@ -1,6 +1,5 @@
 package com.example.cmput301_app;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -36,16 +35,11 @@ public class ProfileActivity extends AppCompatActivity {
     private Button btnSave, btnLogout;
     private Uri imageUri;
 
-    // Use the modern Photo Picker
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
                     imageUri = uri;
-                    // Update the preview immediately with a circular crop
-                    Glide.with(this)
-                            .load(uri)
-                            .circleCrop()
-                            .into(ivProfile);
+                    Glide.with(this).load(uri).circleCrop().into(ivProfile);
                 }
             });
 
@@ -73,14 +67,12 @@ public class ProfileActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btn_save_profile);
         btnLogout = findViewById(R.id.btn_logout);
 
-        // Setup click listeners for picking an image
         View.OnClickListener pickImageListener = v -> {
             pickMedia.launch(new PickVisualMediaRequest.Builder()
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                     .build());
         };
 
-        // Clicking the image itself or the edit button now triggers the gallery
         ivProfile.setOnClickListener(pickImageListener);
         findViewById(R.id.fab_edit_profile_pic).setOnClickListener(pickImageListener);
 
@@ -96,9 +88,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
             finish();
         });
     }
@@ -109,15 +98,17 @@ public class ProfileActivity extends AppCompatActivity {
             mDb.collection("users").document(userId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            etName.setText(documentSnapshot.getString("name"));
-                            etEmail.setText(documentSnapshot.getString("email"));
-                            etPhone.setText(documentSnapshot.getString("phone"));
+                            String name = documentSnapshot.getString("name");
+                            String email = documentSnapshot.getString("email");
+                            String phone = documentSnapshot.getString("phone");
                             String photoUrl = documentSnapshot.getString("profilePictureUrl");
+
+                            if (name != null) etName.setText(name);
+                            if (email != null) etEmail.setText(email);
+                            if (phone != null) etPhone.setText(phone);
+                            
                             if (photoUrl != null && !photoUrl.isEmpty()) {
-                                Glide.with(this)
-                                        .load(photoUrl)
-                                        .circleCrop()
-                                        .into(ivProfile);
+                                Glide.with(this).load(photoUrl).circleCrop().into(ivProfile);
                             }
                         }
                     });
@@ -138,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     btnSave.setEnabled(true);
                     btnSave.setText("Save Changes");
-                    Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -150,8 +141,7 @@ public class ProfileActivity extends AppCompatActivity {
             String phone = etPhone.getText().toString().trim();
 
             if (name.isEmpty() || email.isEmpty()) {
-                Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
-                btnSave.setEnabled(true);
+                Toast.makeText(this, "Required fields missing", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -159,21 +149,17 @@ public class ProfileActivity extends AppCompatActivity {
             updates.put("name", name);
             updates.put("email", email);
             updates.put("phone", phone);
-            if (photoUrl != null) {
-                updates.put("profilePictureUrl", photoUrl);
-            }
+            if (photoUrl != null) updates.put("profilePictureUrl", photoUrl);
 
             mDb.collection("users").document(userId).update(updates)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(ProfileActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
                         btnSave.setEnabled(true);
                         btnSave.setText("Save Changes");
-                        finish();
                     })
                     .addOnFailureListener(e -> {
                         btnSave.setEnabled(true);
                         btnSave.setText("Save Changes");
-                        Toast.makeText(ProfileActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
     }

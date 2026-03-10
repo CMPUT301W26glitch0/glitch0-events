@@ -20,4 +20,9 @@
     <color name="badge_purple_text">#5925DC</color>
     <color name="badge_gray_bg">#F2F4F7</color>
     <color name="badge_gray_text">#344054</color>
+    
+    <!-- New UI Colors -->
+    <color name="light_purple">#7F56D9</color>
+    <color name="light_gray_bg">#F9FAFB</color>
+
 </resources>
