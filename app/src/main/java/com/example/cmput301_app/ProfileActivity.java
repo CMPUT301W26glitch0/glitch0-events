@@ -33,6 +33,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText etName, etEmail, etPhone;
     private ImageView ivProfile;
     private Button btnSave, btnLogout;
+    private View btnBack;
     private Uri imageUri;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
@@ -66,6 +67,11 @@ public class ProfileActivity extends AppCompatActivity {
         ivProfile = findViewById(R.id.iv_profile_pic);
         btnSave = findViewById(R.id.btn_save_profile);
         btnLogout = findViewById(R.id.btn_logout);
+        btnBack = findViewById(R.id.btn_profile_back);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         View.OnClickListener pickImageListener = v -> {
             pickMedia.launch(new PickVisualMediaRequest.Builder()

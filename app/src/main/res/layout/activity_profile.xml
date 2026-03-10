@@ -7,6 +7,19 @@
     android:background="#F8F9FB"
     android:padding="24dp">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_profile_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_media_previous"
+        app:backgroundTint="@color/white"
+        app:fabCustomSize="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/dark_blue"
+        app:elevation="2dp"
+        android:contentDescription="Back" />
+
     <TextView
         android:id="@+id/tv_profile_title"
         android:layout_width="wrap_content"
