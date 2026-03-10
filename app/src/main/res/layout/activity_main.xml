@@ -55,7 +55,7 @@
                 android:id="@+id/ticket_bg"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="40dp"
                 android:background="@drawable/ticket_bg_shape"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -98,6 +98,37 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_main_title" />
 
+            <!-- Device ID Login Button -->
+            <Button
+                android:id="@+id/btn_device_login"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="@color/primary_blue"
+                android:drawableStart="@android:drawable/ic_dialog_info"
+                android:drawablePadding="12dp"
+                android:paddingHorizontal="24dp"
+                android:text="Sign in with Device ID"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+
+            <TextView
+                android:id="@+id/tv_device_disclaimer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="By signing in, you agree to our terms of fair participation."
+                android:textColor="@color/gray_text"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_device_login" />
+
             <!-- Divider -->
             <View
                 android:id="@+id/divider_left"
@@ -114,14 +145,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
-                android:layout_marginTop="60dp"
-                android:text="ADMINISTRATOR ACCESS"
+                android:layout_marginTop="40dp"
                 android:textColor="@color/gray_text"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+                app:layout_constraintTop_toBottomOf="@id/tv_device_disclaimer" />
 
             <View
                 android:id="@+id/divider_right"
@@ -238,7 +268,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:layout_marginBottom="16dp"
-
+                android:text="VERSION 2.0.4 • ENCRYPTED CONNECTION"
                 android:textColor="@color/gray_text"
                 android:textSize="10sp"
                 app:layout_constraintBottom_toBottomOf="parent"
