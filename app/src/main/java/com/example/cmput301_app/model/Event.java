@@ -1,4 +1,4 @@
-package com.example.cmput301_app;
+package com.example.cmput301_app.model;
 
 import java.util.ArrayList;
 import com.google.firebase.Timestamp;

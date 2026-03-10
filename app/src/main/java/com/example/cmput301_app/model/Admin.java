@@ -1,4 +1,4 @@
-package com.example.cmput301_app;
+package com.example.cmput301_app.model;
 
 /**
  * Represents an administrator in the application.
