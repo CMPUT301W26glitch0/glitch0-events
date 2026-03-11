@@ -3,10 +3,14 @@ package com.example.cmput301_app.database;
 import com.example.cmput301_app.model.Entrant;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -244,5 +248,32 @@ public class EntrantDB {
                 .update("registrationHistory", FieldValue.arrayUnion(recordData))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
+    }
+
+
+    // -------------------------------------------------------------------------
+    // US 02.06.01 As an organizer I want to view a list of all chosen entrants who are invited to apply.
+    // -------------------------------------------------------------------------
+
+    // represents information of an invited entrant
+    public static class InvitedEntrantInfo {
+        private final String entrantId;
+        private final String name;
+        private final Object selectedAt;
+
+        public InvitedEntrantInfo(String entrantId, String name, Object selectedAt) {
+            this.entrantId = entrantId;
+            this.name = name;
+            this.selectedAt = selectedAt;
+        }
+
+        public String getEntrantId() { return entrantId; }
+        public String getName() { return name; }
+        public Object getSelectedAt() { return selectedAt; }
+    }
+
+    // listener for list of invited entrants
+    public interface InvitedEntrantsListener {
+        void onChanged(List<InvitedEntrantInfo> invitedEntrants);
     }
 }
