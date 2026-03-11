@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.analytics)
+    implementation("com.google.firebase:firebase-storage")
 
     // Image Loading
     implementation(libs.glide)
