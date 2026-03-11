@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/tv_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/badge_bg"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:text="Open"
+        android:textColor="@color/badge_green_text"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_event_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_badge"
+        app:layout_constraintStart_toEndOf="@id/tv_badge"
+        app:layout_constraintTop_toTopOf="@id/tv_badge"
+        tools:text="ID: #4092" />
+
+    <TextView
+        android:id="@+id/tv_event_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/dark_blue"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/btn_join_list"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_badge"
+        tools:text="Senior Yoga - Session A" />
+
+    <ImageView
+        android:id="@+id/iv_draws"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@android:drawable/ic_menu_recent_history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_event_title"
+        app:tint="#F04438" />
+
+    <TextView
+        android:id="@+id/tv_draws_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textColor="#F04438"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/iv_draws"
+        app:layout_constraintStart_toEndOf="@id/iv_draws"
+        app:layout_constraintTop_toTopOf="@id/iv_draws"
+        tools:text="Draws in 4h" />
+
+    <ImageView
+        android:id="@+id/iv_applicants"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="24dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        app:layout_constraintBottom_toBottomOf="@id/iv_draws"
+        app:layout_constraintStart_toEndOf="@id/tv_draws_info"
+        app:layout_constraintTop_toTopOf="@id/iv_draws"
+        app:tint="@color/gray_text" />
+
+    <TextView
+        android:id="@+id/tv_applicants_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_applicants"
+        app:layout_constraintStart_toEndOf="@id/iv_applicants"
+        app:layout_constraintTop_toTopOf="@id/iv_applicants"
+        tools:text="12 spots / 34 applicants" />
+
+    <TextView
+        android:id="@+id/tv_event_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/gray_text"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_event_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_draws"
+        tools:text="A gentle flow yoga class suitable for all..." />
+
+    <Button
+        android:id="@+id/btn_join_list"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/secondary_blue"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="Join\nList"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/divider_color"
+        app:layout_constraintTop_toBottomOf="@id/tv_event_description" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

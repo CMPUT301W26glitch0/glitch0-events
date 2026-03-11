@@ -6,4 +6,18 @@
     </style>
 
     <style name="Theme.CMPUT301_APP" parent="Base.Theme.CMPUT301_APP" />
+
+    <style name="CircleImage" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="RoundedBottomImage" parent="">
+        <item name="cornerSizeBottomLeft">48dp</item>
+        <item name="cornerSizeBottomRight">48dp</item>
+    </style>
+
+    <style name="RoundedTopCard" parent="">
+        <item name="cornerSizeTopLeft">32dp</item>
+        <item name="cornerSizeTopRight">32dp</item>
+    </style>
 </resources>
