@@ -1,6 +1,8 @@
 package com.example.cmput301_app.entrant;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -16,17 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.cmput301_app.MainActivity;
 import com.example.cmput301_app.ProfileActivity;
 import com.example.cmput301_app.R;
-import com.example.cmput301_app.models.Event;
+import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mDb;
+    private EventDB eventDB;
     private RecyclerView rvEvents;
     private EventAdapter adapter;
     private List<Event> eventList;
@@ -38,7 +39,7 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         mAuth = FirebaseAuth.getInstance();
-        mDb = FirebaseFirestore.getInstance();
+        eventDB = new EventDB();
 
         View dashboardMain = findViewById(R.id.dashboard_main);
         if (dashboardMain != null) {
@@ -68,20 +69,12 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadEvents() {
-        mDb.collection("events").addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Toast.makeText(this, "Error loading events", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (value != null) {
-                eventList.clear();
-                for (QueryDocumentSnapshot doc : value) {
-                    Event event = doc.toObject(Event.class);
-                    event.setEventId(doc.getId());
-                    eventList.add(event);
-                }
-                adapter.notifyDataSetChanged();
-            }
+        eventDB.getAllEvents(events -> {
+            eventList.clear();
+            eventList.addAll(events);
+            adapter.notifyDataSetChanged();
+        }, e -> {
+            Toast.makeText(DashboardActivity.this, "Error loading events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
 }

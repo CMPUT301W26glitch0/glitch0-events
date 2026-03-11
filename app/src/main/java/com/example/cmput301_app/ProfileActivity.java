@@ -1,8 +1,11 @@
 package com.example.cmput301_app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,23 +22,22 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.cmput301_app.database.EntrantDB;
+import com.example.cmput301_app.model.Entrant;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.HashMap;
-import java.util.Map; //
-
 public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mDb;
+    private EntrantDB entrantDB;
     private FirebaseStorage mStorage;
     private EditText etName, etEmail, etPhone;
     private ImageView ivProfile;
     private Button btnSave, btnLogout;
     private View btnBack;
     private Uri imageUri;
+    private Entrant currentEntrant;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -52,7 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         mAuth = FirebaseAuth.getInstance();
-        mDb = FirebaseFirestore.getInstance();
+        entrantDB = new EntrantDB();
         mStorage = FirebaseStorage.getInstance();
 
         View mainView = findViewById(android.R.id.content);
@@ -95,7 +97,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            // Clear current task and start Login screen
+            SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+            prefs.edit().remove("user_uid").apply();
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -104,31 +107,29 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        if (mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            mDb.collection("users").document(userId).get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String name = documentSnapshot.getString("name");
-                            String email = documentSnapshot.getString("email");
-                            String phone = documentSnapshot.getString("phone");
-                            String photoUrl = documentSnapshot.getString("profilePictureUrl");
-
-                            if (name != null) etName.setText(name);
-                            if (email != null) etEmail.setText(email);
-                            if (phone != null) etPhone.setText(phone);
-                            
-                            if (photoUrl != null && !photoUrl.isEmpty()) {
-                                Glide.with(this).load(photoUrl).circleCrop().into(ivProfile);
-                            }
-                        }
-                    });
-        }
+        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        entrantDB.getEntrant(deviceId, entrant -> {
+            if (entrant != null) {
+                currentEntrant = entrant;
+                etName.setText(entrant.getName());
+                etEmail.setText(entrant.getEmail());
+                etPhone.setText(entrant.getPhoneNumber());
+                
+                String photoUrl = entrant.getProfileImageUrl();
+                if (photoUrl != null && !photoUrl.isEmpty()) {
+                    Glide.with(ProfileActivity.this).load(photoUrl).circleCrop().into(ivProfile);
+                }
+            } else {
+                Toast.makeText(this, "Profile not found", Toast.LENGTH_SHORT).show();
+            }
+        }, e -> {
+            Toast.makeText(this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void uploadImageAndSaveProfile() {
-        String userId = mAuth.getCurrentUser().getUid();
-        StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + userId + ".jpg");
+        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + deviceId + ".jpg");
 
         btnSave.setEnabled(false);
         btnSave.setText("Uploading...");
@@ -140,38 +141,39 @@ public class ProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     btnSave.setEnabled(true);
                     btnSave.setText("Save Changes");
-                    Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void saveChanges(String photoUrl) {
-        if (mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            String name = etName.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-            String phone = etPhone.getText().toString().trim();
+        if (currentEntrant == null) return;
 
-            if (name.isEmpty() || email.isEmpty()) {
-                Toast.makeText(this, "Required fields missing", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
 
-            Map<String, Object> updates = new HashMap<>();
-            updates.put("name", name);
-            updates.put("email", email);
-            updates.put("phone", phone);
-            if (photoUrl != null) updates.put("profilePictureUrl", photoUrl);
-
-            mDb.collection("users").document(userId).update(updates)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(ProfileActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
-                        btnSave.setEnabled(true);
-                        btnSave.setText("Save Changes");
-                    })
-                    .addOnFailureListener(e -> {
-                        btnSave.setEnabled(true);
-                        btnSave.setText("Save Changes");
-                    });
+        if (name.isEmpty() || email.isEmpty()) {
+            Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
+            btnSave.setEnabled(true);
+            return;
         }
+
+        currentEntrant.setName(name);
+        currentEntrant.setEmail(email);
+        currentEntrant.setPhoneNumber(phone);
+        if (photoUrl != null) {
+            currentEntrant.setProfileImageUrl(photoUrl);
+        }
+
+        entrantDB.updateEntrant(currentEntrant, aVoid -> {
+            Toast.makeText(ProfileActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+            btnSave.setEnabled(true);
+            btnSave.setText("Save Changes");
+            finish();
+        }, e -> {
+            btnSave.setEnabled(true);
+            btnSave.setText("Save Changes");
+            Toast.makeText(ProfileActivity.this, "Update Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 }

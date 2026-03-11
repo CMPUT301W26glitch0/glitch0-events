@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cmput301_app.R;
-import com.example.cmput301_app.models.Event;
+import com.example.cmput301_app.model.Event;
 
 import java.util.List;
 
@@ -37,34 +37,22 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         Event event = eventList.get(position);
-        holder.tvTitle.setText(event.getTitle());
-        holder.tvDescription.setText(event.getDescription());
-        holder.tvId.setText("ID: #" + (event.getIdNumber() != null ? event.getIdNumber() : "0000"));
-        holder.tvApplicants.setText(event.getWaitingListCount() + " / " + event.getMaxSpots() + " applicants");
+        holder.tvTitle.setText(event.getName() != null ? event.getName() : "Untitled Event");
+        holder.tvDescription.setText(event.getDescription() != null ? event.getDescription() : "No description available.");
         
-        String status = event.getStatus();
-        holder.tvBadge.setText(status != null ? status : "Open");
+        // Safer ID handling to prevent crashes
+        String eventId = event.getEventId();
+        String displayId = (eventId != null && eventId.length() >= 4) ? eventId.substring(0, 4) : "0000";
+        holder.tvId.setText("ID: #" + displayId);
         
-        if ("Closing Soon".equals(status)) {
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_orange_bg));
-            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_orange_text));
-        } else if ("Open".equals(status) || status == null) {
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
-            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_green_text));
-        } else if ("High Demand".equals(status)) {
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_purple_bg));
-            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_purple_text));
-        } else if ("Applied".equals(status)) {
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_gray_bg));
-            holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_gray_text));
-            holder.btnJoin.setText("Joined");
-            holder.btnJoin.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_gray_bg));
-            holder.btnJoin.setTextColor(ContextCompat.getColor(context, R.color.gray_text));
-            holder.btnJoin.setEnabled(false);
-        }
+        holder.tvApplicants.setText(event.getWaitingListCount() + " / " + event.getCapacity() + " applicants");
+        
+        String status = "Open"; // Default status
+        holder.tvBadge.setText(status);
+        holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
+        holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_green_text));
 
         holder.btnJoin.setOnClickListener(v -> {
-            // Updated to point to the correct EventDetailsActivity in the entrant package
             Intent intent = new Intent(context, EventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
