@@ -1,6 +1,8 @@
 package com.example.cmput301_app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -17,8 +19,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cmput301_app.entrant.DashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -31,8 +33,11 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDb = FirebaseFirestore.getInstance();
 
-        // Check if user is already logged in (standard Firebase session)
-        if (mAuth.getCurrentUser() != null) {
+        // Check if user is already logged in via standard Auth or Saved Device ID
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String savedUid = prefs.getString("user_uid", null);
+
+        if (mAuth.getCurrentUser() != null || savedUid != null) {
             navigateToDashboard();
             return;
         }
@@ -55,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         Button btnDeviceLogin = findViewById(R.id.btn_device_login);
         TextView tvRegisterLink = findViewById(R.id.tv_register_link);
 
-        // Standard Login
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
@@ -68,8 +72,9 @@ public class MainActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            // Link device ID upon successful manual login
-                            linkDeviceIdToUser(mAuth.getCurrentUser().getUid());
+                            String uid = mAuth.getCurrentUser().getUid();
+                            saveUserLocally(uid);
+                            linkDeviceIdToUser(uid);
                             navigateToDashboard();
                         } else {
                             String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
@@ -78,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        // Device ID Login
         btnDeviceLogin.setOnClickListener(v -> {
             String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             
@@ -87,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // User found with this device ID
-                            // if not you have to login at least once.
+                            DocumentSnapshot userDoc = task.getResult().getDocuments().get(0);
+                            saveUserLocally(userDoc.getId());
                             Toast.makeText(MainActivity.this, "Welcome back!", Toast.LENGTH_SHORT).show();
                             navigateToDashboard();
                         } else {
@@ -100,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
         tvRegisterLink.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, RegisterActivity.class));
         });
+    }
+
+    private void saveUserLocally(String uid) {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        prefs.edit().putString("user_uid", uid).apply();
     }
 
     private void linkDeviceIdToUser(String userId) {
