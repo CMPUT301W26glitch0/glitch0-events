@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Add this line -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -40,6 +39,29 @@
 
         <activity
             android:name=".entrant.EventDetailsActivity"
+            android:exported="false" />
+
+        <!-- Organizer Activities -->
+        <activity
+            android:name=".organizer.OrganizerDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.CreateEventActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.OrganizerEventDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.QRDisplayActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.RegistrationTimingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.EntrantListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.LotteryDrawActivity"
             android:exported="false" />
 
     </application>

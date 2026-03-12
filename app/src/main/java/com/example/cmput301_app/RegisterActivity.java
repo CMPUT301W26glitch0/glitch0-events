@@ -20,17 +20,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cmput301_app.database.EntrantDB;
+import com.example.cmput301_app.database.OrganizerDB;
 import com.example.cmput301_app.entrant.DashboardActivity;
+import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.example.cmput301_app.model.Entrant;
+import com.example.cmput301_app.model.Organizer;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EntrantDB entrantDB;
+    private OrganizerDB organizerDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         entrantDB = new EntrantDB();
+        organizerDB = new OrganizerDB();
 
         View registerMain = findViewById(R.id.register_main);
         if (registerMain != null) {
@@ -87,17 +88,27 @@ public class RegisterActivity extends AppCompatActivity {
                             String firebaseUid = mAuth.getCurrentUser().getUid();
                             String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                             
-                            // Use Entrant model and EntrantDB
-                            Entrant entrant = new Entrant(deviceId, name, email, null);
-                            
-                            entrantDB.createEntrant(entrant, aVoid -> {
-                                saveUserLocally(firebaseUid);
-                                Toast.makeText(RegisterActivity.this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
-                                navigateToDashboard();
-                            }, e -> {
-                                btnRegister.setEnabled(true);
-                                Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            });
+                            if ("Organizer".equals(role)) {
+                                Organizer organizer = new Organizer(deviceId, name, email, null);
+                                organizerDB.createOrganizer(organizer, aVoid -> {
+                                    saveUserLocally(firebaseUid, deviceId);
+                                    Toast.makeText(RegisterActivity.this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
+                                    navigateToDashboard("Organizer");
+                                }, e -> {
+                                    btnRegister.setEnabled(true);
+                                    Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                });
+                            } else {
+                                Entrant entrant = new Entrant(deviceId, name, email, null);
+                                entrantDB.createEntrant(entrant, aVoid -> {
+                                    saveUserLocally(firebaseUid, deviceId);
+                                    Toast.makeText(RegisterActivity.this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
+                                    navigateToDashboard("Entrant");
+                                }, e -> {
+                                    btnRegister.setEnabled(true);
+                                    Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                });
+                            }
                         } else {
                             btnRegister.setEnabled(true);
                             Toast.makeText(RegisterActivity.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
@@ -111,13 +122,22 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void saveUserLocally(String uid) {
+    private void saveUserLocally(String uid, String deviceId) {
         SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        prefs.edit().putString("user_uid", uid).apply();
+        prefs.edit()
+            .putString("user_uid", uid)
+            .putString("user_device_id", deviceId)
+            .putBoolean("is_logged_out", false) // Ensure auto-login works after registration
+            .apply();
     }
 
-    private void navigateToDashboard() {
-        Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+    private void navigateToDashboard(String role) {
+        Intent intent;
+        if ("Organizer".equals(role)) {
+            intent = new Intent(RegisterActivity.this, OrganizerDashboardActivity.class);
+        } else {
+            intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

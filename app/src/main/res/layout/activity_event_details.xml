@@ -48,6 +48,21 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
+            <!-- Edit Button (Organizer Only) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_edit_event"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="Edit"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:icon="@android:drawable/ic_menu_edit"
+                app:iconTint="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <!-- Category Badge -->
             <TextView
                 android:id="@+id/tv_category"
@@ -59,7 +74,7 @@
                 android:backgroundTint="#5D5FEF"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="6dp"
-                android:text="SPORTS &amp; REC"
+                android:text="CATEGORY"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"
@@ -80,25 +95,11 @@
                 app:layout_constraintBottom_toBottomOf="@id/iv_header"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:text="Kids Swimming\nLessons" />
+                tools:text="Event Title" />
 
-            <!-- Favorite FAB -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_favorite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="24dp"
-                android:src="@android:drawable/btn_star"
-                app:backgroundTint="@color/white"
-                app:fabSize="normal"
-                app:layout_constraintBottom_toBottomOf="@id/iv_header"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_header"
-                app:tint="#F04438" />
-
-            <!-- Info Cards -->
+            <!-- Info Cards Row 1: Date and Location -->
             <LinearLayout
-                android:id="@+id/ll_info_cards"
+                android:id="@+id/ll_info_cards_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
@@ -121,19 +122,19 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:src="@android:drawable/ic_menu_today"
                             app:tint="#5D5FEF" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="DATE"
+                            android:layout_marginTop="8dp"
+                            android:text="EVENT DATE"
                             android:textColor="@color/gray_text"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -145,13 +146,13 @@
                             android:layout_marginTop="4dp"
                             android:gravity="center"
                             android:textColor="@color/dark_blue"
-                            android:textSize="14sp"
+                            android:textSize="12sp"
                             android:textStyle="bold"
-                            tools:text="Sat, Oct 24" />
+                            tools:text="Date" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Time Card -->
+                <!-- Location Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -166,33 +167,189 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@android:drawable/ic_menu_recent_history"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_mylocation"
                             app:tint="#5D5FEF" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="TIME"
+                            android:layout_marginTop="8dp"
+                            android:text="LOCATION"
                             android:textColor="@color/gray_text"
                             android:textSize="10sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tv_event_time"
+                            android:id="@+id/tv_event_location"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:gravity="center"
                             android:textColor="@color/dark_blue"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            tools:text="Location" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Info Cards Row 2: Registration Window -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_registration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#F9FAFB"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:layout_constraintTop_toBottomOf="@id/ll_info_cards_1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        app:tint="#5D5FEF" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="REGISTRATION PERIOD"
+                        android:textColor="@color/gray_text"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_reg_open"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="@color/dark_blue"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            tools:text="Open: Date" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="24dp"
+                            android:layout_marginHorizontal="8dp"
+                            android:background="@color/divider_color" />
+
+                        <TextView
+                            android:id="@+id/tv_reg_close"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="@color/dark_blue"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            tools:text="Close: Date" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Info Cards Row 3: Price and Capacity -->
+            <LinearLayout
+                android:id="@+id/ll_info_cards_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp"
+                app:layout_constraintTop_toBottomOf="@id/cv_registration">
+
+                <!-- Price Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="#F9FAFB"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="PRICE"
+                            android:textColor="@color/gray_text"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_event_price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/dark_blue"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            tools:text="10:00 AM -\n11:30 AM" />
+                            tools:text="$0.00" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Capacity Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="#F9FAFB"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CAPACITY"
+                            android:textColor="@color/gray_text"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_event_capacity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/dark_blue"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            tools:text="100" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -209,7 +366,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_info_cards" />
+                app:layout_constraintTop_toBottomOf="@id/ll_info_cards_3" />
 
             <TextView
                 android:id="@+id/tv_event_description"
@@ -224,7 +381,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_about_label"
-                tools:text="Join our community swimming program designed for children ages 6-12. This event uses a fair lottery system due to high demand..." />
+                tools:text="Description" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
@@ -244,30 +401,10 @@
             android:layout_height="wrap_content"
             android:padding="24dp">
 
-            <TextView
-                android:id="@+id/tv_notify_label"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Notify me of\nresults"
-                android:textColor="@color/gray_text"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@id/sw_notify"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/sw_notify"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@id/tv_notify_label"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tv_notify_label" />
-
             <Button
                 android:id="@+id/btn_join_waiting_list"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
-                android:layout_marginTop="20dp"
                 android:backgroundTint="#5D5FEF"
                 android:text="Join Waiting List"
                 android:textAllCaps="false"
@@ -276,7 +413,7 @@
                 android:textStyle="bold"
                 android:visibility="visible"
                 app:cornerRadius="16dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_notify_label" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_disclaimer"
