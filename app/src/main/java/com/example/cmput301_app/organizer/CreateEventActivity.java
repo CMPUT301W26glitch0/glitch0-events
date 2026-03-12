@@ -5,7 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -33,6 +32,7 @@ import com.example.cmput301_app.model.Event;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -56,6 +56,7 @@ public class CreateEventActivity extends AppCompatActivity {
     private EventDB eventDB;
     private OrganizerDB organizerDB;
     private FirebaseStorage storage;
+    private FirebaseAuth mAuth;
     private String existingEventId = null;
     private Event existingEvent = null;
 
@@ -80,6 +81,7 @@ public class CreateEventActivity extends AppCompatActivity {
         eventDB = new EventDB();
         organizerDB = new OrganizerDB();
         storage = FirebaseStorage.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         
         eventCalendar = Calendar.getInstance();
         regOpenCalendar = Calendar.getInstance();
@@ -286,8 +288,8 @@ public class CreateEventActivity extends AppCompatActivity {
         event.setRegistrationClose(new Timestamp(regCloseCalendar.getTime()));
         
         if (existingEvent == null) {
-            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            event.setOrganizerId(deviceId);
+            String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+            event.setOrganizerId(uid);
         }
 
         showLoading(true);
@@ -319,13 +321,13 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void saveEventToFirestore(Event event) {
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        if (event.getOrganizerId() == null) event.setOrganizerId(deviceId);
+        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        if (event.getOrganizerId() == null) event.setOrganizerId(uid);
 
         if (existingEventId == null) {
             eventDB.createEvent(event, savedEvent -> {
                 String orgId = savedEvent.getOrganizerId();
-                if (orgId == null) orgId = deviceId;
+                if (orgId == null) orgId = uid;
                 
                 organizerDB.addOrganizedEvent(orgId, savedEvent.getEventId(), 
                     aVoid -> {
