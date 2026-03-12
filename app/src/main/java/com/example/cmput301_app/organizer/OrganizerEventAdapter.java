@@ -61,13 +61,13 @@ public class OrganizerEventAdapter extends RecyclerView.Adapter<OrganizerEventAd
         holder.btnAction.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.primary_blue));
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, EntrantListActivity.class);
+            Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
 
         holder.btnAction.setOnClickListener(v -> {
-            Intent intent = new Intent(context, EntrantListActivity.class);
+            Intent intent = new Intent(context, OrganizerEventDetailsActivity.class);
             intent.putExtra("eventId", event.getEventId());
             context.startActivity(intent);
         });
