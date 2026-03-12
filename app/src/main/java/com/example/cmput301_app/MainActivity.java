@@ -26,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        String extracted = com.example.cmput301_app.features.QRCodeGenerator.extractEventId("EVENT:event-test-123");
+        android.util.Log.d("QR", "Extracted ID: " + extracted);
         super.onCreate(savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();

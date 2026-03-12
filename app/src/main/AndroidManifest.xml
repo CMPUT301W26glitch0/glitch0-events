@@ -5,6 +5,10 @@
     <!-- Add this line -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Camera Activity -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -41,6 +45,8 @@
         <activity
             android:name=".entrant.EventDetailsActivity"
             android:exported="false" />
+
+
 
     </application>
 
