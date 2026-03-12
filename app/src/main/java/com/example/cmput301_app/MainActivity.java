@@ -71,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            // checks if inputted email address is in proper format
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             btnLogin.setEnabled(false);
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
