@@ -1,6 +1,8 @@
 package com.example.cmput301_app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -16,26 +18,21 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.cmput301_app.entrant.DashboardActivity;
+import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity {
+   // Firebase Authentication and Firestore instances
     private FirebaseAuth mAuth;
     private FirebaseFirestore mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         mAuth = FirebaseAuth.getInstance();
         mDb = FirebaseFirestore.getInstance();
-
-        // Check if user is already logged in (standard Firebase session)
-        if (mAuth.getCurrentUser() != null) {
-            navigateToDashboard();
-            return;
-        }
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -49,13 +46,26 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        initUI();
+
+        // Check for manual logout flag
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        boolean isLoggedOut = prefs.getBoolean("is_logged_out", false);
+
+        // Auto-login only if user didn't manually logout
+        if (!isLoggedOut) {
+            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            checkUserAndNavigate(deviceId, false);
+        }
+    }
+
+    private void initUI() {
         EditText etEmail = findViewById(R.id.et_email);
         EditText etPassword = findViewById(R.id.et_password);
         Button btnLogin = findViewById(R.id.btn_login);
         Button btnDeviceLogin = findViewById(R.id.btn_device_login);
         TextView tvRegisterLink = findViewById(R.id.tv_register_link);
 
-        // Standard Login
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
@@ -68,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            // Link device ID upon successful manual login
-                            linkDeviceIdToUser(mAuth.getCurrentUser().getUid());
-                            navigateToDashboard();
+                            setLoggedOutStatus(false);
+                            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+                            checkUserAndNavigate(deviceId, true);
                         } else {
                             String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
                             Toast.makeText(MainActivity.this, "Login Failed: " + error, Toast.LENGTH_SHORT).show();
@@ -78,23 +88,10 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        // Device ID Login
         btnDeviceLogin.setOnClickListener(v -> {
             String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            
-            mDb.collection("users")
-                    .whereEqualTo("deviceId", deviceId)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            // User found with this device ID
-                            // if not you have to login at least once.
-                            Toast.makeText(MainActivity.this, "Welcome back!", Toast.LENGTH_SHORT).show();
-                            navigateToDashboard();
-                        } else {
-                            Toast.makeText(MainActivity.this, "No account linked to this device. Please log in manually once.", Toast.LENGTH_LONG).show();
-                        }
-                    });
+            setLoggedOutStatus(false);
+            checkUserAndNavigate(deviceId, true);
         });
 
         tvRegisterLink.setOnClickListener(v -> {
@@ -102,13 +99,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void linkDeviceIdToUser(String userId) {
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        mDb.collection("users").document(userId).update("deviceId", deviceId);
+    private void setLoggedOutStatus(boolean status) {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        prefs.edit().putBoolean("is_logged_out", status).apply();
     }
 
-    private void navigateToDashboard() {
-        startActivity(new Intent(MainActivity.this, DashboardActivity.class));
-        finish();
+    private void checkUserAndNavigate(String deviceId, boolean showToastOnFail) {
+        mDb.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String role = documentSnapshot.getString("role");
+                Intent intent;
+                
+
+                if ("organizer".equalsIgnoreCase(role)) {
+                    intent = new Intent(MainActivity.this, OrganizerDashboardActivity.class);
+                } else {
+                    intent = new Intent(MainActivity.this, DashboardActivity.class);
+                }
+                startActivity(intent);
+                finish();
+            } else if (showToastOnFail) {
+                Toast.makeText(this, "No profile found for this device. Please register.", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

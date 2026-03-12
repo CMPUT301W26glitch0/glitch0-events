@@ -96,9 +96,14 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> {
+            // 1. Sign out of Firebase
             mAuth.signOut();
+            
+            // 2. Set logged out status in SharedPreferences
             SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-            prefs.edit().remove("user_uid").apply();
+            prefs.edit().putBoolean("is_logged_out", true).apply();
+            
+            // 3. Redirect to MainActivity
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
