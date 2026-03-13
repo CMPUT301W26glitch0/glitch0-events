@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class handling Organizer-specific Firestore queries.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.Organizer;

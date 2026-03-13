@@ -1,3 +1,8 @@
+/*
+ * Purpose: Handles the deletion of user profiles from the system.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app;
 
 import android.content.Context;

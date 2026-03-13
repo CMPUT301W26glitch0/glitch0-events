@@ -1,3 +1,8 @@
+/*
+ * Purpose: RecyclerView adapter for displaying a list of events to entrants.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Context;

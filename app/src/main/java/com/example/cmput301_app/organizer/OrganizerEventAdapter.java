@@ -1,3 +1,8 @@
+/*
+ * Purpose: RecyclerView adapter for displaying an organizer's created events.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.Context;
