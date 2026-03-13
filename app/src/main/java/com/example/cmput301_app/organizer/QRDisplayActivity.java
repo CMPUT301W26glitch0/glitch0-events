@@ -1,7 +1,19 @@
-/*
- * Purpose: Displays and allows downloading/sharing of the QR code for a specific event.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Displays the QR code for a specific event and allows the organizer to
+ * download or share it.
+ *
+ * The activity receives an {@code eventId} via intent extra, loads the event
+ * from Firestore via EventDB, and generates a QR code bitmap on-device from
+ * the string {@code "event_details:<eventId>"} using the ZXing library.
+ *
+ * The organizer can:
+ *  - Download: saves the QR code to the device gallery under
+ *    {@code Pictures/EventQRCodes/} via the MediaStore API (no permission
+ *    required on API 29+).
+ *  - Share: writes the bitmap to app cache and shares it via the Android
+ *    share sheet using FileProvider.
+ *
+ * Outstanding issues: None.
  */
 package com.example.cmput301_app.organizer;
 

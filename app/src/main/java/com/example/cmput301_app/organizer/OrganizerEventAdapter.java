@@ -1,7 +1,13 @@
-/*
- * Purpose: RecyclerView adapter for displaying an organizer's created events.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * RecyclerView adapter for displaying an organizer's created events on the
+ * OrganizerDashboardActivity.
+ *
+ * Each item uses the shared {@code item_event} layout and shows the event name,
+ * description, applicant count, and a category badge. Both the list item and
+ * the "Manage" button navigate to OrganizerEventDetailsActivity for the
+ * selected event.
+ *
+ * Outstanding issues: None.
  */
 package com.example.cmput301_app.organizer;
 

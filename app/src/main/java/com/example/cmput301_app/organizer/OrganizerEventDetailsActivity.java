@@ -1,7 +1,23 @@
-/*
- * Purpose: Provides detailed management features for an organizer's specific event.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Management screen for a single event owned by the current organizer.
+ *
+ * Loads event data from Firestore via EventDB and displays key info (name,
+ * category, date, location, price, capacity, description, poster, QR code).
+ * Available actions:
+ *  - Edit — opens CreateEventActivity pre-populated with the event's data.
+ *  - Delete — removes the event from Firestore and navigates back.
+ *  - View Entrants — opens EntrantListActivity for this event.
+ *  - Share / Download QR — saves or shares the generated QR code image.
+ *  - Draw Replacement — visible when at least one entrant has DECLINED or
+ *    CANCELLED; picks a random WAITING entrant and marks them as SELECTED.
+ *
+ * The QR code is generated on-device from the event's {@code qrCode} field
+ * using the ZXing library.
+ *
+ * Outstanding issues:
+ * - The replacement draw is client-side and not atomic (see LotteryDrawActivity).
+ * - The Manage Lottery button is present in the layout but navigates to
+ *   LotteryDrawActivity rather than a dedicated per-event lottery manager.
  */
 package com.example.cmput301_app.organizer;
 
@@ -29,7 +45,9 @@ import androidx.core.graphics.Insets;
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.database.NotificationDB;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.model.Notification;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -49,6 +67,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement;
     private String eventId;
     private EventDB eventDB;
+    private NotificationDB notificationDB;
     private Event currentEvent;
     private Bitmap qrBitmap;
     private com.google.firebase.firestore.FirebaseFirestore db;
@@ -60,6 +79,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_organizer_event_details);
 
         eventDB = new EventDB();
+        notificationDB = new NotificationDB();
         db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
 
@@ -283,10 +303,21 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                     db.collection("users").document(userId)
                         .update("registrationHistory", com.google.firebase.firestore.FieldValue.arrayUnion(newRecord))
                         .addOnSuccessListener(aVoid2 -> {
+                            // Notify the chosen entrant
+                            Notification notif = new Notification(
+                                    null,
+                                    eventId,
+                                    userId,
+                                    "Congratulations! You've been selected as a replacement for this event.",
+                                    Notification.NotificationType.LOTTERY_WIN_REDRAW,
+                                    com.google.firebase.Timestamp.now()
+                            );
+                            notif.addRecipient(userId);
+                            notificationDB.createNotification(notif, v -> {}, e -> {});
+
                             runOnUiThread(() -> {
                                 Toast.makeText(this, "Replacement drawn: " + (userName != null ? userName : "Unknown") + " is now Selected!", Toast.LENGTH_LONG).show();
                                 btnDrawReplacement.setEnabled(true);
-                                // A real app would send a push notification to the user's deviceId here
                             });
                         });
                 });

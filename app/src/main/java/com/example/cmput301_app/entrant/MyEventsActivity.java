@@ -1,7 +1,18 @@
-/*
- * Purpose: Shows a list of events an entrant has joined, won, or lost.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Shows the current entrant's personal event history.
+ *
+ * Fetches the user's {@code registrationHistory} array from Firestore via
+ * EntrantDB, then resolves each event document via EventDB. The resolved events
+ * are paired with their lottery outcome and displayed in a RecyclerView backed
+ * by MyEventsAdapter, sorted by event date (most recent first).
+ *
+ * This activity is part of the entrant bottom navigation and is also reachable
+ * from DashboardActivity's "My Events" tab, which duplicates this functionality
+ * inside the tab container.
+ *
+ * Outstanding issues:
+ * - DashboardActivity now hosts the My Events tab inline, making this standalone
+ *   activity potentially redundant. The two implementations should be unified.
  */
 package com.example.cmput301_app.entrant;
 

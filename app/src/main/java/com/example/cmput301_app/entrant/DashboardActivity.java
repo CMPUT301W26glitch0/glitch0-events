@@ -5,12 +5,10 @@
  */
 package com.example.cmput301_app.entrant;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,30 +19,45 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cmput301_app.MainActivity;
 import com.example.cmput301_app.ProfileActivity;
-import com.example.cmput301_app.RegisterActivity;
 import com.example.cmput301_app.R;
-import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.database.EntrantDB;
+import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Dashboard activity for entrants to browse events and scan QR codes
- *
+ * Dashboard activity for entrants to browse events and scan QR codes.
+ * Contains inline Browse and My Events tabs.
  */
 public class DashboardActivity extends AppCompatActivity {
+
     private FirebaseAuth mAuth;
     private EventDB eventDB;
     private EntrantDB entrantDB;
+
+    // Browse tab
     private RecyclerView rvEvents;
-    private EventAdapter adapter;
+    private EventAdapter browseAdapter;
     private List<Event> eventList;
-    private String deviceId;
+
+    // My Events tab
+    private RecyclerView rvMyEvents;
+    private MyEventsAdapter myEventsAdapter;
+    private List<MyEventsAdapter.MyEventItem> myEventItems;
+    private TextView tvEmptyState;
+
+    // Tab views
+    private TextView tvTabBrowse, tvTabMyEvents;
+    private View clBrowseContent, clMyEventsContent;
+
+    private boolean myEventsLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +69,6 @@ public class DashboardActivity extends AppCompatActivity {
         eventDB = new EventDB();
         entrantDB = new EntrantDB();
 
-        // Get device ID
-        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
         View dashboardMain = findViewById(R.id.dashboard_main);
         if (dashboardMain != null) {
             ViewCompat.setOnApplyWindowInsetsListener(dashboardMain, (v, insets) -> {
@@ -68,58 +78,131 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
+        // --- Browse RecyclerView ---
         rvEvents = findViewById(R.id.rv_events);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        
         eventList = new ArrayList<>();
-        adapter = new EventAdapter(eventList, this);
-        rvEvents.setAdapter(adapter);
+        browseAdapter = new EventAdapter(eventList, this);
+        rvEvents.setAdapter(browseAdapter);
 
-        // Setup navigation buttons
-        findViewById(R.id.nav_profile).setOnClickListener(v -> {
-            startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
+        // --- My Events RecyclerView ---
+        rvMyEvents = findViewById(R.id.rv_my_events);
+        rvMyEvents.setLayoutManager(new LinearLayoutManager(this));
+        myEventItems = new ArrayList<>();
+        myEventsAdapter = new MyEventsAdapter(myEventItems, item -> {
+            if (item.event != null && item.event.getEventId() != null) {
+                Intent intent = new Intent(this, EventDetailsActivity.class);
+                intent.putExtra("eventId", item.event.getEventId());
+                startActivity(intent);
+            }
         });
+        rvMyEvents.setAdapter(myEventsAdapter);
+        tvEmptyState = findViewById(R.id.tv_empty_state);
 
-        // Scan QR button
-        findViewById(R.id.nav_scan_qr).setOnClickListener(v -> {
-            checkProfileAndNavigateToScan();
-        });
+        // --- Tab views ---
+        tvTabBrowse = findViewById(R.id.tv_tab_browse);
+        tvTabMyEvents = findViewById(R.id.tv_tab_my_events);
+        clBrowseContent = findViewById(R.id.cl_browse_content);
+        clMyEventsContent = findViewById(R.id.cl_my_events_content);
 
-        findViewById(R.id.nav_my_events).setOnClickListener(v -> {
-            startActivity(new Intent(DashboardActivity.this, MyEventsActivity.class));
-            finish();
-        });
-        loadEvents();
+        tvTabBrowse.setOnClickListener(v -> showTab(false));
+        tvTabMyEvents.setOnClickListener(v -> showTab(true));
+
+        // Start on Browse tab
+        showTab(false);
+
+        // --- Bottom nav ---
+        View navProfile = findViewById(R.id.nav_profile);
+        if (navProfile != null) navProfile.setOnClickListener(v ->
+                startActivity(new Intent(this, ProfileActivity.class)));
+
+        View navScanQr = findViewById(R.id.nav_scan_qr);
+        if (navScanQr != null) navScanQr.setOnClickListener(v ->
+                startActivity(new Intent(this, ScanQRActivity.class)));
+
+        // Events bottom nav = stay on dashboard (already here)
+        View navEvents = findViewById(R.id.nav_events);
+        if (navEvents != null) navEvents.setOnClickListener(v -> showTab(false));
+
+        loadBrowseEvents();
     }
 
-    /**
-     * Checks if user has a profile before allowing navigation to scan screen.
-     * If no profile exists, prompts user to create one.
-     */
-    private void checkProfileAndNavigateToScan() {
-        // Check if user is authenticated
-        if (mAuth.getCurrentUser() != null) {
-            // User is logged in, navigate to scan screen
-            Intent intent = new Intent(this, ScanQRActivity.class);
-            startActivity(intent);
+    /** Toggle between Browse and My Events tabs. */
+    private void showTab(boolean showMyEvents) {
+        if (showMyEvents) {
+            clBrowseContent.setVisibility(View.GONE);
+            clMyEventsContent.setVisibility(View.VISIBLE);
+            tvTabBrowse.setAlpha(0.5f);
+            tvTabMyEvents.setAlpha(1.0f);
+            if (!myEventsLoaded) {
+                myEventsLoaded = true;
+                loadMyEvents();
+            }
         } else {
-            // No profile, prompt to create one
-            Toast.makeText(this, "Please create a profile first", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(this, RegisterActivity.class);
-            startActivity(intent);
+            clBrowseContent.setVisibility(View.VISIBLE);
+            clMyEventsContent.setVisibility(View.GONE);
+            tvTabBrowse.setAlpha(1.0f);
+            tvTabMyEvents.setAlpha(0.5f);
         }
     }
 
+    /** Resolves the current user's UID: Firebase Auth first, then SharedPreferences fallback. */
+    private String resolveUid() {
+        if (mAuth.getCurrentUser() != null) return mAuth.getCurrentUser().getUid();
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+    }
 
-    private void loadEvents() {
+    private void loadBrowseEvents() {
         eventDB.getAllEvents(events -> {
             eventList.clear();
             eventList.addAll(events);
-            adapter.notifyDataSetChanged();
-        }, e -> {
-            Toast.makeText(DashboardActivity.this,
-                    "Error loading events: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        });
+            browseAdapter.notifyDataSetChanged();
+        }, e -> Toast.makeText(this, "Error loading events: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void loadMyEvents() {
+        String uid = resolveUid();
+        if (uid == null) {
+            if (tvEmptyState != null) tvEmptyState.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        entrantDB.getEntrant(uid, entrant -> {
+            if (entrant == null || entrant.getRegistrationHistory() == null
+                    || entrant.getRegistrationHistory().isEmpty()) {
+                if (tvEmptyState != null) {
+                    tvEmptyState.setVisibility(View.VISIBLE);
+                    rvMyEvents.setVisibility(View.GONE);
+                }
+                return;
+            }
+
+            List<Entrant.RegistrationRecord> history = entrant.getRegistrationHistory();
+            List<MyEventsAdapter.MyEventItem> items = new ArrayList<>();
+            int[] completed = {0};
+            int total = history.size();
+
+            for (Entrant.RegistrationRecord record : history) {
+                eventDB.getEvent(record.getEventId(), event -> {
+                    if (event != null) {
+                        items.add(new MyEventsAdapter.MyEventItem(event, record.getOutcome()));
+                    }
+                    completed[0]++;
+                    if (completed[0] == total) {
+                        Collections.sort(items, (a, b) -> {
+                            if (a.event.getDate() == null || b.event.getDate() == null) return 0;
+                            return b.event.getDate().compareTo(a.event.getDate());
+                        });
+                        myEventItems.clear();
+                        myEventItems.addAll(items);
+                        myEventsAdapter.notifyDataSetChanged();
+                        if (tvEmptyState != null) {
+                            tvEmptyState.setVisibility(myEventItems.isEmpty() ? View.VISIBLE : View.GONE);
+                            rvMyEvents.setVisibility(myEventItems.isEmpty() ? View.GONE : View.VISIBLE);
+                        }
+                    }
+                }, e -> completed[0]++);
+            }
+        }, e -> Toast.makeText(this, "Error loading your events: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

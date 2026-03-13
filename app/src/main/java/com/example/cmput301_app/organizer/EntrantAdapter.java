@@ -1,7 +1,18 @@
-/*
- * Purpose: RecyclerView adapter for displaying the list of entrants to an organizer.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * RecyclerView adapter for displaying the list of entrants in the organizer's
+ * EntrantListActivity.
+ *
+ * Each row shows the entrant's name, a generated initials avatar, and a
+ * colour-coded status pill badge derived from the entrant's {@code status}
+ * field (ACCEPTED, DECLINED, AWAITING RESPONSE, WAITING, NOT SELECTED, etc.).
+ *
+ * The {@code tvInfo} field is reused to display contextual text such as a
+ * join timestamp or a status sub-label, populated by EntrantListActivity
+ * before the entrant is added to the adapter's list.
+ *
+ * Outstanding issues:
+ * - There is no click listener wired up; tapping an entrant row does nothing.
+ *   A future version should allow the organizer to view the entrant's profile.
  */
 package com.example.cmput301_app.organizer;
 

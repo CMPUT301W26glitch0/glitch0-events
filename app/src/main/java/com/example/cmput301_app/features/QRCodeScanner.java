@@ -1,7 +1,20 @@
-/*
- * Purpose: Utility feature class encapsulating QR code scanning logic.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Stateless utility class providing helpers for QR code scanning with the ZXing library.
+ *
+ * Responsibilities:
+ *  - Creating a pre-configured {@code ActivityResultLauncher} via {@link #createScanner}
+ *  - Launching the scanner UI via {@link #scan}
+ *  - Validating and parsing QR content via {@link #isValidEventQR} and
+ *    {@link #extractEventId}
+ *
+ * Expected QR format: {@code "event_details:<eventId>"}
+ *
+ * The {@link ScanCallback} interface allows Activities to receive scan results
+ * without hard-wiring the result-handling inside the launcher setup.
+ *
+ * Outstanding issues:
+ * - ZXing({@code journeyapps/barcodescanner}) may conflict with the ML Kit scanner
+ *   used by ScanQRActivity. Only one scanning library should be kept long-term.
  */
 package com.example.cmput301_app.features;
 

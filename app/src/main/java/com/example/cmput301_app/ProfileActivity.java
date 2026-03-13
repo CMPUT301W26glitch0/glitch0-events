@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.util.Patterns;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -112,44 +113,64 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private String getCurrentUid() {
-        if (mAuth.getCurrentUser() == null) return null;
-        return mAuth.getCurrentUser().getUid();
+    /** Resolves the current user's Firestore document ID.
+     *  1st priority: Firebase Auth UID (email/password login)
+     *  2nd priority: Firestore query by deviceId == ANDROID_ID (device login)
+     *  If neither resolves, the callback receives null and the caller should call logout().
+     */
+    private void resolveUid(java.util.function.Consumer<String> callback) {
+        if (mAuth.getCurrentUser() != null) {
+            callback.accept(mAuth.getCurrentUser().getUid());
+            return;
+        }
+        String androidId = android.provider.Settings.Secure.getString(
+                getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        db.collection("users")
+                .whereEqualTo("deviceId", androidId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.isEmpty()) {
+                        callback.accept(snap.getDocuments().get(0).getId());
+                    } else {
+                        callback.accept(null);
+                    }
+                })
+                .addOnFailureListener(e -> callback.accept(null));
     }
 
     private void loadUserData() {
-        String uid = getCurrentUid();
-        if (uid == null) { logout(); return; }
+        resolveUid(uid -> {
+            if (uid == null) { logout(); return; }
+            db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    userRole = documentSnapshot.getString("role");
+                    etName.setText(documentSnapshot.getString("name"));
+                    etEmail.setText(documentSnapshot.getString("email"));
+                    etPhone.setText(documentSnapshot.getString("phoneNumber"));
 
-        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                userRole = documentSnapshot.getString("role");
-                etName.setText(documentSnapshot.getString("name"));
-                etEmail.setText(documentSnapshot.getString("email"));
-                etPhone.setText(documentSnapshot.getString("phoneNumber"));
-                
-                String photoUrl = documentSnapshot.getString("profileImageUrl");
-                if (photoUrl != null && !photoUrl.isEmpty()) {
-                    Glide.with(this).load(photoUrl).circleCrop().into(ivProfile);
+                    String photoUrl = documentSnapshot.getString("profileImageUrl");
+                    if (photoUrl != null && !photoUrl.isEmpty()) {
+                        Glide.with(this).load(photoUrl).circleCrop().into(ivProfile);
+                    }
                 }
-            }
+            });
         });
     }
 
     private void uploadImageAndSaveProfile() {
-        String uid = getCurrentUid();
-        if (uid == null) { logout(); return; }
-        StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + uid + ".jpg");
-
-        btnSave.setEnabled(false);
-        btnSave.setText("Uploading...");
-
-        storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> 
-            storageRef.getDownloadUrl().addOnSuccessListener(uri -> saveChanges(uri.toString()))
-        ).addOnFailureListener(e -> {
-            btnSave.setEnabled(true);
-            btnSave.setText("Save Changes");
-            Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
+        resolveUid(uid -> {
+            if (uid == null) { logout(); return; }
+            StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + uid + ".jpg");
+            btnSave.setEnabled(false);
+            btnSave.setText("Uploading...");
+            storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
+                storageRef.getDownloadUrl().addOnSuccessListener(uri -> saveChanges(uri.toString()))
+            ).addOnFailureListener(e -> {
+                btnSave.setEnabled(true);
+                btnSave.setText("Save Changes");
+                Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
+            });
         });
     }
 
@@ -157,22 +178,27 @@ public class ProfileActivity extends AppCompatActivity {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
-        String uid = getCurrentUid();
 
         if (name.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (uid == null) { logout(); return; }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        db.collection("users").document(uid).update(
-                "name", name,
-                "email", email,
-                "phoneNumber", phone,
-                "profileImageUrl", photoUrl != null ? photoUrl : ""
-        ).addOnSuccessListener(aVoid -> {
-            Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
-            finish();
+        resolveUid(uid -> {
+            if (uid == null) { logout(); return; }
+            db.collection("users").document(uid).update(
+                    "name", name,
+                    "email", email,
+                    "phoneNumber", phone,
+                    "profileImageUrl", photoUrl != null ? photoUrl : ""
+            ).addOnSuccessListener(aVoid -> {
+                Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                finish();
+            });
         });
     }
 

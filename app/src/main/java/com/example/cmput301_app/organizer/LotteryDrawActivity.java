@@ -1,7 +1,23 @@
-/*
- * Purpose: Allows organizers to execute the lottery selection for their event.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Allows the event organizer to run the lottery selection for their event.
+ *
+ * The organizer selects the number of winners using +/- controls, then taps
+ * "Draw Winners". The lottery algorithm:
+ *  1. Fetches the event's {@code waitingListIds} from Firestore.
+ *  2. Shuffles the list randomly.
+ *  3. Assigns {@code SELECTED} outcome to the first N entrants (winners) and
+ *     {@code NOT_SELECTED} to the rest (losers).
+ *  4. Sends an in-app notification to each loser via NotificationDB (respecting
+ *     the user's notification preference).
+ *  5. Posts a local Android notification on the device for each loss.
+ *  6. Saves the LotteryPool results to LotteryDB.
+ *
+ * Outstanding issues:
+ * - The lottery runs entirely on the client. Concurrent draws from multiple
+ *   organizer devices are not prevented; a Cloud Function is the correct solution.
+ * - {@code totalEntrants} is pre-loaded from the event document and used as a
+ *   mock for the sample-rate display; it should be derived live from
+ *   {@code waitingListIds.size()} at draw time.
  */
 package com.example.cmput301_app.organizer;
 
