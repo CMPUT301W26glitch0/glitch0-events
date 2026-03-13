@@ -22,6 +22,8 @@ import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.example.cmput301_app.entrant.NotificationHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +39,15 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
+        NotificationHelper.createNotificationChannel(this);
+
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean notificationsEnabled = prefs.getBoolean("notificationsEnabled", true);
+
+        if (notificationsEnabled) {
+            NotificationHelper.requestNotificationPermissionAndShowDemo(this, "Demo Event");
+        }
 
         mAuth = FirebaseAuth.getInstance();
         eventDB = new EventDB();
@@ -76,5 +87,11 @@ public class DashboardActivity extends AppCompatActivity {
         }, e -> {
             Toast.makeText(DashboardActivity.this, "Error loading events: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        NotificationHelper.handlePermissionResult(this, requestCode, grantResults, "Demo Event");
     }
 }

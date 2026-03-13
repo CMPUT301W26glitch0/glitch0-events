@@ -3,6 +3,7 @@ package com.example.cmput301_app.database;
 import com.example.cmput301_app.model.Entrant;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -252,16 +253,16 @@ public class EntrantDB {
 
 
     // -------------------------------------------------------------------------
-    // US 02.06.01 As an organizer I want to view a list of all chosen entrants who are invited to apply.
+    // US 02.06.01 list of all chosen entrants who are invited to apply.
     // -------------------------------------------------------------------------
 
     // represents information of an invited entrant
     public static class InvitedEntrantInfo {
         private final String entrantId;
         private final String name;
-        private final Object selectedAt;
+        private final Timestamp selectedAt;
 
-        public InvitedEntrantInfo(String entrantId, String name, Object selectedAt) {
+        public InvitedEntrantInfo(String entrantId, String name, Timestamp selectedAt) {
             this.entrantId = entrantId;
             this.name = name;
             this.selectedAt = selectedAt;
@@ -269,11 +270,64 @@ public class EntrantDB {
 
         public String getEntrantId() { return entrantId; }
         public String getName() { return name; }
-        public Object getSelectedAt() { return selectedAt; }
+        public Timestamp getSelectedAt() { return selectedAt; }
     }
 
-    // listener for list of invited entrants
     public interface InvitedEntrantsListener {
         void onChanged(List<InvitedEntrantInfo> invitedEntrants);
+    }
+
+    public ListenerRegistration listenForInvitedEntrants(
+            String eventId,
+            InvitedEntrantsListener listener,
+            OnFailureListener failureListener) {
+
+        return db.collection("users")
+                .whereEqualTo("role", "entrant")
+                .addSnapshotListener((snapshots, error) -> {
+
+                    if (error != null) {
+                        if (failureListener != null) {
+                            failureListener.onFailure(error);
+                        }
+                        return;
+                    }
+
+                    List<InvitedEntrantInfo> invited = new ArrayList<>();
+
+                    if (snapshots == null) {
+                        listener.onChanged(invited);
+                        return;
+                    }
+
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+
+                        String name = doc.getString("name");
+
+                        List<Map<String, Object>> history =
+                                (List<Map<String, Object>>) doc.get("registrationHistory");
+
+                        if (history == null) continue;
+
+                        for (Map<String, Object> record : history) {
+
+                            String recordEventId = (String) record.get("eventId");
+                            String outcome = (String) record.get("outcome");
+
+                            if (eventId.equals(recordEventId) && "SELECTED".equals(outcome)) {
+
+                                invited.add(new InvitedEntrantInfo(
+                                        doc.getId(),
+                                        name,
+                                        (Timestamp) record.get("selectedAt")
+                                ));
+
+                                break;
+                            }
+                        }
+                    }
+
+                    listener.onChanged(invited);
+                });
     }
 }
