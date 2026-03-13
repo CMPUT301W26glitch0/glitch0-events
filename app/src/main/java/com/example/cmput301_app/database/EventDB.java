@@ -9,6 +9,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -164,6 +165,30 @@ public class EventDB {
                         successListener.onSuccess(null);
                     }
                 })
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Adds a deviceId to the event's waitingListIds array in Firestore.
+     * Also increments the waitingListCount field.
+     * Uses Firestore's ArrayUnion to safely add without duplicates.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant joining the waiting list
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void addToWaitingList(String eventId, String deviceId,
+                                 OnSuccessListener<Void> successListener,
+                                 OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("waitingListIds", com.google.firebase.firestore.FieldValue.arrayUnion(deviceId));
+        updates.put("waitingListCount", com.google.firebase.firestore.FieldValue.increment(1));
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }
 }

@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cmput301_app.MainActivity;
 import com.example.cmput301_app.ProfileActivity;
 import com.example.cmput301_app.RegisterActivity;
 import com.example.cmput301_app.R;
@@ -64,7 +65,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         rvEvents = findViewById(R.id.rv_events);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
-
+        
         eventList = new ArrayList<>();
         adapter = new EventAdapter(eventList, this);
         rvEvents.setAdapter(adapter);
@@ -78,7 +79,10 @@ public class DashboardActivity extends AppCompatActivity {
         findViewById(R.id.nav_scan_qr).setOnClickListener(v -> {
             checkProfileAndNavigateToScan();
         });
-
+        findViewById(R.id.nav_my_events).setOnClickListener(v -> {
+            startActivity(new Intent(DashboardActivity.this, MyEventsActivity.class));
+            finish();
+        });
         loadEvents();
     }
 

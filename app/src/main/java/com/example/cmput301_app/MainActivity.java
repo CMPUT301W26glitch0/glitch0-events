@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
@@ -69,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // checks if inputted email address is in proper format
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
             }
 
