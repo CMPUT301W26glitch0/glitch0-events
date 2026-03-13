@@ -1,10 +1,7 @@
 package com.example.cmput301_app;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -58,8 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
         Button btnRegister = findViewById(R.id.btn_register);
         TextView tvLoginLink = findViewById(R.id.tv_login_link);
 
-        // Setup Role Spinner
-        String[] roles = {"Entrant", "Organizer", "Admin"};
+        String[] roles = {"Entrant", "Organizer"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         if (spinnerRole != null) spinnerRole.setAdapter(adapter);
@@ -71,72 +67,71 @@ public class RegisterActivity extends AppCompatActivity {
             String role = spinnerRole != null ? spinnerRole.getSelectedItem().toString() : "Entrant";
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // checks if inputted email address is in proper format
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (password.length() < 6) {
-                Toast.makeText(RegisterActivity.this, "Password should be at least 6 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             btnRegister.setEnabled(false);
 
+            // Sign out any previous session before creating a new account
+            mAuth.signOut();
+
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            String firebaseUid = mAuth.getCurrentUser().getUid();
-                            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-                            
+                            // Use Firebase Auth UID as the Firestore document key
+                            String uid = mAuth.getCurrentUser().getUid();
+
                             if ("Organizer".equals(role)) {
-                                Organizer organizer = new Organizer(deviceId, name, email, null);
+                                Organizer organizer = new Organizer(uid, name, email, null);
                                 organizerDB.createOrganizer(organizer, aVoid -> {
-                                    saveUserLocally(firebaseUid, deviceId);
-                                    Toast.makeText(RegisterActivity.this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
                                     navigateToDashboard("Organizer");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             } else {
-                                Entrant entrant = new Entrant(deviceId, name, email, null);
+                                Entrant entrant = new Entrant(uid, name, email, null);
                                 entrantDB.createEntrant(entrant, aVoid -> {
-                                    saveUserLocally(firebaseUid, deviceId);
-                                    Toast.makeText(RegisterActivity.this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
                                     navigateToDashboard("Entrant");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             }
                         } else {
                             btnRegister.setEnabled(true);
-                            Toast.makeText(RegisterActivity.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            String msg = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                            Toast.makeText(this, "Registration Failed: " + msg, Toast.LENGTH_LONG).show();
                         }
                     });
         });
 
         tvLoginLink.setOnClickListener(v -> {
-            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         });
-    }
-
-    private void saveUserLocally(String uid, String deviceId) {
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        prefs.edit()
-            .putString("user_uid", uid)
-            .putString("user_device_id", deviceId)
-            .putBoolean("is_logged_out", false) // Ensure auto-login works after registration
-            .apply();
     }
 
     private void navigateToDashboard(String role) {
         Intent intent;
         if ("Organizer".equals(role)) {
-            intent = new Intent(RegisterActivity.this, OrganizerDashboardActivity.class);
+            intent = new Intent(this, OrganizerDashboardActivity.class);
         } else {
-            intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+            intent = new Intent(this, DashboardActivity.class);
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

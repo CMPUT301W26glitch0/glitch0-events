@@ -32,6 +32,10 @@
             android:name=".ProfileActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".DeleteProfileActivity"
+            android:exported="false" />
+
         <!-- Entrant Activities -->
         <activity
             android:name=".entrant.DashboardActivity"

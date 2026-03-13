@@ -267,6 +267,7 @@
 
             <!-- Registration Window -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_reg_window"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
@@ -311,7 +312,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gl_info" />
+                app:layout_constraintTop_toBottomOf="@id/cv_reg_window" />
 
             <TextView
                 android:id="@+id/tv_org_description"

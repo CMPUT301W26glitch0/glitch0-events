@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,17 +19,18 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.cmput301_app.entrant.DashboardActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
-   // Firebase Authentication and Firestore instances
+
     private FirebaseAuth mAuth;
     private FirebaseFirestore mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         mAuth = FirebaseAuth.getInstance();
         mDb = FirebaseFirestore.getInstance();
 
@@ -48,14 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
 
-        // Check for manual logout flag
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        boolean isLoggedOut = prefs.getBoolean("is_logged_out", false);
-
-        // Auto-login only if user didn't manually logout
-        if (!isLoggedOut) {
-            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            checkUserAndNavigate(deviceId, false);
+        // Auto-login: if Firebase still has an active session, skip the login screen
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            checkUserAndNavigate(currentUser.getUid());
         }
     }
 
@@ -71,56 +67,64 @@ public class MainActivity extends AppCompatActivity {
             String password = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // checks if inputted email address is in proper format
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            btnLogin.setEnabled(false);
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
+                        btnLogin.setEnabled(true);
                         if (task.isSuccessful()) {
-                            setLoggedOutStatus(false);
-                            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-                            checkUserAndNavigate(deviceId, true);
+                            String uid = mAuth.getCurrentUser().getUid();
+                            checkUserAndNavigate(uid);
                         } else {
                             String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                            Toast.makeText(MainActivity.this, "Login Failed: " + error, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Login Failed: " + error, Toast.LENGTH_SHORT).show();
                         }
                     });
         });
 
-        btnDeviceLogin.setOnClickListener(v -> {
-            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-            setLoggedOutStatus(false);
-            checkUserAndNavigate(deviceId, true);
-        });
-
-        tvRegisterLink.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, RegisterActivity.class));
-        });
-    }
-
-    private void setLoggedOutStatus(boolean status) {
-        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-        prefs.edit().putBoolean("is_logged_out", status).apply();
-    }
-
-    private void checkUserAndNavigate(String deviceId, boolean showToastOnFail) {
-        mDb.collection("users").document(deviceId).get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                String role = documentSnapshot.getString("role");
-                Intent intent;
-                
-
-                if ("organizer".equalsIgnoreCase(role)) {
-                    intent = new Intent(MainActivity.this, OrganizerDashboardActivity.class);
+        // Device login now just acts as a shortcut if the user is already signed in
+        if (btnDeviceLogin != null) {
+            btnDeviceLogin.setOnClickListener(v -> {
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    checkUserAndNavigate(user.getUid());
                 } else {
-                    intent = new Intent(MainActivity.this, DashboardActivity.class);
+                    Toast.makeText(this, "Please log in with your email and password.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        tvRegisterLink.setOnClickListener(v ->
+                startActivity(new Intent(MainActivity.this, RegisterActivity.class)));
+    }
+
+    private void checkUserAndNavigate(String uid) {
+        mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                String role = doc.getString("role");
+                Intent intent;
+                if ("organizer".equalsIgnoreCase(role)) {
+                    intent = new Intent(this, OrganizerDashboardActivity.class);
+                } else {
+                    intent = new Intent(this, DashboardActivity.class);
                 }
                 startActivity(intent);
                 finish();
-            } else if (showToastOnFail) {
-                Toast.makeText(this, "No profile found for this device. Please register.", Toast.LENGTH_LONG).show();
+            } else {
+                // Signed in to Firebase Auth but no Firestore profile — send to register
+                mAuth.signOut();
+                Toast.makeText(this, "No profile found. Please register.", Toast.LENGTH_LONG).show();
             }
-        });
+        }).addOnFailureListener(e ->
+                Toast.makeText(this, "Error loading profile. Check your connection.", Toast.LENGTH_SHORT).show());
     }
 }

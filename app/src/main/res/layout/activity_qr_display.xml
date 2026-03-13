@@ -21,6 +21,7 @@
             app:tint="@color/primary_blue" />
 
         <TextView
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -105,21 +106,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="SWIM-2024-LOTTERY"
                         android:textColor="@color/dark_blue"
                         android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="EVENT-ID-HERE" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <TextView
+                android:id="@+id/tv_qr_event_id_secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="ID: SWIM-2024-LOTTERY"
                 android:textColor="@color/gray_text"
                 android:textSize="12sp"
-                android:alpha="0.6" />
+                android:alpha="0.6"
+                tools:text="ID: EVENT-ID-HERE" />
 
             <Button
                 android:id="@+id/btn_download_qr"
