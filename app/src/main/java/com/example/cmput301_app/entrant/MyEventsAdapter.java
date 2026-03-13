@@ -21,10 +21,16 @@ import java.util.Locale;
 
 public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEventViewHolder> {
 
-    private List<MyEventItem> items;
+    public interface OnItemClickListener {
+        void onItemClick(MyEventItem item);
+    }
 
-    public MyEventsAdapter(List<MyEventItem> items) {
+    private List<MyEventItem> items;
+    private OnItemClickListener listener;
+
+    public MyEventsAdapter(List<MyEventItem> items, OnItemClickListener listener) {
         this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
@@ -42,6 +48,10 @@ public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEven
 
         // set event name
         holder.tvTitle.setText(item.event.getName() != null ? item.event.getName() : "Untitled Event");
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onItemClick(item);
+        });
 
         // set event date
         if (item.event.getDate() != null) {
