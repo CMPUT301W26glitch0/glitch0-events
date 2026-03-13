@@ -1,3 +1,8 @@
+/*
+ * Purpose: Handles new user registration and account creation.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app;
 
 import android.content.Intent;

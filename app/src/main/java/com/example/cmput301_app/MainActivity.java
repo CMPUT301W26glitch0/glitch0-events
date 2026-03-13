@@ -1,3 +1,8 @@
+/*
+ * Purpose: Main entry point of the application, routing users to their respective dashboards based on roles.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app;
 
 import android.content.Context;

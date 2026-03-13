@@ -41,6 +41,13 @@ public class Entrant extends Profile {
      */
     private boolean notificationsEnabled;
 
+    /**
+     * Transient/UI property - not saved to Firestore Entrant documents.
+     * Used for explicitly rendering UI status badges.
+     */
+    private String status;
+
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -193,6 +200,22 @@ public class Entrant extends Profile {
         this.notificationsEnabled = notificationsEnabled;
     }
 
+    /**
+     * Returns the transient UI status of this entrant for list rendering.
+     */
+    @com.google.firebase.firestore.Exclude
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * Sets the transient UI status of this entrant for list rendering.
+     */
+    @com.google.firebase.firestore.Exclude
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     // -------------------------------------------------------------------------
     // Inner Class
     // -------------------------------------------------------------------------
@@ -227,6 +250,9 @@ public class Entrant extends Profile {
         /** The outcome of this registration entry */
         private Outcome outcome;
 
+        /** Server timestamp of when this record was created/updated (nullable) */
+        private com.google.firebase.Timestamp timestamp;
+
         /**
          * Default no-argument constructor required for Firebase deserialization.
          */
@@ -234,13 +260,11 @@ public class Entrant extends Profile {
 
         /**
          * Constructs a RegistrationRecord with the given event ID and outcome.
-         *
-         * @param eventId the ID of the event
-         * @param outcome the outcome of this registration
          */
         public RegistrationRecord(String eventId, Outcome outcome) {
             this.eventId = eventId;
             this.outcome = outcome;
+            this.timestamp = com.google.firebase.Timestamp.now();
         }
 
         /**
@@ -277,6 +301,14 @@ public class Entrant extends Profile {
          */
         public void setOutcome(Outcome outcome) {
             this.outcome = outcome;
+        }
+
+        public com.google.firebase.Timestamp getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(com.google.firebase.Timestamp timestamp) {
+            this.timestamp = timestamp;
         }
     }
 }

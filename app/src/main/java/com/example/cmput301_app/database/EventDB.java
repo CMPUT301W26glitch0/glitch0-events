@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class to manage Event data within Firestore.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import android.util.Log;
@@ -33,7 +38,7 @@ public class EventDB {
         DocumentReference docRef = db.collection(COLLECTION).document();
         String generatedId = docRef.getId();
         event.setEventId(generatedId);
-        
+
         // Generate the unique promotional QR code link
         String qrData = "event_details:" + generatedId;
         event.setQrCode(qrData);
@@ -104,6 +109,7 @@ public class EventDB {
         data.put("geolocationEnabled", event.isGeolocationEnabled());
         data.put("waitingListLimit", event.getWaitingListLimit());
         data.put("waitingListIds", event.getWaitingListIds());
+        data.put("confirmedAttendeesIds", event.getConfirmedAttendeesIds());
         return data;
     }
 
@@ -188,6 +194,49 @@ public class EventDB {
         db.collection(COLLECTION)
                 .document(eventId)
                 .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+    /**
+     * Removes a deviceId from the event's waitingListIds array in Firestore.
+     * Also decrements the waitingListCount field.
+     * Uses Firestore's ArrayRemove to safely remove the deviceId.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant leaving the waiting list
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void removeFromWaitingList(String eventId, String deviceId,
+                                      OnSuccessListener<Void> successListener,
+                                      OnFailureListener failureListener) {
+        java.util.Map<String, Object> updates = new java.util.HashMap<>();
+        updates.put("waitingListIds", com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+        updates.put("waitingListCount", com.google.firebase.firestore.FieldValue.increment(-1));
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Atomically adds a given device ID to an event's confirmed attendees list in Firestore.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant who accepted
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void addToConfirmedAttendees(String eventId, String deviceId,
+                                        OnSuccessListener<Void> successListener,
+                                        OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("confirmedAttendeesIds", com.google.firebase.firestore.FieldValue.arrayUnion(deviceId))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }
