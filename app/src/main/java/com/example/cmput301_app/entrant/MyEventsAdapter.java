@@ -1,3 +1,8 @@
+/*
+ * Purpose: RecyclerView adapter for displaying an entrant's personal event history.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Context;

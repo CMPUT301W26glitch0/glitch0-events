@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class for Admin-specific queries and operations.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.Event;

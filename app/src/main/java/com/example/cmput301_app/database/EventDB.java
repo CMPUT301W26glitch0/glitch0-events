@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class to manage Event data within Firestore.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import android.util.Log;

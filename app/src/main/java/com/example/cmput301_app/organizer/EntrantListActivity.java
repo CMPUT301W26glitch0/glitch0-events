@@ -1,3 +1,8 @@
+/*
+ * Purpose: Displays the unified waitlist and accepted entrants for a specific event.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.Intent;

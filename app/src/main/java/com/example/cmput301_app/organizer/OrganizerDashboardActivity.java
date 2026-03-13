@@ -1,3 +1,8 @@
+/*
+ * Purpose: Main dashboard for the Organizer role, displaying their created events.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.Intent;
