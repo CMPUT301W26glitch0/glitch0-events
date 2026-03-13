@@ -52,9 +52,10 @@ public class NotificationHelper {
         }
     }
 
-    public static void showLotteryWinNotification(Context context, String eventName) {
-        Intent intent = new Intent(context, com.example.cmput301_app.entrant.DashboardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    public static void showLotteryWinNotification(Context context, String eventName, String eventId) {
+        Intent intent = new Intent(context, com.example.cmput301_app.entrant.EventDetailsActivity.class);
+        intent.putExtra("eventId", eventId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
@@ -91,16 +92,17 @@ public class NotificationHelper {
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showLotteryWinNotification(activity, eventName);
-            } else {
+                showLotteryWinNotification(activity, eventName, "");            }
+            else {
                 Toast.makeText(activity, "Notification permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    public static void showLotteryLossNotification(Context context, String eventName) {
-        Intent intent = new Intent(context, com.example.cmput301_app.entrant.DashboardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    public static void showLotteryLossNotification(Context context, String eventName, String eventId) {
+        Intent intent = new Intent(context, com.example.cmput301_app.entrant.EventDetailsActivity.class);
+        intent.putExtra("eventId", eventId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,

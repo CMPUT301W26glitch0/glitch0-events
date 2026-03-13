@@ -143,27 +143,32 @@ public class LotteryDrawActivity extends AppCompatActivity {
                 });
     }
 
-    private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String eventName) {
+    private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db,
+                                              String userId,
+                                              String evId,
+                                              String eventName) {
         db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
             Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
             if (notificationsEnabled != null && !notificationsEnabled) {
-                // Opted out
                 return;
             }
 
-            // Create notification record in Firestore
-            com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
-            com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
-                    "", evId, com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
-                    "You were not selected in the current draw. You may still be selected if a chosen entrant declines.",
-                    com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_LOSS,
-                    com.google.firebase.Timestamp.now()
-            );
+            com.example.cmput301_app.database.NotificationDB notifDB =
+                    new com.example.cmput301_app.database.NotificationDB();
+
+            com.example.cmput301_app.model.Notification n =
+                    new com.example.cmput301_app.model.Notification(
+                            "",
+                            evId,
+                            com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
+                            "You were not selected for " + eventName + " in the current draw. You may still be selected if a chosen entrant declines.",
+                            com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_LOSS,
+                            com.google.firebase.Timestamp.now()
+                    );
+
             n.addRecipient(userId);
-            
+
             notifDB.createNotification(n, savedNotif -> {
-                // Trigger local device notification if matching user or as a simulation
-                triggerLocalNotification(evId, eventName);
             }, e -> {});
         });
     }
@@ -197,50 +202,8 @@ public class LotteryDrawActivity extends AppCompatActivity {
             n.addRecipient(userId);
 
             notifDB.createNotification(n, savedNotif -> {
-
-                // trigger local notification popup
-                com.example.cmput301_app.entrant.NotificationHelper
-                        .showLotteryWinNotification(this, eventName);
-
             }, e -> {});
         });
-    }
-
-    private void triggerLocalNotification(String evId, String eventName) {
-        // Create intent to open Event Details
-        android.content.Intent intent = new android.content.Intent(this, com.example.cmput301_app.entrant.EventDetailsActivity.class);
-        intent.putExtra("eventId", evId);
-        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        
-        android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
-                this, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
-                
-        // Ensure channel exists
-        android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            android.app.NotificationChannel channel = new android.app.NotificationChannel(
-                    "lottery_results", "Lottery Results", android.app.NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        // Check permission for Android 13+
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                return; // cannot post
-            }
-        }
-
-        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "lottery_results")
-                .setSmallIcon(android.R.drawable.ic_dialog_info) // Ensure valid icon or fallback
-                .setContentTitle("Lottery Results: " + (eventName != null ? eventName : "Event"))
-                .setContentText("You were not selected in the current draw. You may still be selected if a chosen entrant declines.")
-                .setStyle(new androidx.core.app.NotificationCompat.BigTextStyle()
-                        .bigText("You were not selected in the current draw. You may still be selected if a chosen entrant declines."))
-                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
     }
 
     private void loadEventData() {
