@@ -27,6 +27,8 @@ public class NotificationHelper {
 
     private static final int LOTTERY_NOTIFICATION_ID = 1001;
 
+    private static final int LOTTERY_LOSS_NOTIFICATION_ID = 1002;
+
 
     public static void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -82,7 +84,7 @@ public class NotificationHelper {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Lottery Complete")
+                .setContentTitle("Lottery Update")
                 .setContentText("You were selected for " + eventName + ". Tap to view your invitation.")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_EVENT)
@@ -112,6 +114,56 @@ public class NotificationHelper {
             } else {
                 Toast.makeText(activity, "Notification permission denied", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    public static void showLotteryLossNotification(Context context, String eventName) {
+        Intent intent = new Intent(context, com.example.cmput301_app.entrant.DashboardActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                1,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LOTTERY_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Lottery Update")
+                .setContentText("You were not selected for " + eventName + " in the current draw. You may still be selected if a chosen entrant declines.")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("You were not selected for " + eventName + " in the current draw. You may still be selected if a chosen entrant declines."))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_STATUS)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        notificationManager.notify(LOTTERY_LOSS_NOTIFICATION_ID, builder.build());
+    }
+
+    public static void requestNotificationPermissionAndShowLossDemo(Activity activity, String eventName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED) {
+                showLotteryLossNotification(activity, eventName);
+            } else {
+                ActivityCompat.requestPermissions(
+                        activity,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE
+                );
+            }
+        } else {
+            showLotteryLossNotification(activity, eventName);
         }
     }
 }

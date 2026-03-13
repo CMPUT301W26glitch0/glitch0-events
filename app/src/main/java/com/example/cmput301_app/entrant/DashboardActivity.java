@@ -47,6 +47,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         if (notificationsEnabled) {
             NotificationHelper.requestNotificationPermissionAndShowDemo(this, "Demo Event");
+            NotificationHelper.requestNotificationPermissionAndShowLossDemo(this, "Demo Event");
         }
 
         mAuth = FirebaseAuth.getInstance();

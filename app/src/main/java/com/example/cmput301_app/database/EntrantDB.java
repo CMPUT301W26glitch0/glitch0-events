@@ -273,10 +273,12 @@ public class EntrantDB {
         public Timestamp getSelectedAt() { return selectedAt; }
     }
 
+    // listener for list of invited entrants
     public interface InvitedEntrantsListener {
         void onChanged(List<InvitedEntrantInfo> invitedEntrants);
     }
 
+    // listens in real time for entrants who are selected for the given event
     public ListenerRegistration listenForInvitedEntrants(
             String eventId,
             InvitedEntrantsListener listener,
@@ -316,10 +318,16 @@ public class EntrantDB {
 
                             if (eventId.equals(recordEventId) && "SELECTED".equals(outcome)) {
 
+                                Timestamp selectedAt = null;
+                                Object rawSelectedAt = record.get("selectedAt");
+                                if (rawSelectedAt instanceof Timestamp) {
+                                    selectedAt = (Timestamp) rawSelectedAt;
+                                }
+
                                 invited.add(new InvitedEntrantInfo(
                                         doc.getId(),
                                         name,
-                                        (Timestamp) record.get("selectedAt")
+                                        selectedAt
                                 ));
 
                                 break;
@@ -328,6 +336,89 @@ public class EntrantDB {
                     }
 
                     listener.onChanged(invited);
+                });
+    }
+
+    // represents information of an enrolled entrant
+    public static class EnrolledEntrantInfo {
+        private final String entrantId;
+        private final String name;
+        private final Timestamp acceptedAt;
+
+        public EnrolledEntrantInfo(String entrantId, String name, Timestamp acceptedAt) {
+            this.entrantId = entrantId;
+            this.name = name;
+            this.acceptedAt = acceptedAt;
+        }
+
+        public String getEntrantId() { return entrantId; }
+        public String getName() { return name; }
+        public Timestamp getAcceptedAt() { return acceptedAt; }
+    }
+
+    // listener for list of enrolled entrants
+    public interface EnrolledEntrantsListener {
+        void onChanged(List<EnrolledEntrantInfo> enrolledEntrants);
+    }
+
+    // listens in real time for entrants who accepted the given event
+    public ListenerRegistration listenForEnrolledEntrants(
+            String eventId,
+            EnrolledEntrantsListener listener,
+            OnFailureListener failureListener) {
+
+        return db.collection("users")
+                .whereEqualTo("role", "entrant")
+                .addSnapshotListener((snapshots, error) -> {
+
+                    if (error != null) {
+                        if (failureListener != null) {
+                            failureListener.onFailure(error);
+                        }
+                        return;
+                    }
+
+                    List<EnrolledEntrantInfo> enrolled = new ArrayList<>();
+
+                    if (snapshots == null) {
+                        listener.onChanged(enrolled);
+                        return;
+                    }
+
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+
+                        String name = doc.getString("name");
+
+                        List<Map<String, Object>> history =
+                                (List<Map<String, Object>>) doc.get("registrationHistory");
+
+                        if (history == null) continue;
+
+                        for (Map<String, Object> record : history) {
+
+                            String recordEventId = (String) record.get("eventId");
+                            String outcome = (String) record.get("outcome");
+
+                            if (eventId.equals(recordEventId) && "ACCEPTED".equals(outcome)) {
+
+                                Timestamp acceptedAt = null;
+                                Object rawAcceptedAt = record.get("acceptedAt");
+                                if (rawAcceptedAt instanceof Timestamp) {
+                                    acceptedAt = (Timestamp) rawAcceptedAt;
+                                }
+
+                                enrolled.add(new EnrolledEntrantInfo(
+                                        doc.getId(),
+                                        name,
+                                        acceptedAt
+                                ));
+
+                                break;
+                            }
+                        }
+                    }
+
+                    listener.onChanged(enrolled);
                 });
     }
 }
