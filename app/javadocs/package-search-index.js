@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.cmput301_app"},{"l":"com.example.cmput301_app.database"},{"l":"com.example.cmput301_app.entrant"},{"l":"com.example.cmput301_app.features"},{"l":"com.example.cmput301_app.model"},{"l":"com.example.cmput301_app.organizer"}];updateSearchResults();

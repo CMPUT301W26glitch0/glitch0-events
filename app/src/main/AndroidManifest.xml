@@ -67,6 +67,9 @@
             android:name=".entrant.QRScanActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".entrant.ScanQRActivity"
+            android:exported="false" />
 
         <!-- Organizer Activities -->
         <activity
