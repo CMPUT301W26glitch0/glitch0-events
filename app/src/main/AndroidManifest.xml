@@ -2,7 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -45,6 +54,23 @@
             android:name=".entrant.EventDetailsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".entrant.ScanQRActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".entrant.MyEventsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".entrant.QRScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".entrant.ScanQRActivity"
+            android:exported="false" />
+
         <!-- Organizer Activities -->
         <activity
             android:name=".organizer.OrganizerDashboardActivity"
@@ -67,6 +93,17 @@
         <activity
             android:name=".organizer.LotteryDrawActivity"
             android:exported="false" />
+
+        <!-- FileProvider for sharing QR codes -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
 
     </application>
 

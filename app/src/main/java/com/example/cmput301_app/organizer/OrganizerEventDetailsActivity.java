@@ -1,9 +1,12 @@
 package com.example.cmput301_app.organizer;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
@@ -26,6 +30,10 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
+import java.io.File;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -33,10 +41,12 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "OrganizerEventDetails";
     private TextView tvName, tvCategory, tvDate, tvLocation, tvPrice, tvCapacity, tvRegDates, tvDescription;
     private ImageView ivPoster, ivQrCode;
-    private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete;
+    private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement;
     private String eventId;
     private EventDB eventDB;
     private Event currentEvent;
+    private Bitmap qrBitmap;
+    private com.google.firebase.firestore.FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +55,14 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_organizer_event_details);
 
         eventDB = new EventDB();
+        db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra("eventId");
 
         initViews();
-        
+
         if (eventId != null) {
             loadEventDetails();
+            loadReplacementStatus();
         } else {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
@@ -73,6 +85,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnManageLottery = findViewById(R.id.btn_manage_lottery);
         btnEdit = findViewById(R.id.btn_edit_event_details);
         btnDelete = findViewById(R.id.btn_delete_event_details);
+        btnDrawReplacement = findViewById(R.id.btn_draw_replacement);
+
+        btnDrawReplacement.setOnClickListener(v -> drawReplacement());
 
         findViewById(R.id.btn_org_back).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerDashboardActivity.class);
@@ -87,12 +102,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnDelete.setOnClickListener(v -> {
-            eventDB.deleteEvent(eventId, aVoid -> {
-                Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
-                finish();
-            }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show());
-        });
+        btnDelete.setOnClickListener(v ->
+                eventDB.deleteEvent(eventId, aVoid -> {
+                    Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show()));
 
         btnViewEntrants.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantListActivity.class);
@@ -100,9 +114,8 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        findViewById(R.id.btn_share_qr_details).setOnClickListener(v -> {
-            Toast.makeText(this, "QR Sharing not implemented yet", Toast.LENGTH_SHORT).show();
-        });
+        // Share / Download button — shows a picker dialog
+        findViewById(R.id.btn_share_qr_details).setOnClickListener(v -> showQROptions());
 
         View mainView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -136,9 +149,9 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             Glide.with(this).load(currentEvent.getPosterUrl()).into(ivPoster);
         }
 
-        // Generate and display QR Code
         if (currentEvent.getQrCode() != null) {
-            generateQRCode(currentEvent.getQrCode());
+            qrBitmap = generateQRCode(currentEvent.getQrCode());
+            if (qrBitmap != null) ivQrCode.setImageBitmap(qrBitmap);
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
@@ -155,20 +168,223 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void generateQRCode(String data) {
-        try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 400, 400);
-            int width = bitMatrix.getWidth();
-            int height = bitMatrix.getHeight();
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+    private void loadReplacementStatus() {
+        if (eventId == null) return;
+        
+        // Listen to all users who are on this event's waiting list
+        db.collection("events").document(eventId).addSnapshotListener((eventDoc, e) -> {
+            if (e != null || eventDoc == null || !eventDoc.exists()) return;
+            
+            java.util.List<String> waitingListIds = (java.util.List<String>) eventDoc.get("waitingListIds");
+            if (waitingListIds == null || waitingListIds.isEmpty()) {
+                btnDrawReplacement.setVisibility(View.GONE);
+                return;
+            }
+
+            // We need to count how many are Cancelled/Declined vs how many were newly Selected as replacements.
+            // For simplicity in this assignment: if there is >= 1 cancelled/declined, allow drawing.
+            // A more robust implementation would track "replacementCapacity".
+            java.util.concurrent.atomic.AtomicInteger cancelledCount = new java.util.concurrent.atomic.AtomicInteger(0);
+            java.util.concurrent.atomic.AtomicInteger remainingCounter = new java.util.concurrent.atomic.AtomicInteger(waitingListIds.size());
+
+            for (String userId : waitingListIds) {
+                db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        String outcome = getOutcomeForEvent(userDoc, eventId);
+                        if ("CANCELLED".equals(outcome) || "DECLINED".equals(outcome)) {
+                            cancelledCount.incrementAndGet();
+                        }
+                    }
+                    if (remainingCounter.decrementAndGet() == 0) {
+                        // If there are cancelled users, show the draw replacement button
+                        runOnUiThread(() -> {
+                            if (cancelledCount.get() > 0) {
+                                btnDrawReplacement.setVisibility(View.VISIBLE);
+                            } else {
+                                btnDrawReplacement.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    private void drawReplacement() {
+        if (eventId == null) return;
+        btnDrawReplacement.setEnabled(false);
+
+        db.collection("events").document(eventId).get().addOnSuccessListener(eventDoc -> {
+            java.util.List<String> waitingListIds = (java.util.List<String>) eventDoc.get("waitingListIds");
+            if (waitingListIds == null || waitingListIds.isEmpty()) {
+                Toast.makeText(this, "No replacements available", Toast.LENGTH_SHORT).show();
+                btnDrawReplacement.setEnabled(true);
+                return;
+            }
+
+            // Find all users currently WAITING
+            java.util.List<com.google.firebase.firestore.DocumentSnapshot> waitingUsers = new java.util.ArrayList<>();
+            java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(waitingListIds.size());
+
+            for (String userId : waitingListIds) {
+                db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+                    if (userDoc.exists()) {
+                        String outcome = getOutcomeForEvent(userDoc, eventId);
+                        if ("WAITING".equals(outcome)) {
+                            synchronized (waitingUsers) { waitingUsers.add(userDoc); }
+                        }
+                    }
+                    
+                    if (remaining.decrementAndGet() == 0) {
+                        if (waitingUsers.isEmpty()) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "No valid replacements remaining on waiting list", Toast.LENGTH_SHORT).show();
+                                btnDrawReplacement.setEnabled(true);
+                            });
+                            return;
+                        }
+
+                        // Pick a random user
+                        java.util.Random random = new java.util.Random();
+                        com.google.firebase.firestore.DocumentSnapshot chosenUser = waitingUsers.get(random.nextInt(waitingUsers.size()));
+                        
+                        updateUserToSelected(chosenUser);
+                    }
+                });
+            }
+        });
+    }
+
+    private void updateUserToSelected(com.google.firebase.firestore.DocumentSnapshot userDoc) {
+        String userId = userDoc.getId();
+        String userName = userDoc.getString("name");
+        
+        // Construct new record payload
+        java.util.Map<String, Object> newRecord = new java.util.HashMap<>();
+        newRecord.put("eventId", eventId);
+        newRecord.put("outcome", "SELECTED");
+        newRecord.put("timestamp", com.google.firebase.Timestamp.now());
+
+        // We can't easily update a specific item in an array in Firestore, 
+        // so we remove the old WAITING record and add the new SELECTED record.
+        java.util.Map<String, Object> oldRecord = new java.util.HashMap<>();
+        oldRecord.put("eventId", eventId);
+        oldRecord.put("outcome", "WAITING");
+
+        db.collection("users").document(userId)
+                .update(
+                    "registrationHistory", com.google.firebase.firestore.FieldValue.arrayRemove(oldRecord)
+                ).addOnSuccessListener(aVoid -> {
+                    db.collection("users").document(userId)
+                        .update("registrationHistory", com.google.firebase.firestore.FieldValue.arrayUnion(newRecord))
+                        .addOnSuccessListener(aVoid2 -> {
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Replacement drawn: " + (userName != null ? userName : "Unknown") + " is now Selected!", Toast.LENGTH_LONG).show();
+                                btnDrawReplacement.setEnabled(true);
+                                // A real app would send a push notification to the user's deviceId here
+                            });
+                        });
+                });
+    }
+
+    private String getOutcomeForEvent(com.google.firebase.firestore.DocumentSnapshot userDoc, String eventId) {
+        Object rawHistory = userDoc.get("registrationHistory");
+        if (rawHistory instanceof java.util.List) {
+            for (Object item : (java.util.List<?>) rawHistory) {
+                if (item instanceof java.util.Map) {
+                    java.util.Map<?, ?> record = (java.util.Map<?, ?>) item;
+                    if (eventId.equals(record.get("eventId"))) {
+                        Object outcome = record.get("outcome");
+                        if (outcome != null) return outcome.toString();
+                    }
                 }
             }
-            ivQrCode.setImageBitmap(bitmap);
+        }
+        return "WAITING";
+    }
+
+    private Bitmap generateQRCode(String data) {
+        try {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 400, 400);
+            int w = bitMatrix.getWidth(), h = bitMatrix.getHeight();
+            Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < h; y++)
+                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+            return bitmap;
         } catch (WriterException e) {
             Log.e(TAG, "QR Generation failed", e);
+            return null;
+        }
+    }
+
+    private void showQROptions() {
+        if (qrBitmap == null) {
+            Toast.makeText(this, "QR not ready yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("QR Code")
+                .setItems(new String[]{"Download to Gallery", "Share"}, (dialog, which) -> {
+                    if (which == 0) downloadQR();
+                    else shareQR();
+                })
+                .show();
+    }
+
+    private void downloadQR() {
+        if (qrBitmap == null) return;
+        try {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, "event_qr_" + eventId + ".png");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + "/EventQRCodes");
+            values.put(MediaStore.Images.Media.IS_PENDING, 1);
+
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                    qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                }
+                values.clear();
+                values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                getContentResolver().update(uri, values, null, null);
+                Toast.makeText(this, "✅ QR Code saved to gallery!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Download failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareQR() {
+        if (qrBitmap == null) {
+            Toast.makeText(this, "QR not ready yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            File qrDir = new File(getCacheDir(), "qr_codes");
+            if (!qrDir.exists()) qrDir.mkdirs();
+
+            File qrFile = new File(qrDir, "event_qr_" + eventId + ".png");
+            try (FileOutputStream fos = new FileOutputStream(qrFile)) {
+                qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            }
+
+            Uri shareUri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider",
+                    qrFile);
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/png");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, shareUri);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Scan this QR code to view the event!");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(shareIntent, "Share QR Code"));
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Share failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }
