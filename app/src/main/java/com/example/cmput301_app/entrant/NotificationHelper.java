@@ -52,25 +52,6 @@ public class NotificationHelper {
         }
     }
 
-
-    public static void requestNotificationPermissionAndShowDemo(Activity activity, String eventName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED) {
-                showLotteryWinNotification(activity, eventName);
-            } else {
-                ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        NOTIFICATION_PERMISSION_REQUEST_CODE
-                );
-            }
-        } else {
-            showLotteryWinNotification(activity, eventName);
-        }
-    }
-
-
     public static void showLotteryWinNotification(Context context, String eventName) {
         Intent intent = new Intent(context, com.example.cmput301_app.entrant.DashboardActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -148,22 +129,5 @@ public class NotificationHelper {
         }
 
         notificationManager.notify(LOTTERY_LOSS_NOTIFICATION_ID, builder.build());
-    }
-
-    public static void requestNotificationPermissionAndShowLossDemo(Activity activity, String eventName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS)
-                    == PackageManager.PERMISSION_GRANTED) {
-                showLotteryLossNotification(activity, eventName);
-            } else {
-                ActivityCompat.requestPermissions(
-                        activity,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                        NOTIFICATION_PERMISSION_REQUEST_CODE
-                );
-            }
-        } else {
-            showLotteryLossNotification(activity, eventName);
-        }
     }
 }

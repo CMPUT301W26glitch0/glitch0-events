@@ -91,9 +91,11 @@ public class LotteryDrawActivity extends AppCompatActivity {
 
             String eventName = eventDoc.getString("name");
 
-            // 3. Update Winners
+            // 3. Update Winners & Send Notifications
             for (String wId : winners) {
-                updateEntrantOutcome(db, wId, eventId, "SELECTED", null);
+                updateEntrantOutcome(db, wId, eventId, "SELECTED", () -> {
+                    checkAndSendWinNotification(db, wId, eventId, eventName);
+                });
             }
 
             // 4. Update Losers & Send Notifications
@@ -102,6 +104,8 @@ public class LotteryDrawActivity extends AppCompatActivity {
                     checkAndSendLossNotification(db, lId, eventId, eventName);
                 });
             }
+
+
 
             // 5. Build and Save LotteryPool to LotteryDB
             com.example.cmput301_app.database.LotteryDB lotteryDB = new com.example.cmput301_app.database.LotteryDB();
@@ -160,6 +164,44 @@ public class LotteryDrawActivity extends AppCompatActivity {
             notifDB.createNotification(n, savedNotif -> {
                 // Trigger local device notification if matching user or as a simulation
                 triggerLocalNotification(evId, eventName);
+            }, e -> {});
+        });
+    }
+
+    private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db,
+                                             String userId,
+                                             String evId,
+                                             String eventName) {
+
+        db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+
+            Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+
+            if (notificationsEnabled != null && !notificationsEnabled) {
+                return; // user opted out
+            }
+
+            com.example.cmput301_app.database.NotificationDB notifDB =
+                    new com.example.cmput301_app.database.NotificationDB();
+
+            com.example.cmput301_app.model.Notification n =
+                    new com.example.cmput301_app.model.Notification(
+                            "",
+                            evId,
+                            com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
+                            "You were selected for " + eventName + ". Tap to view your invitation.",
+                            com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_WIN,
+                            com.google.firebase.Timestamp.now()
+                    );
+
+            n.addRecipient(userId);
+
+            notifDB.createNotification(n, savedNotif -> {
+
+                // trigger local notification popup
+                com.example.cmput301_app.entrant.NotificationHelper
+                        .showLotteryWinNotification(this, eventName);
+
             }, e -> {});
         });
     }

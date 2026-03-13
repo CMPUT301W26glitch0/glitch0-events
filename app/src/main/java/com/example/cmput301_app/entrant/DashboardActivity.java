@@ -56,14 +56,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         NotificationHelper.createNotificationChannel(this);
 
-        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-        boolean notificationsEnabled = prefs.getBoolean("notificationsEnabled", true);
-
-        if (notificationsEnabled) {
-            NotificationHelper.requestNotificationPermissionAndShowDemo(this, "Demo Event");
-            NotificationHelper.requestNotificationPermissionAndShowLossDemo(this, "Demo Event");
-        }
-
         mAuth = FirebaseAuth.getInstance();
         eventDB = new EventDB();
         entrantDB = new EntrantDB();
