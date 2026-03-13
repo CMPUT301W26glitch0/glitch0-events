@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class managing the event lottery system and drawings.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.LotteryPool;

@@ -1,3 +1,8 @@
+/*
+ * Purpose: Shows a list of events an entrant has joined, won, or lost.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Intent;

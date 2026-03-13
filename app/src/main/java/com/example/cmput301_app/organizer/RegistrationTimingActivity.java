@@ -1,3 +1,8 @@
+/*
+ * Purpose: Manages the event's registration opening and closing dates.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.app.TimePickerDialog;

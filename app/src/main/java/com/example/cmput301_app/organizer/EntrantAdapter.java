@@ -1,3 +1,8 @@
+/*
+ * Purpose: RecyclerView adapter for displaying the list of entrants to an organizer.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.view.LayoutInflater;

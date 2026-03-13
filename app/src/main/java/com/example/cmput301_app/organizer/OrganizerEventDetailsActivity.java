@@ -1,3 +1,8 @@
+/*
+ * Purpose: Provides detailed management features for an organizer's specific event.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.ContentValues;

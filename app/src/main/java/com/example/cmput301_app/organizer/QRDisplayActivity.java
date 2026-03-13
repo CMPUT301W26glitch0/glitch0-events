@@ -1,3 +1,8 @@
+/*
+ * Purpose: Displays and allows downloading/sharing of the QR code for a specific event.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.ContentValues;

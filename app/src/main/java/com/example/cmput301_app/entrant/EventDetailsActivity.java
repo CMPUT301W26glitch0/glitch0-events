@@ -1,3 +1,8 @@
+/*
+ * Purpose: Displays detailed information for a specific event to an entrant, including joining the waitlist.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Intent;

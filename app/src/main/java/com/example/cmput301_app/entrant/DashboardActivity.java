@@ -1,3 +1,8 @@
+/*
+ * Purpose: Main dashboard for the Entrant role, providing access to event discovery and profile.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Context;

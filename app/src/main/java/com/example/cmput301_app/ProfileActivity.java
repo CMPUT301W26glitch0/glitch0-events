@@ -1,3 +1,8 @@
+/*
+ * Purpose: Manages user profile viewing and editing.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app;
 
 import android.content.Intent;
