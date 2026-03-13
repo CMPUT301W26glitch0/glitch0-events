@@ -74,8 +74,14 @@ public class Event {
 
     @Exclude
     public boolean checkIsRegistrationOpen() {
-        if (registrationOpen == null || registrationClose == null) return false;
         long now = System.currentTimeMillis();
+        // If neither bound is set, treat registration as always open
+        if (registrationOpen == null && registrationClose == null) return true;
+        // If only open is set, allow joining once that time has passed
+        if (registrationClose == null) return now >= registrationOpen.toDate().getTime();
+        // If only close is set, allow joining until that time
+        if (registrationOpen == null) return now <= registrationClose.toDate().getTime();
+        // Both set — enforce the full window
         return now >= registrationOpen.toDate().getTime() && now <= registrationClose.toDate().getTime();
     }
 }

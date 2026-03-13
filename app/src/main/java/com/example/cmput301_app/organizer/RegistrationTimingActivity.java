@@ -1,7 +1,22 @@
-/*
- * Purpose: Manages the event's registration opening and closing dates.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Allows an organizer to set and update the registration opening and closing
+ * times for a specific event.
+ *
+ * The activity receives an {@code eventId} via intent extra, loads the current
+ * registration timestamps from Firestore, and populates two time pickers. On
+ * save it writes the updated {@code registrationOpen} and
+ * {@code registrationClose} timestamps back to the Event object and persists
+ * them via EventDB.
+ *
+ * Also exposes toggles for requiring location (geolocation) and automated
+ * lottery (automation), although the automation switch is not yet wired to
+ * backend logic.
+ *
+ * Outstanding issues:
+ * - The automation switch ({@code swAutomation}) is displayed but its state
+ *   is not saved to Firestore.
+ * - Only the time component is editable; there is no date picker, so the
+ *   dates default to the current calendar day every session.
  */
 package com.example.cmput301_app.organizer;
 
