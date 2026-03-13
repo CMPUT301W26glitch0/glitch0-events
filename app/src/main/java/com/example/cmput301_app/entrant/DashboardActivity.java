@@ -30,6 +30,10 @@ import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.example.cmput301_app.entrant.NotificationHelper;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,12 +49,16 @@ public class DashboardActivity extends AppCompatActivity {
     private EventAdapter adapter;
     private List<Event> eventList;
     private String deviceId;
+    private com.google.firebase.firestore.ListenerRegistration notificationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
+        NotificationHelper.createNotificationChannel(this);
+        listenForNotifications();
 
         mAuth = FirebaseAuth.getInstance();
         eventDB = new EventDB();
@@ -121,5 +129,106 @@ public class DashboardActivity extends AppCompatActivity {
                     "Error loading events: " + e.getMessage(),
                     Toast.LENGTH_SHORT).show();
         });
+    }
+
+    /**
+     * Subscribes to real-time lottery notifications for the currently logged-in entrant.
+     *
+     * This method attaches a Firestore snapshot listener to the "notifications"
+     * collection and filters documents where the current user is included in
+     * the recipientIds array.
+     *
+     * When a new notification document appears:
+     *
+     * 1. The notification is checked against local SharedPreferences to prevent
+     *    duplicate notifications from being shown multiple times.
+     * 2. The associated event is verified to ensure it still exists.
+     * 3. Depending on the notification type (LOTTERY_WIN or LOTTERY_LOSS),
+     *    NotificationHelper is used to display an Android system notification.
+     *
+     * The listener is automatically removed in onDestroy() to prevent memory
+     * leaks and background notification triggers.
+     */
+
+    private void listenForNotifications() {
+
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null) return;
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SharedPreferences prefs = getSharedPreferences("notification_prefs", MODE_PRIVATE);
+
+        db.collection("users").document(uid).get().addOnSuccessListener(userDoc -> {
+
+            String role = userDoc.getString("role");
+            if (!"entrant".equals(role)) {
+                return;
+            }
+
+            notificationListener = db.collection("notifications")
+                    .whereArrayContains("recipientIds", uid)
+                    .addSnapshotListener((snapshots, e) -> {
+
+                        if (e != null || snapshots == null) return;
+
+                        for (DocumentSnapshot doc : snapshots.getDocuments()) {
+
+                            String notificationId = doc.getId();
+                            String type = doc.getString("type");
+                            String eventId = doc.getString("eventId");
+
+                            if (notificationId == null || type == null || eventId == null) continue;
+
+                            boolean alreadyShown = prefs.getBoolean(notificationId, false);
+                            if (alreadyShown) continue;
+
+                            db.collection("events").document(eventId).get().addOnSuccessListener(eventDoc -> {
+
+                                // Skip deleted events
+                                if (!eventDoc.exists()) {
+                                    prefs.edit().putBoolean(notificationId, true).apply();
+                                    return;
+                                }
+
+                                String eventName = eventDoc.getString("name");
+                                if (eventName == null || eventName.isEmpty()) {
+                                    eventName = "Event";
+                                }
+
+                                if ("LOTTERY_WIN".equals(type)) {
+                                    NotificationHelper.showLotteryWinNotification(
+                                            DashboardActivity.this,
+                                            eventName,
+                                            eventId
+                                    );
+                                } else if ("LOTTERY_LOSS".equals(type)) {
+                                    NotificationHelper.showLotteryLossNotification(
+                                            DashboardActivity.this,
+                                            eventName,
+                                            eventId
+                                    );
+                                }
+
+                                prefs.edit().putBoolean(notificationId, true).apply();
+                            });
+                        }
+                    });
+        });
+    }
+
+    /**
+     * Cleans up the Firestore notification listener when the activity is destroyed.
+     *
+     * Removing the listener prevents the activity from continuing to receive
+     * notification updates after the dashboard is closed
+     */
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationListener != null) {
+            notificationListener.remove();
+            notificationListener = null;
+        }
     }
 }

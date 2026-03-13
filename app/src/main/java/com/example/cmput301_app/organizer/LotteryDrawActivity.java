@@ -91,9 +91,11 @@ public class LotteryDrawActivity extends AppCompatActivity {
 
             String eventName = eventDoc.getString("name");
 
-            // 3. Update Winners
+            // 3. Update Winners & Send Notifications
             for (String wId : winners) {
-                updateEntrantOutcome(db, wId, eventId, "SELECTED", null);
+                updateEntrantOutcome(db, wId, eventId, "SELECTED", () -> {
+                    checkAndSendWinNotification(db, wId, eventId, eventName);
+                });
             }
 
             // 4. Update Losers & Send Notifications
@@ -102,6 +104,8 @@ public class LotteryDrawActivity extends AppCompatActivity {
                     checkAndSendLossNotification(db, lId, eventId, eventName);
                 });
             }
+
+
 
             // 5. Build and Save LotteryPool to LotteryDB
             com.example.cmput301_app.database.LotteryDB lotteryDB = new com.example.cmput301_app.database.LotteryDB();
@@ -139,66 +143,95 @@ public class LotteryDrawActivity extends AppCompatActivity {
                 });
     }
 
-    private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String eventName) {
+    /**
+     * Creates and stores a lottery loss notification for a specific entrant.
+     * This method checks the entrant's notification preference and, if enabled,
+     * generates a Notification indicating that the entrant was not selected
+     * in the lottery draw. The notification is saved to Firestore using
+     * NotificationDB so it can be delivered asynchronously.
+     *
+     * @param db        Firestore instance
+     * @param userId    entrant receiving the notification
+     * @param evId      event associated with the notification
+     * @param eventName name of the event for display in the message
+     */
+
+    private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db,
+                                              String userId,
+                                              String evId,
+                                              String eventName) {
         db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
             Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
             if (notificationsEnabled != null && !notificationsEnabled) {
-                // Opted out
                 return;
             }
 
-            // Create notification record in Firestore
-            com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
-            com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
-                    "", evId, com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
-                    "You were not selected in the current draw. You may still be selected if a chosen entrant declines.",
-                    com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_LOSS,
-                    com.google.firebase.Timestamp.now()
-            );
+            com.example.cmput301_app.database.NotificationDB notifDB =
+                    new com.example.cmput301_app.database.NotificationDB();
+
+            com.example.cmput301_app.model.Notification n =
+                    new com.example.cmput301_app.model.Notification(
+                            "",
+                            evId,
+                            com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
+                            "You were not selected for " + eventName + " in the current draw. You may still be selected if a chosen entrant declines.",
+                            com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_LOSS,
+                            com.google.firebase.Timestamp.now()
+                    );
+
             n.addRecipient(userId);
-            
+
             notifDB.createNotification(n, savedNotif -> {
-                // Trigger local device notification if matching user or as a simulation
-                triggerLocalNotification(evId, eventName);
             }, e -> {});
         });
     }
 
-    private void triggerLocalNotification(String evId, String eventName) {
-        // Create intent to open Event Details
-        android.content.Intent intent = new android.content.Intent(this, com.example.cmput301_app.entrant.EventDetailsActivity.class);
-        intent.putExtra("eventId", evId);
-        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        
-        android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
-                this, 0, intent, android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
-                
-        // Ensure channel exists
-        android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            android.app.NotificationChannel channel = new android.app.NotificationChannel(
-                    "lottery_results", "Lottery Results", android.app.NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(channel);
-        }
+    /**
+     * Creates and stores a lottery win notification for a specific entrant.
+     * This method checks whether the entrant has notifications enabled and,
+     * if allowed, creates a Notification object indicating that the entrant
+     * was selected in the lottery draw. The notification is persisted to the
+     * Firestore "notifications" collection via NotificationDB.
+     * The notification will later be detected by the entrant's dashboard
+     * listener and displayed as an Android system notification.
+     *
+     * @param db        Firestore instance
+     * @param userId    entrant receiving the notification
+     * @param evId      event associated with the notification
+     * @param eventName name of the event for display in the message
+     */
 
-        // Check permission for Android 13+
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                return; // cannot post
+    private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db,
+                                             String userId,
+                                             String evId,
+                                             String eventName) {
+
+        db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+
+            Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+
+            if (notificationsEnabled != null && !notificationsEnabled) {
+                return; // user opted out
             }
-        }
 
-        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "lottery_results")
-                .setSmallIcon(android.R.drawable.ic_dialog_info) // Ensure valid icon or fallback
-                .setContentTitle("Lottery Results: " + (eventName != null ? eventName : "Event"))
-                .setContentText("You were not selected in the current draw. You may still be selected if a chosen entrant declines.")
-                .setStyle(new androidx.core.app.NotificationCompat.BigTextStyle()
-                        .bigText("You were not selected in the current draw. You may still be selected if a chosen entrant declines."))
-                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+            com.example.cmput301_app.database.NotificationDB notifDB =
+                    new com.example.cmput301_app.database.NotificationDB();
 
-        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+            com.example.cmput301_app.model.Notification n =
+                    new com.example.cmput301_app.model.Notification(
+                            "",
+                            evId,
+                            com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
+                            "You were selected for " + eventName + ". Tap to view your invitation.",
+                            com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_WIN,
+                            com.google.firebase.Timestamp.now()
+                    );
+
+            n.addRecipient(userId);
+
+            notifDB.createNotification(n, savedNotif -> {
+            }, e -> {});
+        });
     }
 
     private void loadEventData() {
