@@ -34,5 +34,3 @@ Core business logic is verified using JUnit 4 tests. These do **not** require an
 
 ---
 
-## 3. Project Structure Note
-The source folders are labeled as `kotlin+java` in the Android view because the project includes Kotlin support via Gradle, even though the current source code is primarily Java. The physical folder on disk is `app/src/main/java`.
