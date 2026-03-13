@@ -1,3 +1,8 @@
+/*
+ * Purpose: Allows organizers to execute the lottery selection for their event.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.os.Bundle;

@@ -1,3 +1,8 @@
+/*
+ * Purpose: Allows organizers to create new events or edit existing ones.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.app.DatePickerDialog;

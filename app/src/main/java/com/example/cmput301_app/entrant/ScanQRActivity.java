@@ -1,3 +1,8 @@
+/*
+ * Purpose: Alternative Activity for scanning QR codes.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.Manifest;

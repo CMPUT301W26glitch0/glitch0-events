@@ -1,3 +1,8 @@
+/*
+ * Purpose: Utility feature class encapsulating QR code scanning logic.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.features;
 
 import android.app.Activity;

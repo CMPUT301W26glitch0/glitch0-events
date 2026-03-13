@@ -1,3 +1,8 @@
+/*
+ * Purpose: Activity responsible for opening the camera to scan event QR codes.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Intent;
