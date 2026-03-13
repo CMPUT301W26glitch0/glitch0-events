@@ -18,6 +18,9 @@ import androidx.core.graphics.Insets;
 
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
+import com.example.cmput301_app.database.EntrantDB;
+import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.example.cmput301_app.organizer.CreateEventActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
@@ -41,6 +44,10 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String eventId;
     private Event currentEvent;
 
+    // added for joinWaitingList method
+    private EntrantDB entrantDB;
+    private EventDB eventDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +56,10 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
+        // initialization for joinWaitingList method
+        entrantDB = new EntrantDB();
+        eventDB = new EventDB();
 
         initViews();
         
@@ -197,45 +208,71 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private void joinWaitingList() {
         if (currentEvent == null || eventId == null) return;
-        String uid = auth.getUid();
-        if (uid == null) {
+
+        // use Firebase Auth UID as the firestore document identifier
+        String deviceId = auth.getUid();
+        if (deviceId == null) {
             Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
             return;
         }
 
         btnJoin.setEnabled(false);
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        
-        DocumentReference eventRef = db.collection("events").document(eventId);
-        DocumentReference waitRef = eventRef.collection("waiting_list").document(uid);
 
-        waitRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                Toast.makeText(EventDetailsActivity.this, "Already joined the waiting list.", Toast.LENGTH_SHORT).show();
+        // step 0 — fetch the entrants profile to check if already on waiting list
+        entrantDB.getEntrant(deviceId, entrant -> {
+            if (entrant != null && entrant.isOnWaitingList(eventId)) {
+                // prevent duplicate entries
+                Toast.makeText(this, "Already joined the waiting list.", Toast.LENGTH_SHORT).show();
                 btnJoin.setEnabled(true);
-            } else {
-                db.runTransaction(transaction -> {
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("userId", uid);
-                    data.put("deviceId", deviceId);
-                    data.put("joinedAt", FieldValue.serverTimestamp());
+                return;
+            }
 
-                    transaction.set(waitRef, data);
-                    transaction.update(eventRef, "waitingListCount", FieldValue.increment(1));
-                    return null;
-                }).addOnSuccessListener(aVoid -> {
+            // step 1 — add eventId to entrants waitingListIds array in firestore
+            // fixes: waitingListIds on user document was never being written to
+            entrantDB.addToWaitingList(deviceId, eventId, aVoid -> {
+
+                // step 2 — add deviceId to events waitingListIds array in firestore
+                // fixes: waitingListIds on event document was never being written to
+                eventDB.addToWaitingList(eventId, deviceId, aVoid2 -> {
+
+                    // step 3 — write a WAITING record to entrants registrationHistory
+                    // fixes: registrationHistory was never being written to, breaking My Events screen
+                    Entrant.RegistrationRecord record = new Entrant.RegistrationRecord(
+                            eventId,
+                            Entrant.RegistrationRecord.Outcome.WAITING
+                    );
+                    entrantDB.addRegistrationRecord(deviceId, record, aVoid3 -> {
+                        if (!isFinishing()) {
+                            Toast.makeText(this, "Joined successfully!", Toast.LENGTH_SHORT).show();
+                            btnJoin.setText("Already Joined");
+                            btnJoin.setEnabled(false);
+                        }
+                    }, e -> {
+                        if (!isFinishing()) {
+                            // steps 1 and 2 succeeded but history write failed — not critical
+                            Toast.makeText(this, "Joined but history not saved: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            btnJoin.setEnabled(true);
+                        }
+                    });
+
+                }, e -> {
                     if (!isFinishing()) {
-                        Toast.makeText(EventDetailsActivity.this, "Joined successfully!", Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
-                        btnJoin.setText("Already Joined");
-                    }
-                }).addOnFailureListener(e -> {
-                    if (!isFinishing()) {
-                        Log.e(TAG, "Transaction failed", e);
-                        Toast.makeText(EventDetailsActivity.this, "Error joining: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error updating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         btnJoin.setEnabled(true);
                     }
                 });
+
+            }, e -> {
+                if (!isFinishing()) {
+                    Toast.makeText(this, "Error joining waiting list: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    btnJoin.setEnabled(true);
+                }
+            });
+
+        }, e -> {
+            if (!isFinishing()) {
+                Toast.makeText(this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                btnJoin.setEnabled(true);
             }
         });
     }
