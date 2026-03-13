@@ -33,7 +33,7 @@ public class EventDB {
         DocumentReference docRef = db.collection(COLLECTION).document();
         String generatedId = docRef.getId();
         event.setEventId(generatedId);
-        
+
         // Generate the unique promotional QR code link
         String qrData = "event_details:" + generatedId;
         event.setQrCode(qrData);
@@ -184,6 +184,30 @@ public class EventDB {
         Map<String, Object> updates = new HashMap<>();
         updates.put("waitingListIds", com.google.firebase.firestore.FieldValue.arrayUnion(deviceId));
         updates.put("waitingListCount", com.google.firebase.firestore.FieldValue.increment(1));
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a deviceId from the event's waitingListIds array in Firestore.
+     * Also decrements the waitingListCount field.
+     * Uses Firestore's ArrayRemove to safely remove the deviceId.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant leaving the waiting list
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void removeFromWaitingList(String eventId, String deviceId,
+                                      OnSuccessListener<Void> successListener,
+                                      OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("waitingListIds", com.google.firebase.firestore.FieldValue.arrayRemove(deviceId));
+        updates.put("waitingListCount", com.google.firebase.firestore.FieldValue.increment(-1));
 
         db.collection(COLLECTION)
                 .document(eventId)
