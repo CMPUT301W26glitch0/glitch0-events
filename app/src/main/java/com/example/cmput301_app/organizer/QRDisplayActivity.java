@@ -27,7 +27,7 @@ public class QRDisplayActivity extends AppCompatActivity {
     private String eventId;
     private EventDB eventDB;
     private ImageView ivQrCode, ivPreviewPoster;
-    private TextView tvEventTitle, tvPreviewName, tvPreviewDesc, tvPreviewLocation;
+    private TextView tvEventTitle, tvPreviewName, tvPreviewDesc, tvPreviewLocation, tvEventId, tvEventIdSecondary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,8 @@ public class QRDisplayActivity extends AppCompatActivity {
         tvPreviewName = findViewById(R.id.tv_preview_name);
         tvPreviewDesc = findViewById(R.id.tv_preview_desc);
         tvPreviewLocation = findViewById(R.id.tv_preview_location);
+        tvEventId = findViewById(R.id.tv_qr_event_id);
+        tvEventIdSecondary = findViewById(R.id.tv_qr_event_id_secondary);
 
         findViewById(R.id.btn_qr_back).setOnClickListener(v -> finish());
         findViewById(R.id.btn_download_qr).setOnClickListener(v -> Toast.makeText(this, "QR Code downloaded to gallery", Toast.LENGTH_SHORT).show());
@@ -61,6 +63,9 @@ public class QRDisplayActivity extends AppCompatActivity {
                 tvPreviewName.setText(event.getName());
                 tvPreviewDesc.setText(event.getDescription());
                 tvPreviewLocation.setText(event.getLocation());
+                
+                if (tvEventId != null) tvEventId.setText(eventId);
+                if (tvEventIdSecondary != null) tvEventIdSecondary.setText("ID: " + eventId);
                 
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                     Glide.with(this).load(event.getPosterUrl()).into(ivPreviewPoster);

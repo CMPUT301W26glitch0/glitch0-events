@@ -74,16 +74,17 @@ public class OrganizerDashboardActivity extends AppCompatActivity {
     }
 
     private void loadOrganizedEvents() {
-        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(TAG, "Loading events for organizer: " + deviceId);
-        
-        eventDB.getEventsByOrganizer(deviceId, (value, error) -> {
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+        Log.d(TAG, "Loading events for organizer: " + uid);
+
+        eventDB.getEventsByOrganizer(uid, (value, error) -> {
             if (error != null) {
                 Log.e(TAG, "Error fetching events: ", error);
                 Toast.makeText(this, "Error loading events", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             if (value != null) {
                 Log.d(TAG, "Received " + value.size() + " events from Firestore");
                 eventList.clear();
@@ -92,15 +93,20 @@ public class OrganizerDashboardActivity extends AppCompatActivity {
                         Event event = doc.toObject(Event.class);
                         if (event != null) {
                             event.setEventId(doc.getId());
-                            eventList.add(event);
-                            Log.d(TAG, "Loaded event: " + event.getName() + " (ID: " + event.getEventId() + ")");
+                            // Client-side safety net: only show this organizer's own events
+                            if (uid.equals(event.getOrganizerId())) {
+                                eventList.add(event);
+                                Log.d(TAG, "Loaded event: " + event.getName() + " (ID: " + event.getEventId() + ")");
+                            } else {
+                                Log.w(TAG, "Skipping event with mismatched organizerId: " + doc.getId());
+                            }
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parsing event document: " + doc.getId(), e);
                     }
                 }
                 adapter.notifyDataSetChanged();
-                
+
                 if (eventList.isEmpty()) {
                     Log.d(TAG, "No events found for this organizer.");
                 }
