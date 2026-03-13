@@ -22,6 +22,8 @@ import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +62,7 @@ public class MyEventsActivity extends AppCompatActivity {
         tvEmptyState = findViewById(R.id.tv_empty_state);
         rvMyEvents.setLayoutManager(new LinearLayoutManager(this));
         myEventItems = new ArrayList<>();
-        adapter = new MyEventsAdapter(myEventItems);
+        adapter = new MyEventsAdapter(myEventItems, item -> openEventDetails(item));
         rvMyEvents.setAdapter(adapter);
 
         // bottom nav click handlers
@@ -139,5 +141,13 @@ public class MyEventsActivity extends AppCompatActivity {
         }, e -> {
             Toast.makeText(this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void openEventDetails(MyEventsAdapter.MyEventItem item) {
+        if (item.event == null || item.event.getEventId() == null) return;
+        
+        Intent intent = new Intent(this, EventDetailsActivity.class);
+        intent.putExtra("eventId", item.event.getEventId());
+        startActivity(intent);
     }
 }

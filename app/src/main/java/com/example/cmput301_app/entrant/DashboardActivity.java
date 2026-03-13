@@ -79,6 +79,7 @@ public class DashboardActivity extends AppCompatActivity {
         findViewById(R.id.nav_scan_qr).setOnClickListener(v -> {
             checkProfileAndNavigateToScan();
         });
+
         findViewById(R.id.nav_my_events).setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, MyEventsActivity.class));
             finish();

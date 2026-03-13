@@ -25,9 +25,11 @@ public class Event {
     private long waitingListLimit;
     private List<String> waitingListIds;
     private long waitingListCount;
+    private List<String> confirmedAttendeesIds;
 
     public Event() {
         this.waitingListIds = new ArrayList<>();
+        this.confirmedAttendeesIds = new ArrayList<>();
         this.waitingListLimit = -1;
         this.waitingListCount = 0;
     }
@@ -67,6 +69,8 @@ public class Event {
     public void setWaitingListIds(List<String> ids) { this.waitingListIds = ids != null ? ids : new ArrayList<>(); }
     public long getWaitingListCount() { return waitingListCount; }
     public void setWaitingListCount(long count) { this.waitingListCount = count; }
+    public List<String> getConfirmedAttendeesIds() { return confirmedAttendeesIds; }
+    public void setConfirmedAttendeesIds(List<String> ids) { this.confirmedAttendeesIds = ids != null ? ids : new ArrayList<>(); }
 
     @Exclude
     public boolean checkIsRegistrationOpen() {
