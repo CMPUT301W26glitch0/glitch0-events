@@ -143,6 +143,19 @@ public class LotteryDrawActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Creates and stores a lottery loss notification for a specific entrant.
+     * This method checks the entrant's notification preference and, if enabled,
+     * generates a Notification indicating that the entrant was not selected
+     * in the lottery draw. The notification is saved to Firestore using
+     * NotificationDB so it can be delivered asynchronously.
+     *
+     * @param db        Firestore instance
+     * @param userId    entrant receiving the notification
+     * @param evId      event associated with the notification
+     * @param eventName name of the event for display in the message
+     */
+
     private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db,
                                               String userId,
                                               String evId,
@@ -172,6 +185,21 @@ public class LotteryDrawActivity extends AppCompatActivity {
             }, e -> {});
         });
     }
+
+    /**
+     * Creates and stores a lottery win notification for a specific entrant.
+     * This method checks whether the entrant has notifications enabled and,
+     * if allowed, creates a Notification object indicating that the entrant
+     * was selected in the lottery draw. The notification is persisted to the
+     * Firestore "notifications" collection via NotificationDB.
+     * The notification will later be detected by the entrant's dashboard
+     * listener and displayed as an Android system notification.
+     *
+     * @param db        Firestore instance
+     * @param userId    entrant receiving the notification
+     * @param evId      event associated with the notification
+     * @param eventName name of the event for display in the message
+     */
 
     private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db,
                                              String userId,

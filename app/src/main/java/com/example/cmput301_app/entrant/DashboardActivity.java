@@ -131,6 +131,25 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Subscribes to real-time lottery notifications for the currently logged-in entrant.
+     *
+     * This method attaches a Firestore snapshot listener to the "notifications"
+     * collection and filters documents where the current user is included in
+     * the recipientIds array.
+     *
+     * When a new notification document appears:
+     *
+     * 1. The notification is checked against local SharedPreferences to prevent
+     *    duplicate notifications from being shown multiple times.
+     * 2. The associated event is verified to ensure it still exists.
+     * 3. Depending on the notification type (LOTTERY_WIN or LOTTERY_LOSS),
+     *    NotificationHelper is used to display an Android system notification.
+     *
+     * The listener is automatically removed in onDestroy() to prevent memory
+     * leaks and background notification triggers.
+     */
+
     private void listenForNotifications() {
 
         String uid = FirebaseAuth.getInstance().getUid();
@@ -139,7 +158,6 @@ public class DashboardActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences prefs = getSharedPreferences("notification_prefs", MODE_PRIVATE);
 
-        // Only entrants should receive entrant lottery notifications
         db.collection("users").document(uid).get().addOnSuccessListener(userDoc -> {
 
             String role = userDoc.getString("role");
@@ -197,6 +215,13 @@ public class DashboardActivity extends AppCompatActivity {
                     });
         });
     }
+
+    /**
+     * Cleans up the Firestore notification listener when the activity is destroyed.
+     *
+     * Removing the listener prevents the activity from continuing to receive
+     * notification updates after the dashboard is closed
+     */
 
     @Override
     protected void onDestroy() {

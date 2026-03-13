@@ -19,6 +19,11 @@ import androidx.core.content.ContextCompat;
 import com.example.cmput301_app.R;
 
 
+/**
+ * Creates the Android notification channel used for lottery notifications.
+ *
+ * This method should be called once when the application starts.
+ */
 public class NotificationHelper {
 
     private static final String LOTTERY_CHANNEL_ID = "lottery_notifications_v2";
@@ -52,6 +57,17 @@ public class NotificationHelper {
         }
     }
 
+    /**
+     * Displays an Android system notification informing the entrant that they
+     * were selected in the lottery draw.
+     *
+     * The notification contains the event name and opens the EventDetailsActivity
+     * when tapped so the entrant can view their invitation.
+     *
+     * @param context   Activity or application context
+     * @param eventName name of the event
+     * @param eventId   ID of the event used to open the event details screen
+     */
     public static void showLotteryWinNotification(Context context, String eventName, String eventId) {
         Intent intent = new Intent(context, com.example.cmput301_app.entrant.EventDetailsActivity.class);
         intent.putExtra("eventId", eventId);
@@ -98,6 +114,20 @@ public class NotificationHelper {
             }
         }
     }
+
+    /**
+     * Displays an Android system notification informing the entrant that they
+     * were not selected in the lottery draw.
+     *
+     * The notification explains that the entrant may still be selected if
+     * another participant declines their invitation.
+     *
+     * Tapping the notification opens the EventDetailsActivity.
+     *
+     * @param context   Activity or application context
+     * @param eventName name of the event
+     * @param eventId   ID of the event used to open the event details screen
+     */
 
     public static void showLotteryLossNotification(Context context, String eventName, String eventId) {
         Intent intent = new Intent(context, com.example.cmput301_app.entrant.EventDetailsActivity.class);
