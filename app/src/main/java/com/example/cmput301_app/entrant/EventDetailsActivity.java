@@ -289,8 +289,16 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                 entrantDB.getEntrant(resolveUid(), entrant -> {
                     if (entrant != null && entrant.isOnWaitingList(eventId)) {
-                        btnJoin.setText("Already Joined");
-                        btnJoin.setEnabled(false);
+                        // Already joined — let them leave
+                        btnJoin.setText("Leave Waiting List");
+                        btnJoin.setEnabled(true);
+                        btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF5722));
+                        btnJoin.setOnClickListener(v -> new android.app.AlertDialog.Builder(this)
+                                .setTitle("Leave Waiting List")
+                                .setMessage("Are you sure you want to remove yourself from the waiting list?")
+                                .setPositiveButton("Leave", (dialog, which) -> leaveWaitingList())
+                                .setNegativeButton("Cancel", null)
+                                .show());
                     } else {
                         btnJoin.setOnClickListener(v -> joinWaitingList());
                     }
