@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Activity with live CameraX preview and real-time QR code detection.
- * Matches storyboard design with in-app camera feed inside the card
+ * Matches storyboard design with in-app camera feed inside the card.
  *
  * Features:
  * - Live camera preview in card
@@ -158,7 +158,7 @@ public class ScanQRActivity extends AppCompatActivity {
 
         imageAnalysis.setAnalyzer(cameraExecutor, this::analyzeImage);
 
-        // Camera selector(back camera)
+        // Camera selector (back camera)
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         try {
@@ -223,7 +223,7 @@ public class ScanQRActivity extends AppCompatActivity {
         ImageView btnHelp = findViewById(R.id.btn_help);
         btnHelp.setOnClickListener(v -> showHelp());
 
-        // Camera button, just shows toast (camera is already live)
+        // Camera button - just shows toast (camera is already live)
         ImageView btnCamera = findViewById(R.id.btn_camera);
         btnCamera.setOnClickListener(v -> {
             Toast.makeText(this, "Camera is active - point at QR code to scan",
