@@ -62,7 +62,8 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.nav_my_events).setOnClickListener(v -> {
-            Toast.makeText(this, "My Events Clicked", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(DashboardActivity.this, MyEventsActivity.class));
+            finish();
         });
 
         loadEvents();

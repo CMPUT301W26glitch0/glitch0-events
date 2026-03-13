@@ -45,6 +45,10 @@
             android:name=".entrant.EventDetailsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".entrant.MyEventsActivity"
+            android:exported="false" />
+
         <!-- Organizer Activities -->
         <activity
             android:name=".organizer.OrganizerDashboardActivity"
