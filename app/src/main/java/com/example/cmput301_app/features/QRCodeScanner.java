@@ -9,45 +9,9 @@ import com.journeyapps.barcodescanner.ScanOptions;
  * Utility class for scanning QR codes using device camera.
  *
  * Purpose: Provides a simple interface for Activities to launch QR scanner
- * and handle scan results. Uses ZXing library for QR code detection.
- * Works with the "event_details:eventId" format used by QRDisplayActivity.
+ * and handle scan results. Uses ZXing library for QR code detection
+ * Works with the "event_details:eventId" format used by QRDisplayActivity
  *
- * Supports US 01.06.01 (scan QR to view event details)
- *
- * Usage Example:
- * In DashboardActivity or any Activity:
- *
- * private ActivityResultLauncher<ScanOptions> qrScanner;
- *
- * @Override
- * protected void onCreate(Bundle savedInstanceState) {
- *     super.onCreate(savedInstanceState);
- *     setContentView(R.layout.activity_dashboard);
- *
- *     // Initialize scanner
- *     qrScanner = QRCodeScanner.createScanner(this, result -> {
- *         if (result != null && result.getContents() != null) {
- *             String eventId = QRCodeScanner.extractEventId(result.getContents());
- *             if (eventId != null) {
- *                 // Navigate to event details
- *                 Intent intent = new Intent(this, EventDetailsActivity.class);
- *                 intent.putExtra("eventId", eventId);
- *                 startActivity(intent);
- *             } else {
- *                 Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show();
- *             }
- *         }
- *     });
- *
- *     // Setup scan button
- *     Button scanBtn = findViewById(R.id.scanQRButton);
- *     scanBtn.setOnClickListener(v -> QRCodeScanner.scan(qrScanner));
- * }
- *
- * Outstanding Issues: None
- *
- * @author Varad
- * @version 1.0
  */
 public class QRCodeScanner {
 
@@ -126,14 +90,6 @@ public class QRCodeScanner {
          * @param result ScanIntentResult containing scanned content and metadata.
          *               Will be null if scan was cancelled.
          *               Check result.getContents() for the actual QR code data.
-         *
-         * Usage:
-         * if (result != null && result.getContents() != null) {
-         *     String eventId = QRCodeScanner.extractEventId(result.getContents());
-         *     if (eventId != null) {
-         *         // Valid event QR code - proceed with eventId
-         *     }
-         * }
          */
         void onScanComplete(com.journeyapps.barcodescanner.ScanIntentResult result);
     }

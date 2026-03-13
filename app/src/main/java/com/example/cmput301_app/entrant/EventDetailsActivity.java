@@ -1,21 +1,26 @@
 package com.example.cmput301_app.entrant;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
+import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.organizer.CreateEventActivity;
+import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -28,8 +33,9 @@ import java.util.Map;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetails";
-    private TextView tvTitle, tvDescription, tvDate, tvTime;
-    private Button btnJoin;
+    private TextView tvTitle, tvDescription, tvDate, tvRegOpen, tvRegClose, tvCategory, tvLocation, tvPrice, tvCapacity;
+    private Button btnJoin, btnEdit;
+    private ImageView ivHeader;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private String eventId;
@@ -44,28 +50,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        View mainView = findViewById(R.id.event_details_main);
-        if (mainView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                // We keep top padding 0 for the immersive header image, but add bottom padding for navigation
-                v.setPadding(0, 0, 0, systemBars.bottom);
-                return insets;
-            });
-        }
-
-        tvTitle = findViewById(R.id.tv_event_title);
-        tvDescription = findViewById(R.id.tv_event_description);
-        tvDate = findViewById(R.id.tv_event_date);
-        tvTime = findViewById(R.id.tv_event_time);
-        btnJoin = findViewById(R.id.btn_join_waiting_list);
-
-        // Back button functionality
-        View btnBack = findViewById(R.id.btn_back);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
-
+        initViews();
+        
         eventId = getIntent().getStringExtra("eventId");
 
         if (eventId != null) {
@@ -73,6 +59,52 @@ public class EventDetailsActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Error: Event ID missing", Toast.LENGTH_SHORT).show();
             finish();
+        }
+    }
+
+    private void initViews() {
+        tvTitle = findViewById(R.id.tv_event_title);
+        tvDescription = findViewById(R.id.tv_event_description);
+        tvDate = findViewById(R.id.tv_event_date);
+        tvRegOpen = findViewById(R.id.tv_reg_open);
+        tvRegClose = findViewById(R.id.tv_reg_close);
+        tvCategory = findViewById(R.id.tv_category);
+        tvLocation = findViewById(R.id.tv_event_location);
+        tvPrice = findViewById(R.id.tv_event_price);
+        tvCapacity = findViewById(R.id.tv_event_capacity);
+        btnJoin = findViewById(R.id.btn_join_waiting_list);
+        btnEdit = findViewById(R.id.btn_edit_event);
+        ivHeader = findViewById(R.id.iv_header);
+
+        View mainView = findViewById(R.id.event_details_main);
+        if (mainView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(0, 0, 0, systemBars.bottom);
+                return insets;
+            });
+        }
+
+        View btnBack = findViewById(R.id.btn_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                // If the user is the organizer, go back to the Organizer Dashboard
+                String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+                if (currentEvent != null && deviceId.equals(currentEvent.getOrganizerId())) {
+                    Intent intent = new Intent(this, OrganizerDashboardActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+                finish();
+            });
+        }
+
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                Intent intent = new Intent(this, CreateEventActivity.class);
+                intent.putExtra("eventId", eventId);
+                startActivity(intent);
+            });
         }
     }
 
@@ -99,28 +131,62 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void updateUI() {
         if (currentEvent == null) return;
         
-        if (tvTitle != null) tvTitle.setText(currentEvent.getTitle());
+        if (tvTitle != null) tvTitle.setText(currentEvent.getName());
         if (tvDescription != null) tvDescription.setText(currentEvent.getDescription());
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd", Locale.getDefault());
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-
-        if (currentEvent.getRegistrationStart() != null) {
-            if (tvDate != null) tvDate.setText(dateFormat.format(currentEvent.getRegistrationStart()));
-            if (tvTime != null) {
-                String end = currentEvent.getRegistrationEnd() != null ? timeFormat.format(currentEvent.getRegistrationEnd()) : "End";
-                tvTime.setText(timeFormat.format(currentEvent.getRegistrationStart()) + " - \n" + end);
-            }
+        if (tvCategory != null) {
+            String category = currentEvent.getCategory();
+            tvCategory.setText(category != null ? category.toUpperCase() : "GENERAL");
+        }
+        if (tvLocation != null) tvLocation.setText(currentEvent.getLocation());
+        
+        if (tvPrice != null) {
+            tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", currentEvent.getPrice()));
+        }
+        
+        if (tvCapacity != null) {
+            tvCapacity.setText(String.valueOf(currentEvent.getCapacity()));
         }
 
-        // Acceptance Criteria: The button is only shown when the event registration period is open
+        if (ivHeader != null && currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
+            Glide.with(this)
+                 .load(currentEvent.getPosterUrl())
+                 .placeholder(android.R.drawable.ic_menu_gallery)
+                 .into(ivHeader);
+        }
+
+        SimpleDateFormat fullFormat = new SimpleDateFormat("EEE, MMM dd HH:mm:ss", Locale.getDefault());
+
+        if (currentEvent.getDate() != null && tvDate != null) {
+            tvDate.setText("Event Date: " + fullFormat.format(currentEvent.getDate().toDate()));
+        }
+
+        if (currentEvent.getRegistrationOpen() != null && tvRegOpen != null) {
+            tvRegOpen.setText("Registration Open:\n" + fullFormat.format(currentEvent.getRegistrationOpen().toDate()));
+        }
+        
+        if (currentEvent.getRegistrationClose() != null && tvRegClose != null) {
+            tvRegClose.setText("Registration Close:\n" + fullFormat.format(currentEvent.getRegistrationClose().toDate()));
+        }
+
+        // Check ownership
+        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (deviceId.equals(currentEvent.getOrganizerId())) {
+            if (btnEdit != null) btnEdit.setVisibility(View.VISIBLE);
+            if (btnJoin != null) btnJoin.setVisibility(View.GONE);
+        } else {
+            if (btnEdit != null) btnEdit.setVisibility(View.GONE);
+            setupJoinButton();
+        }
+    }
+
+    private void setupJoinButton() {
         if (btnJoin != null) {
-            if (currentEvent.isRegistrationOpen()) {
+            if (currentEvent.checkIsRegistrationOpen()) {
                 btnJoin.setVisibility(View.VISIBLE);
+                btnJoin.setEnabled(true);
+                btnJoin.setText("Join Waiting List");
                 btnJoin.setOnClickListener(v -> joinWaitingList());
             } else {
-                // For development/debugging, you might want to keep it visible but disabled
-                // btnJoin.setVisibility(View.GONE);
                 btnJoin.setVisibility(View.VISIBLE);
                 btnJoin.setEnabled(false);
                 btnJoin.setText("Registration Closed");

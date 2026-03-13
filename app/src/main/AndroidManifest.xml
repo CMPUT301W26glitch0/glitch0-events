@@ -2,12 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Add this line -->
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Camera Activity -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -37,6 +32,10 @@
             android:name=".ProfileActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".DeleteProfileActivity"
+            android:exported="false" />
+
         <!-- Entrant Activities -->
         <activity
             android:name=".entrant.DashboardActivity"
@@ -46,7 +45,33 @@
             android:name=".entrant.EventDetailsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".entrant.ScanQRActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
+        <!-- Organizer Activities -->
+        <activity
+            android:name=".organizer.OrganizerDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.CreateEventActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.OrganizerEventDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.QRDisplayActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.RegistrationTimingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.EntrantListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.LotteryDrawActivity"
+            android:exported="false" />
 
     </application>
 
