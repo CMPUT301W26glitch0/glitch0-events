@@ -31,6 +31,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Activity to display event details and manage waiting list.
+ *
+ */
 public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetails";
     private TextView tvTitle, tvDescription, tvDate, tvRegOpen, tvRegClose, tvCategory, tvLocation, tvPrice, tvCapacity;
@@ -40,6 +44,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String eventId;
     private Event currentEvent;
+    private boolean isOnWaitingList = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +56,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         initViews();
-        
+
         eventId = getIntent().getStringExtra("eventId");
 
         if (eventId != null) {
@@ -88,7 +93,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         View btnBack = findViewById(R.id.btn_back);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> {
-                // If the user is the organizer, go back to the Organizer Dashboard
                 String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                 if (currentEvent != null && deviceId.equals(currentEvent.getOrganizerId())) {
                     Intent intent = new Intent(this, OrganizerDashboardActivity.class);
@@ -120,6 +124,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     if (currentEvent != null) {
                         currentEvent.setEventId(doc.getId());
                         updateUI();
+                        checkWaitingListStatus();
                     }
                 } catch (Exception ex) {
                     Log.e(TAG, "Error parsing event", ex);
@@ -130,7 +135,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private void updateUI() {
         if (currentEvent == null) return;
-        
+
         if (tvTitle != null) tvTitle.setText(currentEvent.getName());
         if (tvDescription != null) tvDescription.setText(currentEvent.getDescription());
         if (tvCategory != null) {
@@ -138,20 +143,20 @@ public class EventDetailsActivity extends AppCompatActivity {
             tvCategory.setText(category != null ? category.toUpperCase() : "GENERAL");
         }
         if (tvLocation != null) tvLocation.setText(currentEvent.getLocation());
-        
+
         if (tvPrice != null) {
             tvPrice.setText(String.format(Locale.getDefault(), "$%.2f", currentEvent.getPrice()));
         }
-        
+
         if (tvCapacity != null) {
             tvCapacity.setText(String.valueOf(currentEvent.getCapacity()));
         }
 
         if (ivHeader != null && currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
             Glide.with(this)
-                 .load(currentEvent.getPosterUrl())
-                 .placeholder(android.R.drawable.ic_menu_gallery)
-                 .into(ivHeader);
+                    .load(currentEvent.getPosterUrl())
+                    .placeholder(android.R.drawable.ic_menu_gallery)
+                    .into(ivHeader);
         }
 
         SimpleDateFormat fullFormat = new SimpleDateFormat("EEE, MMM dd HH:mm:ss", Locale.getDefault());
@@ -163,7 +168,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         if (currentEvent.getRegistrationOpen() != null && tvRegOpen != null) {
             tvRegOpen.setText("Registration Open:\n" + fullFormat.format(currentEvent.getRegistrationOpen().toDate()));
         }
-        
+
         if (currentEvent.getRegistrationClose() != null && tvRegClose != null) {
             tvRegClose.setText("Registration Close:\n" + fullFormat.format(currentEvent.getRegistrationClose().toDate()));
         }
@@ -175,26 +180,71 @@ public class EventDetailsActivity extends AppCompatActivity {
             if (btnJoin != null) btnJoin.setVisibility(View.GONE);
         } else {
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
+
+        }
+    }
+
+    /**
+     * Check if user is already on the waiting list
+     */
+    private void checkWaitingListStatus() {
+        String uid = auth.getUid();
+        if (uid == null || eventId == null) {
             setupJoinButton();
+            return;
         }
+
+        DocumentReference waitRef = db.collection("events")
+                .document(eventId)
+                .collection("waiting_list")
+                .document(uid);
+
+        waitRef.get().addOnSuccessListener(doc -> {
+            isOnWaitingList = doc.exists();
+            setupJoinButton();
+        }).addOnFailureListener(e -> {
+            isOnWaitingList = false;
+            setupJoinButton();
+        });
     }
 
+    /**
+     * Setup join/leave button based on registration status and waiting list status
+     */
     private void setupJoinButton() {
-        if (btnJoin != null) {
-            if (currentEvent.checkIsRegistrationOpen()) {
-                btnJoin.setVisibility(View.VISIBLE);
-                btnJoin.setEnabled(true);
-                btnJoin.setText("Join Waiting List");
-                btnJoin.setOnClickListener(v -> joinWaitingList());
-            } else {
-                btnJoin.setVisibility(View.VISIBLE);
-                btnJoin.setEnabled(false);
-                btnJoin.setText("Registration Closed");
-                btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFBDBDBD));
-            }
+        if (btnJoin == null || currentEvent == null) return;
+
+        btnJoin.setVisibility(View.VISIBLE);
+
+        // Check if registration is open
+        if (!currentEvent.checkIsRegistrationOpen()) {
+            // Registration closed
+            btnJoin.setEnabled(false);
+            btnJoin.setText("Registration Closed");
+            btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFBDBDBD));
+            return;
+        }
+
+        // Registration is open - check waiting list status
+        if (isOnWaitingList) {
+            // User is on waiting list, show LEAVE button
+            btnJoin.setEnabled(true);
+            btnJoin.setText("Leave Waiting List");
+            btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF5252)); // Red
+            btnJoin.setOnClickListener(v -> leaveWaitingList());
+        } else {
+            // User is not on waiting list, show JOIN button
+            btnJoin.setEnabled(true);
+            btnJoin.setText("Join Waiting List");
+            btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    getResources().getColor(R.color.primary_blue, null)));
+            btnJoin.setOnClickListener(v -> joinWaitingList());
         }
     }
 
+    /**
+     * Join waiting list functionality
+     */
     private void joinWaitingList() {
         if (currentEvent == null || eventId == null) return;
         String uid = auth.getUid();
@@ -205,37 +255,65 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         btnJoin.setEnabled(false);
         String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-        
+
         DocumentReference eventRef = db.collection("events").document(eventId);
         DocumentReference waitRef = eventRef.collection("waiting_list").document(uid);
 
-        waitRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null && task.getResult().exists()) {
-                Toast.makeText(EventDetailsActivity.this, "Already joined the waiting list.", Toast.LENGTH_SHORT).show();
-                btnJoin.setEnabled(true);
-            } else {
-                db.runTransaction(transaction -> {
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("userId", uid);
-                    data.put("deviceId", deviceId);
-                    data.put("joinedAt", FieldValue.serverTimestamp());
+        db.runTransaction(transaction -> {
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", uid);
+            data.put("deviceId", deviceId);
+            data.put("joinedAt", FieldValue.serverTimestamp());
 
-                    transaction.set(waitRef, data);
-                    transaction.update(eventRef, "waitingListCount", FieldValue.increment(1));
-                    return null;
-                }).addOnSuccessListener(aVoid -> {
-                    if (!isFinishing()) {
-                        Toast.makeText(EventDetailsActivity.this, "Joined successfully!", Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
-                        btnJoin.setText("Already Joined");
-                    }
-                }).addOnFailureListener(e -> {
-                    if (!isFinishing()) {
-                        Log.e(TAG, "Transaction failed", e);
-                        Toast.makeText(EventDetailsActivity.this, "Error joining: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
-                    }
-                });
+            transaction.set(waitRef, data);
+            transaction.update(eventRef, "waitingListCount", FieldValue.increment(1));
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            if (!isFinishing()) {
+                Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
+                isOnWaitingList = true;
+                setupJoinButton();
+            }
+        }).addOnFailureListener(e -> {
+            if (!isFinishing()) {
+                Log.e(TAG, "Transaction failed", e);
+                Toast.makeText(this, "Error joining: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                btnJoin.setEnabled(true);
+            }
+        });
+    }
+
+    /**
+     * Leave waiting list functionality
+     */
+    private void leaveWaitingList() {
+        if (currentEvent == null || eventId == null) return;
+        String uid = auth.getUid();
+        if (uid == null) {
+            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnJoin.setEnabled(false);
+
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference waitRef = eventRef.collection("waiting_list").document(uid);
+
+        db.runTransaction(transaction -> {
+            transaction.delete(waitRef);
+            transaction.update(eventRef, "waitingListCount", FieldValue.increment(-1));
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            if (!isFinishing()) {
+                Toast.makeText(this, "Left waiting list successfully", Toast.LENGTH_SHORT).show();
+                isOnWaitingList = false;
+                setupJoinButton();
+            }
+        }).addOnFailureListener(e -> {
+            if (!isFinishing()) {
+                Log.e(TAG, "Transaction failed", e);
+                Toast.makeText(this, "Error leaving waiting list: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                btnJoin.setEnabled(true);
             }
         });
     }
