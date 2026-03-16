@@ -30,12 +30,13 @@ import com.example.cmput301_app.model.Event;
 import com.example.cmput301_app.organizer.CreateEventActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Map;
+
+import com.google.firebase.firestore.FieldValue;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetails";
@@ -132,6 +133,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /** Firebase Auth first; SharedPreferences last_uid fallback for device ID login. */
+    private String resolveUid() {
+        if (auth.getCurrentUser() != null) return auth.getCurrentUser().getUid();
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+    }
+
     private void loadEventDetails() {
         db.collection("events").document(eventId).addSnapshotListener((doc, e) -> {
             if (e != null) {
@@ -203,7 +210,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void checkWaitingListStatus() {
-        String uid = auth.getUid();
+        String uid = resolveUid();
         if (uid == null || eventId == null) {
             setupJoinButton();
             return;
@@ -220,7 +227,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private void setupJoinButton() {
         if (btnJoin != null) {
-            String deviceId = auth.getUid();
+            String deviceId = resolveUid();
             if (deviceId == null) {
                 showWaitlistButton();
                 return;
@@ -280,10 +287,18 @@ public class EventDetailsActivity extends AppCompatActivity {
                 btnJoin.setText("Join Waiting List");
                 btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
 
-                entrantDB.getEntrant(auth.getUid(), entrant -> {
+                entrantDB.getEntrant(resolveUid(), entrant -> {
                     if (entrant != null && entrant.isOnWaitingList(eventId)) {
-                        btnJoin.setText("Already Joined");
-                        btnJoin.setEnabled(false);
+                        // Already joined — let them leave
+                        btnJoin.setText("Leave Waiting List");
+                        btnJoin.setEnabled(true);
+                        btnJoin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFF5722));
+                        btnJoin.setOnClickListener(v -> new android.app.AlertDialog.Builder(this)
+                                .setTitle("Leave Waiting List")
+                                .setMessage("Are you sure you want to remove yourself from the waiting list?")
+                                .setPositiveButton("Leave", (dialog, which) -> leaveWaitingList())
+                                .setNegativeButton("Cancel", null)
+                                .show());
                     } else {
                         btnJoin.setOnClickListener(v -> joinWaitingList());
                     }
@@ -336,7 +351,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void handleAccept() {
-        String uid = auth.getUid();
+        String uid = resolveUid();
         if (uid == null) return;
 
         updateEntrantOutcome(uid, eventId, "SELECTED", "ACCEPTED", () -> {
@@ -352,7 +367,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void handleDecline() {
-        String uid = auth.getUid();
+        String uid = resolveUid();
         if (uid == null) return;
 
         updateEntrantOutcome(uid, eventId, "SELECTED", "DECLINED", () -> {
@@ -426,7 +441,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void joinWaitingList() {
         if (currentEvent == null || eventId == null) return;
 
-        String deviceId = auth.getUid();
+        String deviceId = resolveUid();
         if (deviceId == null) {
             Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
             return;
@@ -484,7 +499,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void leaveWaitingList() {
         if (currentEvent == null || eventId == null) return;
 
-        String deviceId = auth.getUid();
+        String deviceId = resolveUid();
         if (deviceId == null) {
             Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
             return;

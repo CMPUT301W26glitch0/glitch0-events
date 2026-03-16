@@ -66,6 +66,22 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogin = findViewById(R.id.btn_login);
         Button btnDeviceLogin = findViewById(R.id.btn_device_login);
         TextView tvRegisterLink = findViewById(R.id.tv_register_link);
+        TextView tvForgotPassword = findViewById(R.id.tv_forgot_password);
+
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(v -> {
+                String email = etEmail.getText().toString().trim();
+                if (email.isEmpty()) {
+                    Toast.makeText(this, "Enter your email above first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnSuccessListener(unused ->
+                                Toast.makeText(this, "Reset email sent to " + email, Toast.LENGTH_LONG).show())
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            });
+        }
 
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
@@ -96,14 +112,20 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        // Device login now just acts as a shortcut if the user is already signed in
+        // Device login: use the last-used UID stored locally in SharedPreferences.
+        // This is set on every successful login (email/password or device), so it
+        // always refers to whoever most recently used the app on this device.
         if (btnDeviceLogin != null) {
             btnDeviceLogin.setOnClickListener(v -> {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    checkUserAndNavigate(user.getUid());
+                android.content.SharedPreferences prefs =
+                        getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE);
+                String lastUid = prefs.getString("last_uid", null);
+                if (lastUid != null) {
+                    checkUserAndNavigate(lastUid);
                 } else {
-                    Toast.makeText(this, "Please log in with your email and password.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,
+                            "No previous session found. Please log in with your email and password first.",
+                            Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -115,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
     private void checkUserAndNavigate(String uid) {
         mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
+                // Persist this UID locally so Device ID login works after logout
+                getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE)
+                        .edit().putString("last_uid", uid).apply();
+
                 String role = doc.getString("role");
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
@@ -125,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             } else {
-                // Signed in to Firebase Auth but no Firestore profile — send to register
                 mAuth.signOut();
                 Toast.makeText(this, "No profile found. Please register.", Toast.LENGTH_LONG).show();
             }

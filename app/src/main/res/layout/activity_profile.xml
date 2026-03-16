@@ -170,6 +170,49 @@
                 android:textColor="@color/dark_blue"
                 app:layout_constraintTop_toBottomOf="@id/tv_phone_label" />
 
+            <!-- Notification Toggle -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_notification_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/rounded_input_bg"
+                android:padding="16dp"
+                app:layout_constraintTop_toBottomOf="@id/et_profile_phone">
+
+                <ImageView
+                    android:id="@+id/iv_notif_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_popup_reminder"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/primary_blue" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Enable Notifications"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/iv_notif_icon"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:thumbTint="@color/primary_blue" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <Button
                 android:id="@+id/btn_save_profile"
                 android:layout_width="match_parent"
@@ -182,7 +225,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
-                app:layout_constraintTop_toBottomOf="@id/et_profile_phone" />
+                app:layout_constraintTop_toBottomOf="@id/cl_notification_settings" />
 
             <Button
                 android:id="@+id/btn_logout"

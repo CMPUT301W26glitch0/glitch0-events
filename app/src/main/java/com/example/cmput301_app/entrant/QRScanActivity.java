@@ -1,7 +1,17 @@
-/*
- * Purpose: Activity responsible for opening the camera to scan event QR codes.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Lightweight activity that opens the Google Play Services barcode scanner to
+ * let an entrant scan an event QR code.
+ *
+ * On a successful scan it checks whether the raw value starts with the prefix
+ * {@code "event_details:"} and, if so, launches {@link EventDetailsActivity}
+ * with the extracted event ID. Any unrecognised QR content is silently rejected
+ * with a Toast message.
+ *
+ * This activity finishes immediately after the scan result is handled.
+ *
+ * Outstanding issues:
+ * - This activity is currently superseded by {@link ScanQRActivity}, which
+ *   uses a live CameraX preview. The two implementations should be consolidated.
  */
 package com.example.cmput301_app.entrant;
 

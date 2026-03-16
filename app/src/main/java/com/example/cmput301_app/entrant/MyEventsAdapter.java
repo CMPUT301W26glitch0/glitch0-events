@@ -1,7 +1,15 @@
-/*
- * Purpose: RecyclerView adapter for displaying an entrant's personal event history.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * RecyclerView adapter for displaying an entrant's registered-event history.
+ *
+ * Each list item pairs an {@link Event} with a {@link com.example.cmput301_app.model.Entrant.RegistrationRecord.Outcome}
+ * (exposed via the inner {@link MyEventItem} data class) and renders the event name,
+ * date, and a colour-coded status badge reflecting the entrant's lottery outcome
+ * (Waitlist, Pending, Won, Declined, Not Selected, Cancelled).
+ *
+ * Click events are forwarded to the caller via the {@link OnItemClickListener}
+ * interface so the host Activity can open {@link EventDetailsActivity}.
+ *
+ * Outstanding issues: None.
  */
 package com.example.cmput301_app.entrant;
 
@@ -69,13 +77,13 @@ public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEven
         // set status badge text and colors based on outcome
         switch (item.outcome) {
             case WAITING:
-                setBadgeStyle(context, holder.tvStatus, "Waitlist", R.color.badge_gray_bg, R.color.badge_gray_text);
+                setBadgeStyle(context, holder.tvStatus, "Waiting", R.color.badge_gray_bg, R.color.badge_gray_text);
                 break;
             case SELECTED:
-                setBadgeStyle(context, holder.tvStatus, "Pending", R.color.badge_orange_bg, R.color.badge_orange_text);
+                setBadgeStyle(context, holder.tvStatus, "Selected", R.color.badge_orange_bg, R.color.badge_orange_text);
                 break;
             case ACCEPTED:
-                setBadgeStyle(context, holder.tvStatus, "Won", R.color.light_blue_bg, R.color.primary_blue);
+                setBadgeStyle(context, holder.tvStatus, "Accepted", R.color.badge_green_bg, R.color.badge_green_text);
                 break;
             case DECLINED:
                 setBadgeStyle(context, holder.tvStatus, "Declined", R.color.badge_orange_bg, R.color.badge_orange_text);

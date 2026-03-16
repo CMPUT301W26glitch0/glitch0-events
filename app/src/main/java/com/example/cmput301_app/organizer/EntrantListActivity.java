@@ -1,7 +1,22 @@
-/*
- * Purpose: Displays the unified waitlist and accepted entrants for a specific event.
- * Design Pattern: Standard Android structure
- * Outstanding Issues: None
+/**
+ * Displays a unified, searchable list of all entrants on a specific event's waiting list.
+ *
+ * The activity receives an {@code eventId} via intent extra and attaches a real-time
+ * Firestore snapshot listener to the event document. For each user ID in
+ * {@code waitingListIds}, it fetches the user document, reads the
+ * {@code registrationHistory} array to determine the entrant's current outcome
+ * for this event, and maps that outcome to a display status string used by
+ * EntrantAdapter.
+ *
+ * A search bar allows the organizer to filter the list by name. The total count
+ * badge always reflects the unfiltered master list size.
+ *
+ * The "Run Lottery" button is enabled only when at least one entrant has
+ * WAITING status, and navigates to LotteryDrawActivity.
+ *
+ * Outstanding issues:
+ * - The list is rebuilt from scratch on every snapshot update. For large waiting
+ *   lists this may be expensive; a DiffUtil-based approach would be more efficient.
  */
 package com.example.cmput301_app.organizer;
 
