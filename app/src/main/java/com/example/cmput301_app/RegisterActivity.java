@@ -112,7 +112,7 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         });
     }
-
+//
     private void navigateToDashboard() {
         Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
