@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -26,7 +28,6 @@ import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +46,8 @@ public class DashboardActivity extends AppCompatActivity {
     // Browse tab
     private RecyclerView rvEvents;
     private EventAdapter browseAdapter;
-    private List<Event> eventList;
+    private List<Event> eventList;          // displayed (possibly filtered)
+    private List<Event> masterEventList;    // all events from DB
 
     // My Events tab
     private RecyclerView rvMyEvents;
@@ -58,6 +60,17 @@ public class DashboardActivity extends AppCompatActivity {
     private View clBrowseContent, clMyEventsContent;
 
     private boolean myEventsLoaded = false;
+
+    // Filter state (preserved for re-opening the filter screen)
+    private int[] filterDays = null;
+    private boolean filterMorning = false;
+    private boolean filterAfternoon = false;
+    private boolean filterEvening = false;
+    private boolean filterWaitlist = false;
+    private boolean filterHideFull = false;
+
+    // Activity result launcher for FilterEventsActivity
+    private ActivityResultLauncher<Intent> filterLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +91,28 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
+        // --- Filter launcher ---
+        filterLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        filterDays = data.getIntArrayExtra(FilterEventsActivity.EXTRA_SELECTED_DAYS);
+                        filterMorning = data.getBooleanExtra(FilterEventsActivity.EXTRA_MORNING, false);
+                        filterAfternoon = data.getBooleanExtra(FilterEventsActivity.EXTRA_AFTERNOON, false);
+                        filterEvening = data.getBooleanExtra(FilterEventsActivity.EXTRA_EVENING, false);
+                        filterWaitlist = data.getBooleanExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, false);
+                        filterHideFull = data.getBooleanExtra(FilterEventsActivity.EXTRA_HIDE_FULL, false);
+                        applyLocalFilters();
+                    }
+                    // RESULT_CANCELED → keep previous filter state (no change)
+                });
+
         // --- Browse RecyclerView ---
         rvEvents = findViewById(R.id.rv_events);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         eventList = new ArrayList<>();
+        masterEventList = new ArrayList<>();
         browseAdapter = new EventAdapter(eventList, this);
         rvEvents.setAdapter(browseAdapter);
 
@@ -111,6 +142,12 @@ public class DashboardActivity extends AppCompatActivity {
         // Start on Browse tab
         showTab(false);
 
+        // --- Filter button (reuse existing sort button) ---
+        View btnFilterSort = findViewById(R.id.btn_filter_sort);
+        if (btnFilterSort != null) {
+            btnFilterSort.setOnClickListener(v -> openFilterScreen());
+        }
+
         // --- Bottom nav ---
         View navProfile = findViewById(R.id.nav_profile);
         if (navProfile != null) navProfile.setOnClickListener(v ->
@@ -125,6 +162,52 @@ public class DashboardActivity extends AppCompatActivity {
         if (navEvents != null) navEvents.setOnClickListener(v -> showTab(false));
 
         loadBrowseEvents();
+    }
+
+    /** Opens the FilterEventsActivity, passing current filter state so selections persist. */
+    private void openFilterScreen() {
+        Intent intent = new Intent(this, FilterEventsActivity.class);
+        if (filterDays != null) intent.putExtra(FilterEventsActivity.EXTRA_SELECTED_DAYS, filterDays);
+        intent.putExtra(FilterEventsActivity.EXTRA_MORNING, filterMorning);
+        intent.putExtra(FilterEventsActivity.EXTRA_AFTERNOON, filterAfternoon);
+        intent.putExtra(FilterEventsActivity.EXTRA_EVENING, filterEvening);
+        intent.putExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, filterWaitlist);
+        intent.putExtra(FilterEventsActivity.EXTRA_HIDE_FULL, filterHideFull);
+        filterLauncher.launch(intent);
+    }
+
+    /** Apply stored filter criteria locally to masterEventList → eventList. */
+    private void applyLocalFilters() {
+        boolean anyDay = filterDays != null && filterDays.length > 0;
+        boolean anyTime = filterMorning || filterAfternoon || filterEvening;
+
+        eventList.clear();
+        for (Event event : masterEventList) {
+            // Day filter
+            if (anyDay) {
+                int eventDay = event.getDayOfWeek();
+                if (eventDay == -1) continue;
+                boolean match = false;
+                for (int d : filterDays) { if (d == eventDay) { match = true; break; } }
+                if (!match) continue;
+            }
+            // Time filter
+            if (anyTime) {
+                int hour = event.getHourOfDay();
+                if (hour == -1) continue;
+                boolean timeMatch = false;
+                if (filterMorning && hour < 12) timeMatch = true;
+                if (filterAfternoon && hour >= 12 && hour < 16) timeMatch = true;
+                if (filterEvening && hour >= 16) timeMatch = true;
+                if (!timeMatch) continue;
+            }
+            // Capacity filters
+            if (filterWaitlist && !event.hasWaitlistSpace()) continue;
+            if (filterHideFull && event.isFull()) continue;
+
+            eventList.add(event);
+        }
+        browseAdapter.notifyDataSetChanged();
     }
 
     /** Toggle between Browse and My Events tabs. */
@@ -154,9 +237,9 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void loadBrowseEvents() {
         eventDB.getAllEvents(events -> {
-            eventList.clear();
-            eventList.addAll(events);
-            browseAdapter.notifyDataSetChanged();
+            masterEventList.clear();
+            masterEventList.addAll(events);
+            applyLocalFilters();
         }, e -> Toast.makeText(this, "Error loading events: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 

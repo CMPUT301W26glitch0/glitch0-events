@@ -102,15 +102,18 @@ public class QRDisplayActivity extends AppCompatActivity {
                 tvPreviewDesc.setText(event.getDescription());
                 tvPreviewLocation.setText(event.getLocation());
 
-                if (tvEventId != null) tvEventId.setText(eventId);
-                if (tvEventIdSecondary != null) tvEventIdSecondary.setText("ID: " + eventId);
+                if (tvEventId != null)
+                    tvEventId.setText(eventId);
+                if (tvEventIdSecondary != null)
+                    tvEventIdSecondary.setText("ID: " + eventId);
 
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                     Glide.with(this).load(event.getPosterUrl()).into(ivPreviewPoster);
                 }
 
                 qrBitmap = generateQR("event_details:" + eventId);
-                if (qrBitmap != null) ivQrCode.setImageBitmap(qrBitmap);
+                if (qrBitmap != null)
+                    ivQrCode.setImageBitmap(qrBitmap);
             }
         }, e -> Toast.makeText(this, "Error loading event", Toast.LENGTH_SHORT).show());
     }
@@ -130,7 +133,10 @@ public class QRDisplayActivity extends AppCompatActivity {
         }
     }
 
-    /** Saves QR to the device gallery using MediaStore (API 29+, no permission needed). */
+    /**
+     * Saves QR to the device gallery using MediaStore (API 29+, no permission
+     * needed).
+     */
     private void downloadQR() {
         if (qrBitmap == null) {
             Toast.makeText(this, "QR not ready yet", Toast.LENGTH_SHORT).show();
@@ -163,7 +169,9 @@ public class QRDisplayActivity extends AppCompatActivity {
         }
     }
 
-    /** Shares QR via Android share sheet using FileProvider (works with all apps). */
+    /**
+     * Shares QR via Android share sheet using FileProvider (works with all apps).
+     */
     private void shareQR() {
         if (qrBitmap == null) {
             Toast.makeText(this, "QR not ready yet", Toast.LENGTH_SHORT).show();
@@ -172,7 +180,8 @@ public class QRDisplayActivity extends AppCompatActivity {
         try {
             // Write to app cache so FileProvider can share it
             File qrDir = new File(getCacheDir(), "qr_codes");
-            if (!qrDir.exists()) qrDir.mkdirs();
+            if (!qrDir.exists())
+                qrDir.mkdirs();
 
             File qrFile = new File(qrDir, "event_qr_" + eventId + ".png");
             try (FileOutputStream fos = new FileOutputStream(qrFile)) {

@@ -28,9 +28,9 @@ import java.util.Map;
  *
  * Outstanding issues:
  * - deleteOrganizer() removes the organizer's document but does not yet
- *   remove their associated events, lottery pools, posters, and notifications
- *   from Firestore. This cleanup should be coordinated through AdminDB
- *   when removing an organizer who violates app policy.
+ * remove their associated events, lottery pools, posters, and notifications
+ * from Firestore. This cleanup should be coordinated through AdminDB
+ * when removing an organizer who violates app policy.
  */
 public class OrganizerDB {
 
@@ -65,8 +65,8 @@ public class OrganizerDB {
      * @param failureListener called if the operation fails
      */
     public void createOrganizer(Organizer organizer,
-                                OnSuccessListener<Void> successListener,
-                                OnFailureListener failureListener) {
+            OnSuccessListener<Void> successListener,
+            OnFailureListener failureListener) {
         Map<String, Object> data = new HashMap<>();
         data.put("deviceId", organizer.getDeviceId());
         data.put("name", organizer.getName());
@@ -89,12 +89,13 @@ public class OrganizerDB {
      * it as an Organizer object via the success listener.
      *
      * @param deviceId        the device ID of the organizer to fetch
-     * @param successListener called with the Organizer object if found, or null if not found
+     * @param successListener called with the Organizer object if found, or null if
+     *                        not found
      * @param failureListener called if the operation fails
      */
     public void getOrganizer(String deviceId,
-                             OnSuccessListener<Organizer> successListener,
-                             OnFailureListener failureListener) {
+            OnSuccessListener<Organizer> successListener,
+            OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(deviceId)
                 .get()
@@ -119,8 +120,8 @@ public class OrganizerDB {
      * @param failureListener called if the operation fails
      */
     public void updateOrganizer(Organizer organizer,
-                                OnSuccessListener<Void> successListener,
-                                OnFailureListener failureListener) {
+            OnSuccessListener<Void> successListener,
+            OnFailureListener failureListener) {
         Map<String, Object> data = new HashMap<>();
         data.put("name", organizer.getName());
         data.put("email", organizer.getEmail());
@@ -149,8 +150,8 @@ public class OrganizerDB {
      * @param failureListener called if the operation fails
      */
     public void deleteOrganizer(String deviceId,
-                                OnSuccessListener<Void> successListener,
-                                OnFailureListener failureListener) {
+            OnSuccessListener<Void> successListener,
+            OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(deviceId)
                 .delete()
@@ -172,8 +173,8 @@ public class OrganizerDB {
      * @param failureListener called if the operation fails
      */
     public void addOrganizedEvent(String deviceId, String eventId,
-                                  OnSuccessListener<Void> successListener,
-                                  OnFailureListener failureListener) {
+            OnSuccessListener<Void> successListener,
+            OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(deviceId)
                 .update("organizedEventIds", FieldValue.arrayUnion(eventId))
@@ -182,7 +183,8 @@ public class OrganizerDB {
     }
 
     /**
-     * Removes an event ID from the organizer's organizedEventIds array in Firestore.
+     * Removes an event ID from the organizer's organizedEventIds array in
+     * Firestore.
      * Uses Firestore's ArrayRemove operation to safely remove the entry.
      *
      * @param deviceId        the device ID of the organizer
@@ -191,8 +193,8 @@ public class OrganizerDB {
      * @param failureListener called if the operation fails
      */
     public void removeOrganizedEvent(String deviceId, String eventId,
-                                     OnSuccessListener<Void> successListener,
-                                     OnFailureListener failureListener) {
+            OnSuccessListener<Void> successListener,
+            OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(deviceId)
                 .update("organizedEventIds", FieldValue.arrayRemove(eventId))

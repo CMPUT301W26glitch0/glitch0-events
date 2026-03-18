@@ -509,6 +509,13 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         entrantDB.removeFromWaitingList(deviceId, eventId, aVoid -> {
             eventDB.removeFromWaitingList(eventId, deviceId, aVoid2 -> {
+                // Also remove from registrationHistory so it disappears from My Events
+                java.util.Map<String, Object> waitingRecord = new java.util.HashMap<>();
+                waitingRecord.put("eventId", eventId);
+                waitingRecord.put("outcome", "WAITING");
+                db.collection("users").document(deviceId)
+                        .update("registrationHistory", FieldValue.arrayRemove(waitingRecord));
+
                 if (!isFinishing()) {
                     Toast.makeText(this, "Left waiting list successfully", Toast.LENGTH_SHORT).show();
                     isOnWaitingList = false;
