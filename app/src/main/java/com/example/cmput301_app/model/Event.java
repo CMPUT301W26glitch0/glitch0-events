@@ -115,5 +115,22 @@ public class Event {
         int confirmed = (confirmedAttendeesIds != null) ? confirmedAttendeesIds.size() : 0;
         return confirmed >= capacity;
     }
+
+    // ─── Search Helper (US: Entrant Search by Keyword) ───
+
+    /**
+     * Returns true if the keyword matches the event's name, description, or category
+     * (case-insensitive). A null or empty keyword matches everything.
+     */
+    @Exclude
+    public boolean matchesKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) return true;
+        String lower = keyword.trim().toLowerCase();
+        if (name != null && name.toLowerCase().contains(lower)) return true;
+        if (description != null && description.toLowerCase().contains(lower)) return true;
+        if (category != null && category.toLowerCase().contains(lower)) return true;
+        if (location != null && location.toLowerCase().contains(lower)) return true;
+        return false;
+    }
 }
 

@@ -81,15 +81,36 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintTop_toBottomOf="@id/header_divider">
 
+        <!-- Search bar -->
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_search_bar"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="12dp"
+            android:drawableTint="@color/gray_text"
+            android:hint="Search events, sports, or locations..."
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
+            android:textColor="@color/dark_blue"
+            android:textColorHint="@color/gray_text"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <HorizontalScrollView
             android:id="@+id/hsv_filters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:clipToPadding="false"
             android:paddingHorizontal="24dp"
             android:scrollbars="none"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/et_search">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -138,7 +159,7 @@
             android:id="@+id/tv_browse_empty_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No events available right now.\nCheck back soon!"
+            android:text="No events match your search."
             android:textAlignment="center"
             android:textColor="@color/gray_text"
             android:textSize="14sp"
@@ -146,7 +167,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/hsv_filters" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

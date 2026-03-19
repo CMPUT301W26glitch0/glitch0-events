@@ -7,7 +7,12 @@ package com.example.cmput301_app.entrant;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.res.ColorStateList;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +53,9 @@ public class DashboardActivity extends AppCompatActivity {
     private EventAdapter browseAdapter;
     private List<Event> eventList;          // displayed (possibly filtered)
     private List<Event> masterEventList;    // all events from DB
+    private EditText etSearch;
+    private TextView tvBrowseEmptyState;
+    private String currentSearchQuery = "";
 
     // My Events tab
     private RecyclerView rvMyEvents;
@@ -69,6 +77,7 @@ public class DashboardActivity extends AppCompatActivity {
     private boolean filterWaitlist = false;
     private boolean filterHideFull = false;
 
+    private Button btnFilterSort;
     private ActivityResultLauncher<Intent> filterLauncher;
 
     @Override
@@ -103,8 +112,21 @@ public class DashboardActivity extends AppCompatActivity {
                         filterWaitlist = data.getBooleanExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, false);
                         filterHideFull = data.getBooleanExtra(FilterEventsActivity.EXTRA_HIDE_FULL, false);
                         applyLocalFilters();
+                        updateFilterButtonAppearance();
                     }
                 });
+
+        // --- Search bar ---
+        etSearch = findViewById(R.id.et_search);
+        tvBrowseEmptyState = findViewById(R.id.tv_browse_empty_state);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString();
+                applyLocalFilters();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
 
         // --- Browse RecyclerView ---
         rvEvents = findViewById(R.id.rv_events);
@@ -139,7 +161,7 @@ public class DashboardActivity extends AppCompatActivity {
         showTab(false);
 
         // --- Filter button ---
-        View btnFilterSort = findViewById(R.id.btn_filter_sort);
+        btnFilterSort = findViewById(R.id.btn_filter_sort);
         if (btnFilterSort != null) {
             btnFilterSort.setOnClickListener(v -> openFilterScreen());
         }
@@ -176,6 +198,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         eventList.clear();
         for (Event event : masterEventList) {
+            // Keyword search filter
+            if (!event.matchesKeyword(currentSearchQuery)) continue;
+
             if (anyDay) {
                 int eventDay = event.getDayOfWeek();
                 if (eventDay == -1) continue;
@@ -197,6 +222,35 @@ public class DashboardActivity extends AppCompatActivity {
             eventList.add(event);
         }
         browseAdapter.notifyDataSetChanged();
+
+        // Show/hide empty state
+        if (tvBrowseEmptyState != null) {
+            boolean isEmpty = eventList.isEmpty() && !masterEventList.isEmpty();
+            tvBrowseEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            rvEvents.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    /** Updates the filter button text and color to indicate whether filters are active. */
+    private void updateFilterButtonAppearance() {
+        if (btnFilterSort == null) return;
+
+        int activeCount = 0;
+        if (filterDays != null && filterDays.length > 0) activeCount++;
+        if (filterMorning || filterAfternoon || filterEvening) activeCount++;
+        if (filterWaitlist) activeCount++;
+        if (filterHideFull) activeCount++;
+
+        if (activeCount > 0) {
+            btnFilterSort.setText("Filters (" + activeCount + ")");
+            btnFilterSort.setBackgroundTintList(ColorStateList.valueOf(
+                    getResources().getColor(R.color.primary_blue, getTheme())));
+            btnFilterSort.setTextColor(getResources().getColor(R.color.white, getTheme()));
+        } else {
+            btnFilterSort.setText("Sort: Closing Soon");
+            btnFilterSort.setBackgroundTintList(null);
+            btnFilterSort.setTextColor(getResources().getColor(R.color.primary_blue, getTheme()));
+        }
     }
 
     private void showTab(boolean showMyEvents) {

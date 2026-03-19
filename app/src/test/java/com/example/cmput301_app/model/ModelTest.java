@@ -145,5 +145,60 @@ public class ModelTest {
         event.setConfirmedAttendeesIds(confirmed);
         assertTrue("Event with 3/3 confirmed should be full", event.isFull());
     }
+
+    // ─── Search Helper Tests (US: Entrant Search by Keyword) ────────────
+
+    @Test
+    public void testMatchesKeywordByName() {
+        Event event = new Event();
+        event.setName("Senior Yoga - Session A");
+        assertTrue("Should match keyword in name", event.matchesKeyword("yoga"));
+        assertTrue("Should match case-insensitively", event.matchesKeyword("YOGA"));
+    }
+
+    @Test
+    public void testMatchesKeywordByDescription() {
+        Event event = new Event();
+        event.setDescription("A gentle flow yoga class suitable for all levels");
+        assertTrue("Should match keyword in description", event.matchesKeyword("gentle"));
+    }
+
+    @Test
+    public void testMatchesKeywordByCategory() {
+        Event event = new Event();
+        event.setCategory("Fitness");
+        assertTrue("Should match keyword in category", event.matchesKeyword("fitness"));
+    }
+
+    @Test
+    public void testMatchesKeywordByLocation() {
+        Event event = new Event();
+        event.setLocation("Edmonton Community Centre");
+        assertTrue("Should match keyword in location", event.matchesKeyword("edmonton"));
+    }
+
+    @Test
+    public void testMatchesKeywordNoMatch() {
+        Event event = new Event();
+        event.setName("Morning Run");
+        event.setDescription("A brisk morning jog");
+        event.setCategory("Sports");
+        assertFalse("Should not match unrelated keyword", event.matchesKeyword("swimming"));
+    }
+
+    @Test
+    public void testMatchesKeywordNullFields() {
+        Event event = new Event();
+        // All fields are null by default
+        assertFalse("Should return false when all fields are null", event.matchesKeyword("test"));
+    }
+
+    @Test
+    public void testMatchesKeywordEmptyString() {
+        Event event = new Event();
+        event.setName("Cycling");
+        assertTrue("Empty keyword should match everything", event.matchesKeyword(""));
+        assertTrue("Null keyword should match everything", event.matchesKeyword(null));
+    }
 }
 

@@ -68,7 +68,8 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+            // DO NOT trim password
+            String password = etPassword.getText().toString();
             String role = spinnerRole != null ? spinnerRole.getSelectedItem().toString() : "Entrant";
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
@@ -105,7 +106,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     navigateToDashboard("Organizer");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error creating profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             } else {
                                 Entrant entrant = new Entrant(uid, name, email, null);
@@ -114,7 +115,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     navigateToDashboard("Entrant");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error creating profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             }
                         } else {
