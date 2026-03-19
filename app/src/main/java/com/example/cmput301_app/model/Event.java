@@ -75,13 +75,45 @@ public class Event {
     @Exclude
     public boolean checkIsRegistrationOpen() {
         long now = System.currentTimeMillis();
-        // If neither bound is set, treat registration as always open
         if (registrationOpen == null && registrationClose == null) return true;
-        // If only open is set, allow joining once that time has passed
         if (registrationClose == null) return now >= registrationOpen.toDate().getTime();
-        // If only close is set, allow joining until that time
         if (registrationOpen == null) return now <= registrationClose.toDate().getTime();
-        // Both set — enforce the full window
         return now >= registrationOpen.toDate().getTime() && now <= registrationClose.toDate().getTime();
     }
+
+    // ─── Filter Helpers (US 01.01.04) ───
+
+    /** Returns the Calendar day-of-week constant (1=Sun … 7=Sat), or -1 if date is null. */
+    @Exclude
+    public int getDayOfWeek() {
+        if (date == null) return -1;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(date.toDate());
+        return cal.get(java.util.Calendar.DAY_OF_WEEK);
+    }
+
+    /** Returns the hour of the day (0-23), or -1 if date is null. */
+    @Exclude
+    public int getHourOfDay() {
+        if (date == null) return -1;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(date.toDate());
+        return cal.get(java.util.Calendar.HOUR_OF_DAY);
+    }
+
+    /** Returns true if the waitlist has space (unlimited or count < limit). */
+    @Exclude
+    public boolean hasWaitlistSpace() {
+        if (waitingListLimit == -1) return true;
+        return waitingListCount < waitingListLimit;
+    }
+
+    /** Returns true if the event has reached its capacity. */
+    @Exclude
+    public boolean isFull() {
+        if (capacity <= 0) return false;
+        int confirmed = (confirmedAttendeesIds != null) ? confirmedAttendeesIds.size() : 0;
+        return confirmed >= capacity;
+    }
 }
+

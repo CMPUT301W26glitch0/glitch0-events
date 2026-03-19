@@ -64,6 +64,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".entrant.FilterEventsActivity"
+            android:exported="false" />
+
+
+        <activity
             android:name=".entrant.QRScanActivity"
             android:exported="false" />
 

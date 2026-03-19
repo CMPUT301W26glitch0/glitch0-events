@@ -79,20 +79,71 @@ public class ModelTest {
     @Test
     public void testLotteryPoolDrawReplacement() {
         LotteryPool pool = new LotteryPool(1);
-
-        // Non-empty waiting list should yield a winner
         java.util.List<String> candidates = new java.util.ArrayList<>();
         candidates.add("entrant_B");
         candidates.add("entrant_C");
-
         String chosen = pool.drawReplacement(candidates);
         assertNotNull("drawReplacement should pick someone from a non-empty list", chosen);
-        assertTrue("Chosen entrant should be added to selectedEntrantIds",
-                pool.isSelected(chosen));
+        assertTrue("Chosen entrant should be added to selectedEntrantIds", pool.isSelected(chosen));
 
-        // Empty waiting list should yield null
         LotteryPool emptyPool = new LotteryPool(1);
         String result = emptyPool.drawReplacement(new java.util.ArrayList<>());
         assertNull("drawReplacement should return null when waiting list is empty", result);
     }
+
+    // ─── Filter Helper Tests (US 01.01.04) ─────────────────────────────
+
+    @Test
+    public void testEventGetDayOfWeek() {
+        Event event = new Event();
+        assertEquals("Day should be -1 when date is null", -1, event.getDayOfWeek());
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(2026, java.util.Calendar.MARCH, 16, 10, 0, 0);
+        event.setDate(new Timestamp(cal.getTime()));
+        assertEquals("March 16 2026 should be Monday",
+                java.util.Calendar.MONDAY, event.getDayOfWeek());
+    }
+
+    @Test
+    public void testEventGetHourOfDay() {
+        Event event = new Event();
+        assertEquals("Hour should be -1 when date is null", -1, event.getHourOfDay());
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(2026, java.util.Calendar.MARCH, 16, 14, 30, 0);
+        event.setDate(new Timestamp(cal.getTime()));
+        assertEquals("Hour should be 14 for 2:30pm", 14, event.getHourOfDay());
+    }
+
+    @Test
+    public void testEventHasWaitlistSpace() {
+        Event event = new Event();
+        assertTrue("Unlimited waitlist should have space", event.hasWaitlistSpace());
+
+        event.setWaitingListLimit(5);
+        event.setWaitingListCount(3);
+        assertTrue("Waitlist with 3/5 should have space", event.hasWaitlistSpace());
+
+        event.setWaitingListCount(5);
+        assertFalse("Waitlist with 5/5 should be full", event.hasWaitlistSpace());
+    }
+
+    @Test
+    public void testEventIsFull() {
+        Event event = new Event();
+        assertFalse("Event with 0 capacity should not be full", event.isFull());
+
+        event.setCapacity(3);
+        java.util.List<String> confirmed = new java.util.ArrayList<>();
+        confirmed.add("user1");
+        confirmed.add("user2");
+        event.setConfirmedAttendeesIds(confirmed);
+        assertFalse("Event with 2/3 confirmed should not be full", event.isFull());
+
+        confirmed.add("user3");
+        event.setConfirmedAttendeesIds(confirmed);
+        assertTrue("Event with 3/3 confirmed should be full", event.isFull());
+    }
 }
+
