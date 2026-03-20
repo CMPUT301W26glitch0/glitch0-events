@@ -40,7 +40,7 @@ public class LotteryDrawActivity extends AppCompatActivity {
 
     private String eventId;
     private EventDB eventDB;
-    private TextView tvWinnerCount, tvWaitingCount, tvSampleRate;
+    private TextView tvWinnerCount, tvWaitingCount, tvSampleRate, tvEventName, tvEventSubtitle;
     private int winnersToSelect = 20;
     private long totalEntrants = 142; // Mock
 
@@ -63,6 +63,8 @@ public class LotteryDrawActivity extends AppCompatActivity {
         tvWinnerCount = findViewById(R.id.tv_winner_count);
         tvWaitingCount = findViewById(R.id.tv_lottery_waiting_count);
         tvSampleRate = findViewById(R.id.tv_sample_rate);
+        tvEventName = findViewById(R.id.tv_lottery_event_name);
+        tvEventSubtitle = findViewById(R.id.tv_lottery_event_subtitle);
 
         findViewById(R.id.btn_lottery_back).setOnClickListener(v -> finish());
 
@@ -221,6 +223,15 @@ public class LotteryDrawActivity extends AppCompatActivity {
         eventDB.getEvent(eventId, event -> {
             if (event != null) {
                 totalEntrants = event.getWaitingListCount();
+                if (tvEventName != null && event.getName() != null) {
+                    tvEventName.setText(event.getName());
+                }
+                if (tvEventSubtitle != null) {
+                    String sub = "";
+                    if (event.getCategory() != null) sub += event.getCategory() + " ";
+                    if (event.getLocation() != null) sub += "• " + event.getLocation();
+                    tvEventSubtitle.setText(sub.trim());
+                }
                 updateUI();
             }
         }, e -> {});

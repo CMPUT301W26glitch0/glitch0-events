@@ -51,10 +51,11 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_lottery_event_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Spring 2024 Session • Saturday Mornings"
+                android:text=""
                 android:textColor="@color/gray_text"
                 android:textSize="14sp" />
 

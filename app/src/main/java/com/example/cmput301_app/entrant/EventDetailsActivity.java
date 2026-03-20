@@ -11,6 +11,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,11 +22,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.model.Comment;
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.example.cmput301_app.organizer.CreateEventActivity;
@@ -53,6 +58,13 @@ public class EventDetailsActivity extends AppCompatActivity {
     private View llInvitationActions;
     private Button btnAccept, btnDecline;
     private TextView tvInvitationStatus;
+
+    // Added for comments
+    private RecyclerView rvComments;
+    private CommentAdapter commentAdapter;
+    private EditText etCommentInput;
+    private ImageButton btnPostComment;
+    private TextView tvNoComments;
 
 
     // added for joinWaitingList method
@@ -101,6 +113,21 @@ public class EventDetailsActivity extends AppCompatActivity {
         
         btnEdit = findViewById(R.id.btn_edit_event);
         ivHeader = findViewById(R.id.iv_header);
+
+        rvComments = findViewById(R.id.rv_comments);
+        etCommentInput = findViewById(R.id.et_comment_input);
+        btnPostComment = findViewById(R.id.btn_post_comment);
+        tvNoComments = findViewById(R.id.tv_no_comments);
+
+        if (rvComments != null) {
+            rvComments.setLayoutManager(new LinearLayoutManager(this));
+            commentAdapter = new CommentAdapter(new java.util.ArrayList<>());
+            rvComments.setAdapter(commentAdapter);
+        }
+
+        if (btnPostComment != null) {
+            btnPostComment.setOnClickListener(v -> postComment());
+        }
 
         View mainView = findViewById(R.id.event_details_main);
         if (mainView != null) {
@@ -160,6 +187,42 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
     }
 
+    private void postComment() {
+        if (etCommentInput == null || currentEvent == null) return;
+        String content = etCommentInput.getText().toString().trim();
+        if (content.isEmpty()) {
+            Toast.makeText(this, "Comment cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = resolveUid();
+        if (uid == null) {
+            Toast.makeText(this, "Must be logged in to comment.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnPostComment.setEnabled(false);
+        entrantDB.getEntrant(uid, entrant -> {
+            String authorName = (entrant != null && entrant.getName() != null) ? entrant.getName() : "Unknown Entrant";
+            Comment newComment = new Comment(content, authorName, com.google.firebase.Timestamp.now());
+
+            db.collection("events").document(eventId)
+                    .update("comments", FieldValue.arrayUnion(newComment))
+                    .addOnSuccessListener(aVoid -> {
+                        etCommentInput.setText("");
+                        btnPostComment.setEnabled(true);
+                        // The snapshot listener will automatically update the UI with the new comment
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        btnPostComment.setEnabled(true);
+                    });
+        }, e -> {
+            Toast.makeText(this, "Failed to fetch user profile", Toast.LENGTH_SHORT).show();
+            btnPostComment.setEnabled(true);
+        });
+    }
+
     private void updateUI() {
         if (currentEvent == null) return;
 
@@ -206,6 +269,19 @@ public class EventDetailsActivity extends AppCompatActivity {
             if (btnJoin != null) btnJoin.setVisibility(View.GONE);
         } else {
             if (btnEdit != null) btnEdit.setVisibility(View.GONE);
+        }
+
+        if (commentAdapter != null) {
+            java.util.List<Comment> comments = currentEvent.getComments();
+            if (comments == null || comments.isEmpty()) {
+                rvComments.setVisibility(View.GONE);
+                if (tvNoComments != null) tvNoComments.setVisibility(View.VISIBLE);
+                commentAdapter.setComments(new java.util.ArrayList<>());
+            } else {
+                rvComments.setVisibility(View.VISIBLE);
+                if (tvNoComments != null) tvNoComments.setVisibility(View.GONE);
+                commentAdapter.setComments(comments);
+            }
         }
     }
 
