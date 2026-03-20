@@ -130,6 +130,7 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         });
     }
+<<<<<<< HEAD
 
     private void navigateToDashboard(String role) {
         Intent intent;
@@ -138,6 +139,11 @@ public class RegisterActivity extends AppCompatActivity {
         } else {
             intent = new Intent(this, DashboardActivity.class);
         }
+=======
+//
+    private void navigateToDashboard() {
+        Intent intent = new Intent(RegisterActivity.this, DashboardActivity.class);
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

@@ -24,7 +24,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.cmput301_app.entrant.DashboardActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
+<<<<<<< HEAD
 import com.google.firebase.auth.FirebaseUser;
+=======
+import com.google.firebase.firestore.DocumentSnapshot;
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +43,18 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDb = FirebaseFirestore.getInstance();
 
+<<<<<<< HEAD
+=======
+        // Check if user is already logged in via standard Auth or Saved Device ID
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        String savedUid = prefs.getString("user_uid", null);
+
+        if (mAuth.getCurrentUser() != null || savedUid != null) {
+            navigateToDashboard();
+            return;
+        }
+
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -104,7 +120,13 @@ public class MainActivity extends AppCompatActivity {
                         btnLogin.setEnabled(true);
                         if (task.isSuccessful()) {
                             String uid = mAuth.getCurrentUser().getUid();
+<<<<<<< HEAD
                             checkUserAndNavigate(uid);
+=======
+                            saveUserLocally(uid);
+                            linkDeviceIdToUser(uid);
+                            navigateToDashboard();
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
                         } else {
                             String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
                             Toast.makeText(this, "Login Failed: " + error, Toast.LENGTH_SHORT).show();
@@ -112,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
+<<<<<<< HEAD
         // Device login: use the last-used UID stored locally in SharedPreferences.
         // This is set on every successful login (email/password or device), so it
         // always refers to whoever most recently used the app on this device.
@@ -129,17 +152,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+=======
+        btnDeviceLogin.setOnClickListener(v -> {
+            String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+            
+            mDb.collection("users")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            DocumentSnapshot userDoc = task.getResult().getDocuments().get(0);
+                            saveUserLocally(userDoc.getId());
+                            Toast.makeText(MainActivity.this, "Welcome back!", Toast.LENGTH_SHORT).show();
+                            navigateToDashboard();
+                        } else {
+                            Toast.makeText(MainActivity.this, "No account linked to this device. Please log in manually once.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+        });
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
 
         tvRegisterLink.setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, RegisterActivity.class)));
     }
 
+<<<<<<< HEAD
     private void checkUserAndNavigate(String uid) {
         mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 // Persist this UID locally so Device ID login works after logout
                 getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE)
                         .edit().putString("last_uid", uid).apply();
+=======
+    private void saveUserLocally(String uid) {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+        prefs.edit().putString("user_uid", uid).apply();
+    }
+
+    private void linkDeviceIdToUser(String userId) {
+        String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        mDb.collection("users").document(userId).update("deviceId", deviceId);
+    }
+>>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
 
                 String role = doc.getString("role");
                 Intent intent;
