@@ -109,9 +109,11 @@ public class LotteryDrawActivity extends AppCompatActivity {
 
             String eventName = eventDoc.getString("name");
 
-            // 3. Update Winners
+            // 3. Update Winners & Send Win Notifications
             for (String wId : winners) {
-                updateEntrantOutcome(db, wId, eventId, "SELECTED", null);
+                updateEntrantOutcome(db, wId, eventId, "SELECTED", () -> {
+                    checkAndSendWinNotification(db, wId, eventId, eventName);
+                });
             }
 
             // 4. Update Losers & Send Notifications
@@ -176,13 +178,37 @@ public class LotteryDrawActivity extends AppCompatActivity {
             n.addRecipient(userId);
             
             notifDB.createNotification(n, savedNotif -> {
-                // Trigger local device notification if matching user or as a simulation
-                triggerLocalNotification(evId, eventName);
+                // Trigger local device notification
+                triggerLocalNotification(evId, eventName, "You were not selected in the current draw. You may still be selected if a chosen entrant declines.");
             }, e -> {});
         });
     }
 
-    private void triggerLocalNotification(String evId, String eventName) {
+    private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String eventName) {
+        // Always create the notification record in Firestore
+        com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
+        String message = "Congratulations! You have been selected for " + (eventName != null ? eventName : "an event") + ". Open the app to accept or decline your invitation.";
+        com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
+                "", evId, com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
+                message,
+                com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_WIN,
+                com.google.firebase.Timestamp.now()
+        );
+        n.addRecipient(userId);
+
+        notifDB.createNotification(n, savedNotif -> {
+            // Check if user has notifications enabled before sending push
+            db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+                Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+                if (notificationsEnabled != null && !notificationsEnabled) {
+                    return; // Opted out of push, but Firestore record still exists
+                }
+                triggerLocalNotification(evId, eventName, message);
+            });
+        }, e -> {});
+    }
+
+    private void triggerLocalNotification(String evId, String eventName, String notificationMessage) {
         // Create intent to open Event Details
         android.content.Intent intent = new android.content.Intent(this, com.example.cmput301_app.entrant.EventDetailsActivity.class);
         intent.putExtra("eventId", evId);
@@ -209,9 +235,9 @@ public class LotteryDrawActivity extends AppCompatActivity {
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "lottery_results")
                 .setSmallIcon(android.R.drawable.ic_dialog_info) // Ensure valid icon or fallback
                 .setContentTitle("Lottery Results: " + (eventName != null ? eventName : "Event"))
-                .setContentText("You were not selected in the current draw. You may still be selected if a chosen entrant declines.")
+                .setContentText(notificationMessage)
                 .setStyle(new androidx.core.app.NotificationCompat.BigTextStyle()
-                        .bigText("You were not selected in the current draw. You may still be selected if a chosen entrant declines."))
+                        .bigText(notificationMessage))
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);

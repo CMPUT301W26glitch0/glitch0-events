@@ -507,6 +507,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                         updateEntrantOutcome(chosenUser.getId(), targetEventId, "WAITING", "SELECTED", () -> {
                             Log.d("AutoRedraw", "A new entrant has been chosen: " + chosenUser.getString("name"));
+                            // Send LOTTERY_WIN_REDRAW notification to the replacement winner
+                            sendRedrawWinNotification(chosenUser.getId(), targetEventId);
                         });
                     }
                 });
@@ -603,6 +605,73 @@ public class EventDetailsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 btnJoin.setEnabled(true);
             }
+        });
+    }
+
+    /**
+     * Sends a LOTTERY_WIN_REDRAW notification to a replacement entrant who was
+     * auto-selected after another entrant declined.
+     */
+    private void sendRedrawWinNotification(String userId, String targetEventId) {
+        db.collection("events").document(targetEventId).get().addOnSuccessListener(eventDoc -> {
+            String eventName = eventDoc.getString("name");
+            String message = "Congratulations! You have been selected as a replacement for "
+                    + (eventName != null ? eventName : "an event")
+                    + ". Open the app to accept or decline your invitation.";
+
+            // Always create the Firestore notification record
+            com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
+            com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
+                    "", targetEventId, auth.getUid(),
+                    message,
+                    com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_WIN_REDRAW,
+                    com.google.firebase.Timestamp.now()
+            );
+            n.addRecipient(userId);
+
+            notifDB.createNotification(n, savedNotif -> {
+                // Check user's notification preference before local push
+                db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+                    Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
+                    if (notificationsEnabled != null && !notificationsEnabled) {
+                        return; // Opted out of push
+                    }
+
+                    // Send local push notification
+                    android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                                "lottery_results", "Lottery Results", android.app.NotificationManager.IMPORTANCE_HIGH);
+                        notificationManager.createNotificationChannel(channel);
+                    }
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                                android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                    }
+
+                    android.content.Intent intent = new android.content.Intent(this, EventDetailsActivity.class);
+                    intent.putExtra("eventId", targetEventId);
+                    intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
+                            this, 0, intent,
+                            android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+
+                    androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "lottery_results")
+                            .setSmallIcon(android.R.drawable.ic_dialog_info)
+                            .setContentTitle("Lottery Results: " + (eventName != null ? eventName : "Event"))
+                            .setContentText(message)
+                            .setStyle(new androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
+                            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true);
+
+                    notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+                });
+            }, e -> Log.e(TAG, "Failed to create redraw notification", e));
         });
     }
 }

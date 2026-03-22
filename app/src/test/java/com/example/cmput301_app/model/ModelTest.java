@@ -200,5 +200,61 @@ public class ModelTest {
         assertTrue("Empty keyword should match everything", event.matchesKeyword(""));
         assertTrue("Null keyword should match everything", event.matchesKeyword(null));
     }
+
+    // ─── Notification Model Tests ───────────────────────────────────────
+
+    @Test
+    public void testNotificationConstructorSetsFields() {
+        Timestamp now = Timestamp.now();
+        Notification n = new Notification(
+                "notif123", "event456", "org789",
+                "Test message",
+                Notification.NotificationType.LOTTERY_WIN,
+                now
+        );
+        assertEquals("notif123", n.getNotificationId());
+        assertEquals("event456", n.getEventId());
+        assertEquals("org789", n.getOrganizerId());
+        assertEquals("Test message", n.getMessage());
+        assertEquals(Notification.NotificationType.LOTTERY_WIN, n.getType());
+        assertEquals(now, n.getTimestamp());
+        assertNotNull(n.getRecipientIds());
+        assertTrue(n.getRecipientIds().isEmpty());
+    }
+
+    @Test
+    public void testNotificationRecipientManagement() {
+        Notification n = new Notification();
+
+        // Add recipient
+        n.addRecipient("user1");
+        assertTrue("user1 should be a recipient", n.hasRecipient("user1"));
+        assertFalse("user2 should not be a recipient", n.hasRecipient("user2"));
+
+        // Add duplicate — should not create duplicates
+        n.addRecipient("user1");
+        assertEquals("Should still have only 1 recipient", 1, n.getRecipientIds().size());
+
+        // Add another
+        n.addRecipient("user2");
+        assertTrue("user2 should now be a recipient", n.hasRecipient("user2"));
+        assertEquals(2, n.getRecipientIds().size());
+
+        // Remove
+        n.removeRecipient("user1");
+        assertFalse("user1 should no longer be a recipient", n.hasRecipient("user1"));
+        assertEquals(1, n.getRecipientIds().size());
+    }
+
+    @Test
+    public void testNotificationTypeValues() {
+        // Ensure LOTTERY_WIN and LOTTERY_WIN_REDRAW types exist
+        assertNotNull(Notification.NotificationType.LOTTERY_WIN);
+        assertNotNull(Notification.NotificationType.LOTTERY_WIN_REDRAW);
+        assertNotNull(Notification.NotificationType.LOTTERY_LOSS);
+        assertNotNull(Notification.NotificationType.ORGANIZER_BROADCAST);
+        assertNotNull(Notification.NotificationType.INVITATION_CANCELLED);
+        assertNotNull(Notification.NotificationType.NO_SPOT_AVAILABLE);
+    }
 }
 

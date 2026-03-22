@@ -8,11 +8,17 @@ package com.example.cmput301_app.entrant;
 import android.content.Intent;
 import android.os.Bundle;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.ColorDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,8 +36,10 @@ import com.example.cmput301_app.ProfileActivity;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.database.NotificationDB;
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.model.Notification;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -47,6 +55,7 @@ public class DashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EventDB eventDB;
     private EntrantDB entrantDB;
+    private NotificationDB notificationDB;
 
     // Browse tab
     private RecyclerView rvEvents;
@@ -66,6 +75,10 @@ public class DashboardActivity extends AppCompatActivity {
     // Tab views
     private TextView tvTabBrowse, tvTabMyEvents;
     private View clBrowseContent, clMyEventsContent;
+
+    // Notification bell
+    private FrameLayout flNotificationBell;
+    private View badgeNotification;
 
     private boolean myEventsLoaded = false;
 
@@ -89,6 +102,7 @@ public class DashboardActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         eventDB = new EventDB();
         entrantDB = new EntrantDB();
+        notificationDB = new NotificationDB();
 
         View dashboardMain = findViewById(R.id.dashboard_main);
         if (dashboardMain != null) {
@@ -178,7 +192,82 @@ public class DashboardActivity extends AppCompatActivity {
         View navEvents = findViewById(R.id.nav_events);
         if (navEvents != null) navEvents.setOnClickListener(v -> showTab(false));
 
+        // --- Notification bell ---
+        flNotificationBell = findViewById(R.id.fl_notification_bell);
+        badgeNotification = findViewById(R.id.badge_notification);
+        if (flNotificationBell != null) {
+            flNotificationBell.setOnClickListener(v -> showNotificationDropdown());
+        }
+
         loadBrowseEvents();
+        loadNotificationBadge();
+    }
+
+    /**
+     * Checks if there are any notifications for the current user and shows/hides the badge.
+     */
+    private void loadNotificationBadge() {
+        String uid = resolveUid();
+        if (uid == null) return;
+
+        notificationDB.getNotificationsByRecipient(uid, notifications -> {
+            if (badgeNotification != null) {
+                badgeNotification.setVisibility(
+                        (notifications != null && !notifications.isEmpty()) ? View.VISIBLE : View.GONE);
+            }
+        }, e -> {});
+    }
+
+    /**
+     * Displays a PopupWindow dropdown anchored below the bell icon showing
+     * the current user's notifications. Tapping a notification navigates to
+     * the EventDetailsActivity for that event.
+     */
+    private void showNotificationDropdown() {
+        String uid = resolveUid();
+        if (uid == null) {
+            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        notificationDB.getNotificationsByRecipient(uid, notifications -> {
+            // Inflate the popup layout
+            View popupView = LayoutInflater.from(this).inflate(R.layout.popup_notifications, null);
+            RecyclerView rvNotifications = popupView.findViewById(R.id.rv_popup_notifications);
+            TextView tvEmpty = popupView.findViewById(R.id.tv_popup_empty);
+
+            // Determine popup dimensions
+            int popupWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            int popupHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+            PopupWindow popupWindow = new PopupWindow(popupView, popupWidth, popupHeight, true);
+            popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.WHITE));
+            popupWindow.setElevation(16f);
+            popupWindow.setOutsideTouchable(true);
+
+            if (notifications == null || notifications.isEmpty()) {
+                if (rvNotifications != null) rvNotifications.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
+            } else {
+                if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
+                if (rvNotifications != null) {
+                    rvNotifications.setVisibility(View.VISIBLE);
+                    rvNotifications.setLayoutManager(new LinearLayoutManager(this));
+                    NotificationAdapter adapter = new NotificationAdapter(notifications, notification -> {
+                        popupWindow.dismiss();
+                        if (notification.getEventId() != null) {
+                            Intent intent = new Intent(this, EventDetailsActivity.class);
+                            intent.putExtra("eventId", notification.getEventId());
+                            startActivity(intent);
+                        }
+                    });
+                    rvNotifications.setAdapter(adapter);
+                }
+            }
+
+            // Show below the bell icon
+            popupWindow.showAsDropDown(flNotificationBell, 0, 8, Gravity.END);
+        }, e -> Toast.makeText(this, "Error loading notifications", Toast.LENGTH_SHORT).show());
     }
 
     private void openFilterScreen() {

@@ -22,16 +22,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_notification"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+    <FrameLayout
+        android:id="@+id/fl_notification_bell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:src="@android:drawable/ic_popup_reminder"
         app:layout_constraintBottom_toBottomOf="@id/tv_header_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_header_title"
-        app:tint="@color/gray_text" />
+        app:layout_constraintTop_toTopOf="@id/tv_header_title">
+
+        <ImageView
+            android:id="@+id/iv_notification"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_popup_reminder"
+            app:tint="@color/gray_text" />
+
+        <!-- Unread notification badge -->
+        <View
+            android:id="@+id/badge_notification"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/notification_badge_bg"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <!-- Tabs (Browse vs My Events) -->
     <LinearLayout
