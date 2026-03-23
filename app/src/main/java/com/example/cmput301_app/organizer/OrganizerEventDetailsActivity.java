@@ -36,11 +36,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
@@ -63,6 +69,8 @@ import java.util.Locale;
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "OrganizerEventDetails";
     private TextView tvName, tvCategory, tvDate, tvLocation, tvPrice, tvCapacity, tvRegDates, tvDescription;
+    private TextView tvCoOrgCount, tvCoOrgHint;
+    private android.widget.LinearLayout llCoOrganizers;
     private ImageView ivPoster, ivQrCode;
     private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement;
     private String eventId;
@@ -71,6 +79,17 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private Event currentEvent;
     private Bitmap qrBitmap;
     private com.google.firebase.firestore.FirebaseFirestore db;
+    private FirebaseStorage mStorage;
+    private Uri newPosterUri;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickPosterMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    newPosterUri = uri;
+                    Glide.with(this).load(uri).centerCrop().into(ivPoster);
+                    uploadPosterAndUpdate();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +100,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventDB = new EventDB();
         notificationDB = new NotificationDB();
         db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        mStorage = FirebaseStorage.getInstance();
         eventId = getIntent().getStringExtra("eventId");
 
         initViews();
@@ -106,6 +126,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvRegDates = findViewById(R.id.tv_org_reg_dates);
         tvDescription = findViewById(R.id.tv_org_description);
 
+        tvCoOrgCount = findViewById(R.id.tv_co_org_count);
+        tvCoOrgHint = findViewById(R.id.tv_co_org_hint);
+        llCoOrganizers = findViewById(R.id.ll_co_organizers);
+
         btnViewEntrants = findViewById(R.id.btn_view_entrants);
         btnManageLottery = findViewById(R.id.btn_manage_lottery);
         btnEdit = findViewById(R.id.btn_edit_event_details);
@@ -113,6 +137,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnDrawReplacement = findViewById(R.id.btn_draw_replacement);
 
         btnDrawReplacement.setOnClickListener(v -> drawReplacement());
+
+        findViewById(R.id.fab_change_poster).setOnClickListener(v ->
+                pickPosterMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build()));
 
         findViewById(R.id.btn_org_back).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerDashboardActivity.class);
@@ -136,6 +165,15 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         btnViewEntrants.setOnClickListener(v -> {
             Intent intent = new Intent(this, EntrantListActivity.class);
             intent.putExtra("eventId", eventId);
+            startActivity(intent);
+        });
+
+        btnManageLottery.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LotteryDrawActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) {
+                intent.putExtra("eventCapacity", currentEvent.getCapacity());
+            }
             startActivity(intent);
         });
 
@@ -190,6 +228,104 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             String open = fullFormat.format(currentEvent.getRegistrationOpen().toDate());
             String close = fullFormat.format(currentEvent.getRegistrationClose().toDate());
             tvRegDates.setText(open + " - " + close);
+        }
+
+        // Show "Draw Lottery" only after registration has closed
+        if (currentEvent.getRegistrationClose() != null
+                && currentEvent.getRegistrationClose().toDate().before(new java.util.Date())) {
+            btnManageLottery.setVisibility(View.VISIBLE);
+        } else {
+            btnManageLottery.setVisibility(View.GONE);
+        }
+
+        loadCoOrganizers();
+    }
+
+    private void loadCoOrganizers() {
+        if (llCoOrganizers == null || currentEvent == null) return;
+
+        java.util.List<String> coOrgIds = currentEvent.getCoOrganizerIds();
+        llCoOrganizers.removeAllViews();
+
+        if (coOrgIds == null || coOrgIds.isEmpty()) {
+            if (tvCoOrgCount != null) tvCoOrgCount.setText("0");
+            if (tvCoOrgHint != null) tvCoOrgHint.setVisibility(android.view.View.VISIBLE);
+            return;
+        }
+
+        if (tvCoOrgCount != null) tvCoOrgCount.setText(String.valueOf(coOrgIds.size()));
+        if (tvCoOrgHint != null) tvCoOrgHint.setVisibility(android.view.View.GONE);
+
+        for (String userId : coOrgIds) {
+            db.collection("users").document(userId).get()
+                    .addOnSuccessListener(doc -> {
+                        String name = doc.getString("name");
+                        if (name == null) name = "Unknown";
+                        final String displayName = name;
+
+                        runOnUiThread(() -> {
+                            // Build initials avatar + name row
+                            android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+                            row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                            android.widget.LinearLayout.LayoutParams rowParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            rowParams.setMargins(0, 0, 0, 10);
+                            row.setLayoutParams(rowParams);
+
+                            // Avatar circle
+                            TextView avatar = new TextView(this);
+                            int size = (int) (40 * getResources().getDisplayMetrics().density);
+                            android.widget.LinearLayout.LayoutParams avatarParams =
+                                    new android.widget.LinearLayout.LayoutParams(size, size);
+                            avatarParams.setMarginEnd((int) (10 * getResources().getDisplayMetrics().density));
+                            avatar.setLayoutParams(avatarParams);
+                            avatar.setGravity(android.view.Gravity.CENTER);
+                            avatar.setText(displayName.substring(0, 1).toUpperCase());
+                            avatar.setTextColor(0xFFFFFFFF);
+                            avatar.setTextSize(16f);
+                            android.graphics.drawable.GradientDrawable circle =
+                                    new android.graphics.drawable.GradientDrawable();
+                            circle.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                            circle.setColor(0xFF7F56D9);
+                            avatar.setBackground(circle);
+
+                            // Name text
+                            TextView tvName = new TextView(this);
+                            tvName.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                                    0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                            tvName.setText(displayName);
+                            tvName.setTextColor(getResources().getColor(R.color.dark_blue, getTheme()));
+                            tvName.setTextSize(14f);
+
+                            // Purple "Co-Organizer" badge
+                            TextView badge = new TextView(this);
+                            android.widget.LinearLayout.LayoutParams badgeParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            badge.setLayoutParams(badgeParams);
+                            badge.setText("Co-Org");
+                            badge.setTextColor(0xFF7F56D9);
+                            badge.setTextSize(11f);
+                            int hPad = (int) (8 * getResources().getDisplayMetrics().density);
+                            int vPad = (int) (3 * getResources().getDisplayMetrics().density);
+                            badge.setPadding(hPad, vPad, hPad, vPad);
+                            android.graphics.drawable.GradientDrawable badgeBg =
+                                    new android.graphics.drawable.GradientDrawable();
+                            badgeBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                            badgeBg.setCornerRadius(50f);
+                            badgeBg.setColor(0xFFF4F3FF);
+                            badge.setBackground(badgeBg);
+
+                            row.addView(avatar);
+                            row.addView(tvName);
+                            row.addView(badge);
+                            llCoOrganizers.addView(row);
+                        });
+                    });
         }
     }
 
@@ -255,7 +391,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
                     if (userDoc.exists()) {
                         String outcome = getOutcomeForEvent(userDoc, eventId);
-                        if ("WAITING".equals(outcome)) {
+                        if ("WAITING".equals(outcome) || "NOT_SELECTED".equals(outcome)) {
                             synchronized (waitingUsers) { waitingUsers.add(userDoc); }
                         }
                     }
@@ -290,11 +426,13 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         newRecord.put("outcome", "SELECTED");
         newRecord.put("timestamp", com.google.firebase.Timestamp.now());
 
+        String oldOutcome = getOutcomeForEvent(userDoc, eventId);
+
         // We can't easily update a specific item in an array in Firestore, 
-        // so we remove the old WAITING record and add the new SELECTED record.
+        // so we remove the old record and add the new SELECTED record.
         java.util.Map<String, Object> oldRecord = new java.util.HashMap<>();
         oldRecord.put("eventId", eventId);
-        oldRecord.put("outcome", "WAITING");
+        oldRecord.put("outcome", oldOutcome);
 
         db.collection("users").document(userId)
                 .update(
@@ -337,6 +475,41 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             }
         }
         return "WAITING";
+    }
+
+    private void uploadPosterAndUpdate() {
+        if (newPosterUri == null || currentEvent == null) return;
+
+        byte[] imageBytes;
+        try {
+            java.io.InputStream is = getContentResolver().openInputStream(newPosterUri);
+            if (is == null) {
+                Toast.makeText(this, "Could not read image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+            byte[] chunk = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(chunk)) != -1) buffer.write(chunk, 0, bytesRead);
+            is.close();
+            imageBytes = buffer.toByteArray();
+        } catch (Exception e) {
+            Toast.makeText(this, "Could not read image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String posterPath = "event_posters/" + eventId + "_" + System.currentTimeMillis() + ".jpg";
+        StorageReference ref = mStorage.getReference().child(posterPath);
+        Toast.makeText(this, "Uploading photo...", Toast.LENGTH_SHORT).show();
+        ref.putBytes(imageBytes)
+                .addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            currentEvent.setPosterUrl(uri.toString());
+                            eventDB.updateEvent(currentEvent,
+                                    aVoid -> Toast.makeText(this, "Event photo updated", Toast.LENGTH_SHORT).show(),
+                                    e -> Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show());
+                        }))
+                .addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private Bitmap generateQRCode(String data) {

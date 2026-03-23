@@ -12,6 +12,8 @@
         android:maxSdkVersion="28"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -72,6 +74,10 @@
             android:name=".entrant.QRScanActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".entrant.CoOrganizerInvitationActivity"
+            android:exported="false" />
+
         <!-- Organizer Activities -->
         <activity
             android:name=".organizer.OrganizerDashboardActivity"
@@ -93,6 +99,9 @@
             android:exported="false" />
         <activity
             android:name=".organizer.LotteryDrawActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.WaitingListMapActivity"
             android:exported="false" />
 
         <!-- FileProvider for sharing QR codes -->

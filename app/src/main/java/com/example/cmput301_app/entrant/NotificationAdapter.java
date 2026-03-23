@@ -69,6 +69,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tintColor = 0xFFFF5722; // red-orange for loss
         } else if (notification.getType() == Notification.NotificationType.INVITATION_CANCELLED) {
             tintColor = 0xFFE53935; // red for cancelled
+        } else if (notification.getType() == Notification.NotificationType.CO_ORGANIZER_INVITATION) {
+            tintColor = 0xFF7F56D9; // purple for co-organizer invitation
         } else {
             tintColor = 0xFF2196F3; // blue for broadcast / other
         }

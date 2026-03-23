@@ -256,9 +256,16 @@ public class DashboardActivity extends AppCompatActivity {
                     NotificationAdapter adapter = new NotificationAdapter(notifications, notification -> {
                         popupWindow.dismiss();
                         if (notification.getEventId() != null) {
-                            Intent intent = new Intent(this, EventDetailsActivity.class);
-                            intent.putExtra("eventId", notification.getEventId());
-                            startActivity(intent);
+                            if (notification.getType() == com.example.cmput301_app.model.Notification.NotificationType.CO_ORGANIZER_INVITATION) {
+                                Intent intent = new Intent(this, CoOrganizerInvitationActivity.class);
+                                intent.putExtra("eventId", notification.getEventId());
+                                intent.putExtra("notificationId", notification.getNotificationId());
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(this, EventDetailsActivity.class);
+                                intent.putExtra("eventId", notification.getEventId());
+                                startActivity(intent);
+                            }
                         }
                     });
                     rvNotifications.setAdapter(adapter);
@@ -336,7 +343,7 @@ public class DashboardActivity extends AppCompatActivity {
                     getResources().getColor(R.color.primary_blue, getTheme())));
             btnFilterSort.setTextColor(getResources().getColor(R.color.white, getTheme()));
         } else {
-            btnFilterSort.setText("Sort: Closing Soon");
+            btnFilterSort.setText("Filter");
             btnFilterSort.setBackgroundTintList(null);
             btnFilterSort.setTextColor(getResources().getColor(R.color.primary_blue, getTheme()));
         }
@@ -388,11 +395,33 @@ public class DashboardActivity extends AppCompatActivity {
             }
 
             List<Entrant.RegistrationRecord> history = entrant.getRegistrationHistory();
+
+            // Deduplicate: keep only the latest record per eventId to guard against
+            // stale duplicate entries left by the arrayRemove timestamp-mismatch bug.
+            java.util.Map<String, Entrant.RegistrationRecord> latestByEvent = new java.util.LinkedHashMap<>();
+            for (Entrant.RegistrationRecord record : history) {
+                Entrant.RegistrationRecord existing = latestByEvent.get(record.getEventId());
+                if (existing == null
+                        || (record.getTimestamp() != null && existing.getTimestamp() != null
+                            && record.getTimestamp().compareTo(existing.getTimestamp()) > 0)) {
+                    latestByEvent.put(record.getEventId(), record);
+                }
+            }
+            List<Entrant.RegistrationRecord> dedupedHistory = new ArrayList<>(latestByEvent.values());
+
             List<MyEventsAdapter.MyEventItem> items = new ArrayList<>();
             int[] completed = {0};
-            int total = history.size();
+            int total = dedupedHistory.size();
 
-            for (Entrant.RegistrationRecord record : history) {
+            if (total == 0) {
+                if (tvEmptyState != null) {
+                    tvEmptyState.setVisibility(View.VISIBLE);
+                    rvMyEvents.setVisibility(View.GONE);
+                }
+                return;
+            }
+
+            for (Entrant.RegistrationRecord record : dedupedHistory) {
                 eventDB.getEvent(record.getEventId(), event -> {
                     if (event != null) {
                         items.add(new MyEventsAdapter.MyEventItem(event, record.getOutcome()));

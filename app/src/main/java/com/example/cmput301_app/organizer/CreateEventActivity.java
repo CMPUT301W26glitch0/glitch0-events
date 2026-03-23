@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -52,6 +53,7 @@ public class CreateEventActivity extends AppCompatActivity {
     private AutoCompleteTextView actCategory;
     private TextInputLayout tilName, tilDescription, tilLocation, tilCategory, tilPrice, tilCapacity, tilWaitlistLimit;
     private Button btnPickDate, btnPublish, btnPickRegOpen, btnPickRegClose;
+    private SwitchMaterial swGeolocation;
     private ImageView ivPosterPreview;
     private FrameLayout loadingOverlay;
     private TextView tvLoadingText;
@@ -121,6 +123,7 @@ public class CreateEventActivity extends AppCompatActivity {
         btnPickRegOpen = findViewById(R.id.btn_pick_reg_open);
         btnPickRegClose = findViewById(R.id.btn_pick_reg_close);
         btnPublish = findViewById(R.id.btn_publish_event);
+        swGeolocation = findViewById(R.id.sw_geolocation);
         ivPosterPreview = findViewById(R.id.iv_poster_preview);
         loadingOverlay = findViewById(R.id.loading_overlay);
         tvLoadingText = findViewById(R.id.tv_loading_text);
@@ -153,6 +156,10 @@ public class CreateEventActivity extends AppCompatActivity {
                 }
                 etPrice.setText(String.format(Locale.getDefault(), "%.2f", event.getPrice()));
                 etCapacity.setText(String.valueOf(event.getCapacity()));
+
+                if (swGeolocation != null) {
+                    swGeolocation.setChecked(event.isGeolocationEnabled());
+                }
 
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                     ivPosterPreview.setVisibility(View.VISIBLE);
@@ -328,6 +335,7 @@ public class CreateEventActivity extends AppCompatActivity {
         event.setDate(new Timestamp(eventCalendar.getTime()));
         event.setRegistrationOpen(new Timestamp(regOpenCalendar.getTime()));
         event.setRegistrationClose(new Timestamp(regCloseCalendar.getTime()));
+        event.setGeolocationEnabled(swGeolocation != null && swGeolocation.isChecked());
 
         if (existingEvent == null) {
             String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;

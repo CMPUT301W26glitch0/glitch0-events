@@ -236,7 +236,97 @@ public class EventDB {
                                         OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(eventId)
-                .update("confirmedAttendeesIds", com.google.firebase.firestore.FieldValue.arrayUnion(deviceId))
+                .update("confirmedAttendeesIds", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Adds a device ID to the event's pendingCoOrganizerInvites array.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant being invited
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void addPendingCoOrganizerInvite(String eventId, String deviceId,
+                                             OnSuccessListener<Void> successListener,
+                                             OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("pendingCoOrganizerInvites", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Accepts a co-organizer invitation: moves deviceId from pendingCoOrganizerInvites
+     * to coOrganizerIds, and removes them from the waiting list.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant accepting the invitation
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void acceptCoOrganizerInvite(String eventId, String deviceId,
+                                         OnSuccessListener<Void> successListener,
+                                         OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId));
+        updates.put("coOrganizerIds", FieldValue.arrayUnion(deviceId));
+        updates.put("waitingListIds", FieldValue.arrayRemove(deviceId));
+        updates.put("waitingListCount", FieldValue.increment(-1));
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Stores the geographic location at which an entrant joined the waiting list.
+     * The location is written under {@code waitingListLocations.<deviceId>} in the event document.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant
+     * @param latitude        latitude of the entrant's location
+     * @param longitude       longitude of the entrant's location
+     * @param joinedAt        timestamp when the entrant joined
+     * @param successListener called when the write completes
+     * @param failureListener called if the write fails
+     */
+    public void saveWaitingListLocation(String eventId, String deviceId,
+                                        double latitude, double longitude,
+                                        com.google.firebase.Timestamp joinedAt,
+                                        OnSuccessListener<Void> successListener,
+                                        OnFailureListener failureListener) {
+        Map<String, Object> locationData = new HashMap<>();
+        locationData.put("latitude", latitude);
+        locationData.put("longitude", longitude);
+        locationData.put("joinedAt", joinedAt);
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("waitingListLocations." + deviceId, locationData)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Declines a co-organizer invitation: removes deviceId from pendingCoOrganizerInvites.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant declining the invitation
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void declineCoOrganizerInvite(String eventId, String deviceId,
+                                          OnSuccessListener<Void> successListener,
+                                          OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }

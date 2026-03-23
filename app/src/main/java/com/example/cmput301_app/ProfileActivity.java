@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
+
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -31,7 +33,11 @@ import com.example.cmput301_app.database.OrganizerDB;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -43,6 +49,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView ivProfile;
     private Button btnSave, btnLogout;
     private TextView tvDeleteProfile;
+    private SwitchMaterial switchNotifications;
     private View btnBack;
     private Uri imageUri;
     private String userRole = "entrant"; // Default
@@ -80,6 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btn_logout);
         btnBack = findViewById(R.id.btn_profile_back);
         tvDeleteProfile = findViewById(R.id.tv_delete_profile_btn);
+        switchNotifications = findViewById(R.id.switch_notifications);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -115,7 +123,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     /** Resolves the current user's Firestore document ID.
      *  1st priority: Firebase Auth UID (email/password login)
-     *  2nd priority: Firestore query by deviceId == ANDROID_ID (device login)
+     *  2nd priority: SharedPreferences "last_uid" (device login)
      *  If neither resolves, the callback receives null and the caller should call logout().
      */
     private void resolveUid(java.util.function.Consumer<String> callback) {
@@ -123,20 +131,8 @@ public class ProfileActivity extends AppCompatActivity {
             callback.accept(mAuth.getCurrentUser().getUid());
             return;
         }
-        String androidId = android.provider.Settings.Secure.getString(
-                getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-        db.collection("users")
-                .whereEqualTo("deviceId", androidId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (!snap.isEmpty()) {
-                        callback.accept(snap.getDocuments().get(0).getId());
-                    } else {
-                        callback.accept(null);
-                    }
-                })
-                .addOnFailureListener(e -> callback.accept(null));
+        String lastUid = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+        callback.accept(lastUid);
     }
 
     private void loadUserData() {
@@ -148,6 +144,13 @@ public class ProfileActivity extends AppCompatActivity {
                     etName.setText(documentSnapshot.getString("name"));
                     etEmail.setText(documentSnapshot.getString("email"));
                     etPhone.setText(documentSnapshot.getString("phoneNumber"));
+
+                    Boolean notifs = documentSnapshot.getBoolean("notificationsEnabled");
+                    if (notifs != null) {
+                        switchNotifications.setChecked(notifs);
+                    } else {
+                        switchNotifications.setChecked(true);
+                    }
 
                     String photoUrl = documentSnapshot.getString("profileImageUrl");
                     if (photoUrl != null && !photoUrl.isEmpty()) {
@@ -161,15 +164,37 @@ public class ProfileActivity extends AppCompatActivity {
     private void uploadImageAndSaveProfile() {
         resolveUid(uid -> {
             if (uid == null) { logout(); return; }
+
+            // Read all bytes on the main thread (where the content URI grant is valid),
+            // then upload via putBytes() to avoid -13010 errors from background thread URI access.
+            byte[] imageBytes;
+            try {
+                InputStream is = getContentResolver().openInputStream(imageUri);
+                if (is == null) {
+                    Toast.makeText(this, "Could not read image", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] chunk = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = is.read(chunk)) != -1) buffer.write(chunk, 0, bytesRead);
+                is.close();
+                imageBytes = buffer.toByteArray();
+            } catch (Exception e) {
+                Toast.makeText(this, "Could not read image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + uid + ".jpg");
             btnSave.setEnabled(false);
             btnSave.setText("Uploading...");
-            storageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
+            storageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
                 storageRef.getDownloadUrl().addOnSuccessListener(uri -> saveChanges(uri.toString()))
             ).addOnFailureListener(e -> {
                 btnSave.setEnabled(true);
                 btnSave.setText("Save Changes");
-                Toast.makeText(this, "Upload Failed", Toast.LENGTH_SHORT).show();
+                android.util.Log.e("ProfileActivity", "Storage upload failed", e);
+                Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             });
         });
     }
@@ -194,7 +219,8 @@ public class ProfileActivity extends AppCompatActivity {
                     "name", name,
                     "email", email,
                     "phoneNumber", phone,
-                    "profileImageUrl", photoUrl != null ? photoUrl : ""
+                    "profileImageUrl", photoUrl != null ? photoUrl : "",
+                    "notificationsEnabled", switchNotifications.isChecked()
             ).addOnSuccessListener(aVoid -> {
                 Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
                 finish();

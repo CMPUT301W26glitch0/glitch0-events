@@ -76,6 +76,7 @@ public class NotificationDB {
         data.put("message", notification.getMessage());
         data.put("type", notification.getType().name());
         data.put("timestamp", notification.getTimestamp());
+        data.put("inviterName", notification.getInviterName());
 
         db.collection(COLLECTION)
                 .add(data)

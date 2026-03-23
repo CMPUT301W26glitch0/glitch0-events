@@ -137,7 +137,7 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
-                    android:text="Sort: Closing Soon"
+                    android:text="Filter"
                     android:textAllCaps="false"
                     android:textColor="@color/primary_blue"
                     android:textSize="12sp"

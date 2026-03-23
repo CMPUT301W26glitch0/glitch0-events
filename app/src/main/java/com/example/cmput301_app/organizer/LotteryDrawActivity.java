@@ -39,10 +39,17 @@ import com.example.cmput301_app.model.Event;
 public class LotteryDrawActivity extends AppCompatActivity {
 
     private String eventId;
+    private String cachedEventName;
     private EventDB eventDB;
     private TextView tvWinnerCount, tvWaitingCount, tvSampleRate, tvEventName, tvEventSubtitle;
-    private int winnersToSelect = 20;
-    private long totalEntrants = 142; // Mock
+    private TextView tvDrawResultsSummary, tvWinnerList;
+    private android.view.View cvDrawResults;
+    private android.widget.Button btnDrawWinners, btnSendInvitations;
+    private int winnersToSelect = 1;
+    private long totalEntrants = 0;
+    private long eventCapacity = Long.MAX_VALUE;
+    /** Winners stored after draw runs, waiting for organizer to send invitations. */
+    private java.util.List<String> pendingWinners = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,8 @@ public class LotteryDrawActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lottery_draw);
 
         eventId = getIntent().getStringExtra("eventId");
+        long cap = getIntent().getLongExtra("eventCapacity", -1L);
+        if (cap > 0) eventCapacity = cap;
         eventDB = new EventDB();
 
         initViews();
@@ -65,12 +74,21 @@ public class LotteryDrawActivity extends AppCompatActivity {
         tvSampleRate = findViewById(R.id.tv_sample_rate);
         tvEventName = findViewById(R.id.tv_lottery_event_name);
         tvEventSubtitle = findViewById(R.id.tv_lottery_event_subtitle);
+        tvDrawResultsSummary = findViewById(R.id.tv_draw_results_summary);
+        tvWinnerList = findViewById(R.id.tv_winner_list);
+        cvDrawResults = findViewById(R.id.cv_draw_results);
+        btnDrawWinners = findViewById(R.id.btn_draw_winners);
+        btnSendInvitations = findViewById(R.id.btn_send_invitations);
 
         findViewById(R.id.btn_lottery_back).setOnClickListener(v -> finish());
 
         findViewById(R.id.btn_plus_winners).setOnClickListener(v -> {
-            winnersToSelect++;
-            updateUI();
+            if (winnersToSelect < eventCapacity) {
+                winnersToSelect++;
+                updateUI();
+            } else {
+                Toast.makeText(this, "Cannot exceed event capacity (" + eventCapacity + ")", Toast.LENGTH_SHORT).show();
+            }
         });
 
         findViewById(R.id.btn_minus_winners).setOnClickListener(v -> {
@@ -80,62 +98,152 @@ public class LotteryDrawActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btn_draw_winners).setOnClickListener(v -> {
-            runLottery();
-        });
+        btnDrawWinners.setOnClickListener(v -> runLottery());
+        btnSendInvitations.setOnClickListener(v -> sendInvitations());
     }
 
     private void runLottery() {
-        if (eventId == null || totalEntrants == 0) return;
-        
-        // Show a quick loader/toast
+        if (eventId == null) return;
+        if (winnersToSelect <= 0) {
+            Toast.makeText(this, "Select at least 1 winner", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (winnersToSelect > eventCapacity) {
+            Toast.makeText(this, "Number of winners cannot exceed event capacity (" + eventCapacity + ")", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnDrawWinners.setEnabled(false);
         Toast.makeText(this, "Running Lottery Draw...", Toast.LENGTH_SHORT).show();
 
         com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
-        
+
         db.collection("events").document(eventId).get().addOnSuccessListener(eventDoc -> {
-            if (!eventDoc.exists()) return;
-            
+            if (!eventDoc.exists()) { btnDrawWinners.setEnabled(true); return; }
+
             java.util.List<String> waitingIds = (java.util.List<String>) eventDoc.get("waitingListIds");
-            if (waitingIds == null || waitingIds.isEmpty()) return;
+            if (waitingIds == null || waitingIds.isEmpty()) {
+                Toast.makeText(this, "No entrants on the waiting list", Toast.LENGTH_SHORT).show();
+                btnDrawWinners.setEnabled(true);
+                return;
+            }
 
-            // 1. Shuffle to randomize
+            cachedEventName = eventDoc.getString("name");
+
+            // 1. Shuffle and split
             java.util.Collections.shuffle(waitingIds);
-
-            // 2. Split into winners and losers
             int winCount = Math.min(winnersToSelect, waitingIds.size());
             java.util.List<String> winners = new java.util.ArrayList<>(waitingIds.subList(0, winCount));
             java.util.List<String> losers = new java.util.ArrayList<>(waitingIds.subList(winCount, waitingIds.size()));
 
-            String eventName = eventDoc.getString("name");
-
-            // 3. Update Winners & Send Win Notifications
+            // 2. Update outcomes in Firestore (no notifications yet)
             for (String wId : winners) {
-                updateEntrantOutcome(db, wId, eventId, "SELECTED", () -> {
-                    checkAndSendWinNotification(db, wId, eventId, eventName);
-                });
+                updateEntrantOutcome(db, wId, eventId, "SELECTED", null);
             }
-
-            // 4. Update Losers & Send Notifications
             for (String lId : losers) {
-                updateEntrantOutcome(db, lId, eventId, "NOT_SELECTED", () -> {
-                    checkAndSendLossNotification(db, lId, eventId, eventName);
-                });
+                updateEntrantOutcome(db, lId, eventId, "NOT_SELECTED", () ->
+                        checkAndSendLossNotification(db, lId, eventId, cachedEventName));
             }
 
-            // 5. Build and Save LotteryPool to LotteryDB
+            // 3. Save LotteryPool
             com.example.cmput301_app.database.LotteryDB lotteryDB = new com.example.cmput301_app.database.LotteryDB();
             com.example.cmput301_app.model.LotteryPool pool = new com.example.cmput301_app.model.LotteryPool(winnersToSelect);
             for (String wId : winners) pool.selectEntrant(wId);
-            
+
             lotteryDB.createLotteryPool(eventId, pool, aVoid -> {
-                // Done
-                Toast.makeText(this, "Lottery Complete!", Toast.LENGTH_SHORT).show();
-                finish();
+                pendingWinners = winners;
+                // 4. Show results and "Send Invitations" button
+                runOnUiThread(() -> showDrawResults(winners.size(), losers.size()));
             }, e -> {
-                Toast.makeText(this, "Error saving lottery results", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Error saving lottery results", Toast.LENGTH_SHORT).show();
+                    btnDrawWinners.setEnabled(true);
+                });
             });
+        }).addOnFailureListener(e -> {
+            btnDrawWinners.setEnabled(true);
+            Toast.makeText(this, "Error running lottery", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void showDrawResults(int winnerCount, int loserCount) {
+        btnDrawWinners.setVisibility(android.view.View.GONE);
+        // Also hide +/- controls so the organizer can't re-draw
+        findViewById(R.id.btn_plus_winners).setEnabled(false);
+        findViewById(R.id.btn_minus_winners).setEnabled(false);
+
+        if (tvDrawResultsSummary != null) {
+            tvDrawResultsSummary.setText(
+                    winnerCount + " entrant" + (winnerCount == 1 ? "" : "s") + " selected  •  "
+                    + loserCount + " not selected");
+        }
+        if (cvDrawResults != null) cvDrawResults.setVisibility(android.view.View.VISIBLE);
+        if (btnSendInvitations != null) btnSendInvitations.setVisibility(android.view.View.VISIBLE);
+
+        // Fetch winner display names from Firestore
+        if (pendingWinners != null && !pendingWinners.isEmpty() && tvWinnerList != null) {
+            fetchWinnerNames(pendingWinners);
+        }
+    }
+
+    private void fetchWinnerNames(java.util.List<String> winnerIds) {
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(winnerIds.size());
+        java.util.Map<String, String> nameMap = new java.util.concurrent.ConcurrentHashMap<>();
+
+        for (String uid : winnerIds) {
+            db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+                String name = doc.getString("name");
+                if (name == null || name.isEmpty()) name = doc.getString("username");
+                if (name == null || name.isEmpty()) name = uid;
+                nameMap.put(uid, name);
+                if (remaining.decrementAndGet() == 0) {
+                    // Build ordered list using original winnerIds order
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < winnerIds.size(); i++) {
+                        sb.append(i + 1).append(". ").append(nameMap.getOrDefault(winnerIds.get(i), winnerIds.get(i)));
+                        if (i < winnerIds.size() - 1) sb.append("\n");
+                    }
+                    runOnUiThread(() -> tvWinnerList.setText(sb.toString()));
+                }
+            }).addOnFailureListener(e -> {
+                nameMap.put(uid, uid);
+                if (remaining.decrementAndGet() == 0) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < winnerIds.size(); i++) {
+                        sb.append(i + 1).append(". ").append(nameMap.getOrDefault(winnerIds.get(i), winnerIds.get(i)));
+                        if (i < winnerIds.size() - 1) sb.append("\n");
+                    }
+                    runOnUiThread(() -> tvWinnerList.setText(sb.toString()));
+                }
+            });
+        }
+    }
+
+    private void sendInvitations() {
+        if (pendingWinners == null || pendingWinners.isEmpty()) {
+            Toast.makeText(this, "No winners to notify", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        btnSendInvitations.setEnabled(false);
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+
+        java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(pendingWinners.size());
+        for (String wId : pendingWinners) {
+            checkAndSendWinNotification(db, wId, eventId, cachedEventName, () -> {
+                if (remaining.decrementAndGet() == 0) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this,
+                                "Invitations sent to " + pendingWinners.size() + " entrant"
+                                + (pendingWinners.size() == 1 ? "" : "s") + "!",
+                                Toast.LENGTH_LONG).show();
+                        finish();
+                    });
+                }
+            });
+        }
     }
 
     private void updateEntrantOutcome(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String newStatus, Runnable onComplete) {
@@ -161,33 +269,37 @@ public class LotteryDrawActivity extends AppCompatActivity {
 
     private void checkAndSendLossNotification(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String eventName) {
         db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            // Respect the user's notification opt-out preference for loss notifications
             Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
-            if (notificationsEnabled != null && !notificationsEnabled) {
-                // Opted out
-                return;
-            }
+            if (Boolean.FALSE.equals(notificationsEnabled)) return;
 
-            // Create notification record in Firestore
+            String displayName = eventName != null ? eventName : "an event";
+            String message = "You were not selected for \"" + displayName + "\" in the current draw. "
+                    + "You may still be selected if a chosen entrant declines.";
+
             com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
             com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
                     "", evId, com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
-                    "You were not selected in the current draw. You may still be selected if a chosen entrant declines.",
+                    message,
                     com.example.cmput301_app.model.Notification.NotificationType.LOTTERY_LOSS,
                     com.google.firebase.Timestamp.now()
             );
             n.addRecipient(userId);
-            
+
             notifDB.createNotification(n, savedNotif -> {
-                // Trigger local device notification
-                triggerLocalNotification(evId, eventName, "You were not selected in the current draw. You may still be selected if a chosen entrant declines.");
+                triggerLocalNotification(evId, eventName, message);
             }, e -> {});
         });
     }
 
-    private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db, String userId, String evId, String eventName) {
-        // Always create the notification record in Firestore
+    private void checkAndSendWinNotification(com.google.firebase.firestore.FirebaseFirestore db,
+            String userId, String evId, String eventName, Runnable onComplete) {
+        String message = "Congratulations! You have been selected for \""
+                + (eventName != null ? eventName : "an event")
+                + "\". Open the app to accept or decline your invitation.";
+
+        // Always create the in-app notification record so the invitation appears in the bell
         com.example.cmput301_app.database.NotificationDB notifDB = new com.example.cmput301_app.database.NotificationDB();
-        String message = "Congratulations! You have been selected for " + (eventName != null ? eventName : "an event") + ". Open the app to accept or decline your invitation.";
         com.example.cmput301_app.model.Notification n = new com.example.cmput301_app.model.Notification(
                 "", evId, com.google.firebase.auth.FirebaseAuth.getInstance().getUid(),
                 message,
@@ -197,15 +309,15 @@ public class LotteryDrawActivity extends AppCompatActivity {
         n.addRecipient(userId);
 
         notifDB.createNotification(n, savedNotif -> {
-            // Check if user has notifications enabled before sending push
+            // Only send the device push notification if the user has not opted out
             db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
                 Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
-                if (notificationsEnabled != null && !notificationsEnabled) {
-                    return; // Opted out of push, but Firestore record still exists
+                if (!Boolean.FALSE.equals(notificationsEnabled)) {
+                    triggerLocalNotification(evId, eventName, message);
                 }
-                triggerLocalNotification(evId, eventName, message);
-            });
-        }, e -> {});
+                if (onComplete != null) onComplete.run();
+            }).addOnFailureListener(e -> { if (onComplete != null) onComplete.run(); });
+        }, e -> { if (onComplete != null) onComplete.run(); });
     }
 
     private void triggerLocalNotification(String evId, String eventName, String notificationMessage) {
@@ -249,6 +361,14 @@ public class LotteryDrawActivity extends AppCompatActivity {
         eventDB.getEvent(eventId, event -> {
             if (event != null) {
                 totalEntrants = event.getWaitingListCount();
+                cachedEventName = event.getName();
+                if (event.getCapacity() > 0 && eventCapacity == Long.MAX_VALUE) {
+                    eventCapacity = event.getCapacity();
+                }
+                // Clamp current selection to capacity
+                if (winnersToSelect > eventCapacity) {
+                    winnersToSelect = (int) eventCapacity;
+                }
                 if (tvEventName != null && event.getName() != null) {
                     tvEventName.setText(event.getName());
                 }

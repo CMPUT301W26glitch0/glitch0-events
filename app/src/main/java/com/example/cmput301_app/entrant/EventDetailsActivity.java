@@ -5,7 +5,13 @@
  */
 package com.example.cmput301_app.entrant;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -18,7 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
@@ -45,7 +54,9 @@ import com.google.firebase.firestore.FieldValue;
 
 public class EventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "EventDetails";
-    private TextView tvTitle, tvDescription, tvDate, tvRegOpen, tvRegClose, tvCategory, tvLocation, tvPrice, tvCapacity;
+    private static final int REQUEST_LOCATION_PERMISSION = 1001;
+    private boolean pendingJoin = false;
+    private TextView tvTitle, tvDescription, tvDate, tvRegOpen, tvRegClose, tvCategory, tvLocation, tvPrice, tvCapacity, tvWaitlistCount;
     private Button btnJoin, btnEdit;
     private ImageView ivHeader;
     private FirebaseFirestore db;
@@ -104,6 +115,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         tvLocation = findViewById(R.id.tv_event_location);
         tvPrice = findViewById(R.id.tv_event_price);
         tvCapacity = findViewById(R.id.tv_event_capacity);
+        tvWaitlistCount = findViewById(R.id.tv_waitlist_count);
         btnJoin = findViewById(R.id.btn_join_waiting_list);
         
         llInvitationActions = findViewById(R.id.ll_invitation_actions);
@@ -242,6 +254,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             tvCapacity.setText(String.valueOf(currentEvent.getCapacity()));
         }
 
+        if (tvWaitlistCount != null) {
+            java.util.List<String> waitingListIds = currentEvent.getWaitingListIds();
+            int count = (waitingListIds != null) ? waitingListIds.size() : 0;
+            tvWaitlistCount.setText(count + " entrant" + (count == 1 ? "" : "s"));
+        }
+
         if (ivHeader != null && currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
             Glide.with(this)
                     .load(currentEvent.getPosterUrl())
@@ -326,7 +344,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     if (currentOutcome == Entrant.RegistrationRecord.Outcome.SELECTED) {
                         showInvitationActions();
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.ACCEPTED) {
-                        showInvitationStatus("Invitation Accepted");
+                        showInvitationStatus("✓ You have already accepted this invitation");
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.DECLINED) {
                         showInvitationStatus("Invitation Declined");
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.NOT_SELECTED) {
@@ -430,14 +448,18 @@ public class EventDetailsActivity extends AppCompatActivity {
         String uid = resolveUid();
         if (uid == null) return;
 
+        // Immediately disable both buttons to prevent duplicate submissions
+        if (btnAccept != null) btnAccept.setEnabled(false);
+        if (btnDecline != null) btnDecline.setEnabled(false);
+
         updateEntrantOutcome(uid, eventId, "SELECTED", "ACCEPTED", () -> {
             // Push their ID to the confirmedAttendees array on the Event
             eventDB.addToConfirmedAttendees(eventId, uid, aVoid -> {
                 Toast.makeText(this, "Invitation Accepted!", Toast.LENGTH_SHORT).show();
-                showInvitationStatus("Invitation Accepted");
+                showInvitationStatus("✓ You have joined this event");
             }, e -> {
                 Toast.makeText(this, "Accepted, but failed to log attendee on event.", Toast.LENGTH_SHORT).show();
-                showInvitationStatus("Invitation Accepted");
+                showInvitationStatus("✓ You have joined this event");
             });
         });
     }
@@ -445,6 +467,10 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void handleDecline() {
         String uid = resolveUid();
         if (uid == null) return;
+
+        // Immediately disable both buttons to prevent duplicate submissions
+        if (btnAccept != null) btnAccept.setEnabled(false);
+        if (btnDecline != null) btnDecline.setEnabled(false);
 
         updateEntrantOutcome(uid, eventId, "SELECTED", "DECLINED", () -> {
             Toast.makeText(this, "Invitation Declined.", Toast.LENGTH_SHORT).show();
@@ -454,22 +480,40 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void updateEntrantOutcome(String userId, String targetEventId, String oldStatus, String newStatus, Runnable onSuccess) {
-        java.util.Map<String, Object> oldRecord = new java.util.HashMap<>();
-        oldRecord.put("eventId", targetEventId);
-        oldRecord.put("outcome", oldStatus);
+        // Read the full history first so we can do an exact in-place replacement.
+        // arrayRemove requires an exact map match (including timestamp), so we cannot
+        // build the old record blindly — we must use the one already in Firestore.
+        db.collection("users").document(userId).get().addOnSuccessListener(doc -> {
+            java.util.List<java.util.Map<String, Object>> history =
+                    (java.util.List<java.util.Map<String, Object>>) doc.get("registrationHistory");
+            if (history == null) history = new java.util.ArrayList<>();
 
-        java.util.Map<String, Object> newRecord = new java.util.HashMap<>();
-        newRecord.put("eventId", targetEventId);
-        newRecord.put("outcome", newStatus);
-        newRecord.put("timestamp", com.google.firebase.Timestamp.now());
+            boolean found = false;
+            for (int i = 0; i < history.size(); i++) {
+                java.util.Map<String, Object> rec = history.get(i);
+                if (targetEventId.equals(rec.get("eventId")) && oldStatus.equals(rec.get("outcome"))) {
+                    java.util.Map<String, Object> updated = new java.util.HashMap<>(rec);
+                    updated.put("outcome", newStatus);
+                    updated.put("timestamp", com.google.firebase.Timestamp.now());
+                    history.set(i, updated);
+                    found = true;
+                    break;
+                }
+            }
 
-        db.collection("users").document(userId)
-                .update("registrationHistory", FieldValue.arrayRemove(oldRecord))
-                .addOnSuccessListener(a -> {
-                    db.collection("users").document(userId)
-                            .update("registrationHistory", FieldValue.arrayUnion(newRecord))
-                            .addOnSuccessListener(a2 -> onSuccess.run());
-                });
+            if (!found) {
+                // Record not found with oldStatus — add a fresh one anyway
+                java.util.Map<String, Object> newRecord = new java.util.HashMap<>();
+                newRecord.put("eventId", targetEventId);
+                newRecord.put("outcome", newStatus);
+                newRecord.put("timestamp", com.google.firebase.Timestamp.now());
+                history.add(newRecord);
+            }
+
+            db.collection("users").document(userId)
+                    .update("registrationHistory", history)
+                    .addOnSuccessListener(a -> onSuccess.run());
+        });
     }
 
     private void triggerAutomaticRedraw(String targetEventId) {
@@ -494,7 +538,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                             }
                         }
 
-                        if ("WAITING".equals(outcome)) {
+                        if ("WAITING".equals(outcome) || "NOT_SELECTED".equals(outcome)) {
                             synchronized (waitingUsers) { waitingUsers.add(userDoc); }
                         }
                     }
@@ -505,7 +549,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                         java.util.Random random = new java.util.Random();
                         com.google.firebase.firestore.DocumentSnapshot chosenUser = waitingUsers.get(random.nextInt(waitingUsers.size()));
 
-                        updateEntrantOutcome(chosenUser.getId(), targetEventId, "WAITING", "SELECTED", () -> {
+                        // Extract the correct old outcome to remove from history
+                        String oldOutcome = "WAITING";
+                        java.util.List<Map<String, Object>> chosenHistory = (java.util.List<Map<String, Object>>) chosenUser.get("registrationHistory");
+                        if (chosenHistory != null) {
+                            for (Map<String, Object> rec : chosenHistory) {
+                                if (targetEventId.equals(rec.get("eventId"))) {
+                                    oldOutcome = (String) rec.get("outcome");
+                                    break;
+                                }
+                            }
+                        }
+
+                        updateEntrantOutcome(chosenUser.getId(), targetEventId, oldOutcome, "SELECTED", () -> {
                             Log.d("AutoRedraw", "A new entrant has been chosen: " + chosenUser.getString("name"));
                             // Send LOTTERY_WIN_REDRAW notification to the replacement winner
                             sendRedrawWinNotification(chosenUser.getId(), targetEventId);
@@ -525,8 +581,36 @@ public class EventDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        btnJoin.setEnabled(false);
+        if (currentEvent.isGeolocationEnabled()) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                pendingJoin = true;
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
+                return;
+            }
+        }
 
+        btnJoin.setEnabled(false);
+        proceedWithJoin(deviceId);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION && pendingJoin) {
+            pendingJoin = false;
+            String deviceId = resolveUid();
+            if (deviceId != null) {
+                if (btnJoin != null) btnJoin.setEnabled(false);
+                proceedWithJoin(deviceId);
+            }
+        }
+    }
+
+    private void proceedWithJoin(String deviceId) {
         entrantDB.getEntrant(deviceId, entrant -> {
             if (entrant != null && entrant.isOnWaitingList(eventId)) {
                 Toast.makeText(this, "Already joined the waiting list.", Toast.LENGTH_SHORT).show();
@@ -542,6 +626,9 @@ public class EventDetailsActivity extends AppCompatActivity {
                             Entrant.RegistrationRecord.Outcome.WAITING
                     );
                     entrantDB.addRegistrationRecord(deviceId, record, aVoid3 -> {
+                        if (currentEvent != null && currentEvent.isGeolocationEnabled()) {
+                            saveEntrantLocation(deviceId);
+                        }
                         if (!isFinishing()) {
                             Toast.makeText(this, "Successfully joined waiting list!", Toast.LENGTH_SHORT).show();
                             isOnWaitingList = true;
@@ -557,21 +644,41 @@ public class EventDetailsActivity extends AppCompatActivity {
                 }, e -> {
                     if (!isFinishing()) {
                         Toast.makeText(this, "Error updating event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        btnJoin.setEnabled(true);
+                        if (btnJoin != null) btnJoin.setEnabled(true);
                     }
                 });
             }, e -> {
                 if (!isFinishing()) {
                     Toast.makeText(this, "Error joining waiting list: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    btnJoin.setEnabled(true);
+                    if (btnJoin != null) btnJoin.setEnabled(true);
                 }
             });
         }, e -> {
             if (!isFinishing()) {
                 Toast.makeText(this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                btnJoin.setEnabled(true);
+                if (btnJoin != null) btnJoin.setEnabled(true);
             }
         });
+    }
+
+    @SuppressLint("MissingPermission")
+    private void saveEntrantLocation(String deviceId) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (loc == null) return;
+
+        eventDB.saveWaitingListLocation(
+                eventId, deviceId,
+                loc.getLatitude(), loc.getLongitude(),
+                com.google.firebase.Timestamp.now(),
+                aVoid -> Log.d(TAG, "Location saved for waitlist"),
+                e -> Log.e(TAG, "Failed to save location", e));
     }
 
     private void leaveWaitingList() {
@@ -630,13 +737,8 @@ public class EventDetailsActivity extends AppCompatActivity {
             n.addRecipient(userId);
 
             notifDB.createNotification(n, savedNotif -> {
-                // Check user's notification preference before local push
+                // Acceptance Criteria: Lottery result notifications (win/lose) are always delivered regardless of this preference.
                 db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
-                    Boolean notificationsEnabled = userDoc.getBoolean("notificationsEnabled");
-                    if (notificationsEnabled != null && !notificationsEnabled) {
-                        return; // Opted out of push
-                    }
-
                     // Send local push notification
                     android.app.NotificationManager notificationManager = getSystemService(android.app.NotificationManager.class);
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

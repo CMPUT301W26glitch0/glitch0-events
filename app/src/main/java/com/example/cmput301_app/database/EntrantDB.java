@@ -72,7 +72,7 @@ public class EntrantDB {
         data.put("email", entrant.getEmail());
         data.put("phoneNumber", entrant.getPhoneNumber());
         data.put("geolocation", entrant.getGeolocation());
-        data.put("profileImageUrl", entrant.getProfileImageUrl());
+        data.put("profileImageUrl", entrant.getProfileImageUrl() != null ? entrant.getProfileImageUrl() : "");
         data.put("role", "entrant");
         data.put("waitingListIds", entrant.getWaitingListIds());
         data.put("registrationHistory", entrant.getRegistrationHistory());

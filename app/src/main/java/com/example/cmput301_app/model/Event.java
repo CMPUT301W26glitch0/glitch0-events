@@ -27,11 +27,15 @@ public class Event {
     private long waitingListCount;
     private List<String> confirmedAttendeesIds;
     private List<Comment> comments;
+    private List<String> coOrganizerIds;
+    private List<String> pendingCoOrganizerInvites;
 
     public Event() {
         this.waitingListIds = new ArrayList<>();
         this.confirmedAttendeesIds = new ArrayList<>();
         this.comments = new ArrayList<>();
+        this.coOrganizerIds = new ArrayList<>();
+        this.pendingCoOrganizerInvites = new ArrayList<>();
         this.waitingListLimit = -1;
         this.waitingListCount = 0;
     }
@@ -75,6 +79,10 @@ public class Event {
     public void setConfirmedAttendeesIds(List<String> ids) { this.confirmedAttendeesIds = ids != null ? ids : new ArrayList<>(); }
     public List<Comment> getComments() { return comments; }
     public void setComments(List<Comment> comments) { this.comments = comments != null ? comments : new ArrayList<>(); }
+    public List<String> getCoOrganizerIds() { return coOrganizerIds; }
+    public void setCoOrganizerIds(List<String> ids) { this.coOrganizerIds = ids != null ? ids : new ArrayList<>(); }
+    public List<String> getPendingCoOrganizerInvites() { return pendingCoOrganizerInvites; }
+    public void setPendingCoOrganizerInvites(List<String> ids) { this.pendingCoOrganizerInvites = ids != null ? ids : new ArrayList<>(); }
 
     @Exclude
     public boolean checkIsRegistrationOpen() {

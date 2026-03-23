@@ -143,19 +143,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             } else {
-                // Login was successful in Auth, but profile doc is missing.
-                // Redirect to dashboard (entrant view) so they can at least see the app
-                // and potentially fill out their profile.
-                Toast.makeText(this, "Login successful. No profile doc found.", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(this, DashboardActivity.class));
-                finish();
+                // No profile found — clear stale SharedPreferences and send to registration
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().remove("last_uid").apply();
+                mAuth.signOut();
+                Toast.makeText(this, "No account found. Please register.", Toast.LENGTH_LONG).show();
             }
         }).addOnFailureListener(e -> {
-            // Fallback for connectivity issues
-            if (mAuth.getCurrentUser() != null) {
-                startActivity(new Intent(this, DashboardActivity.class));
-                finish();
-            }
+            Toast.makeText(this, "Connection error. Please try again.", Toast.LENGTH_SHORT).show();
         });
     }
 }

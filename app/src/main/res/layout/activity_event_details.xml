@@ -354,6 +354,52 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
+            <!-- Waiting List Count Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_waitlist_count"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#F9FAFB"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:layout_constraintTop_toBottomOf="@id/ll_info_cards_3">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        app:tint="#5D5FEF" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="WAITING LIST"
+                        android:textColor="@color/gray_text"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_waitlist_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/dark_blue"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        tools:text="0 entrants" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- About Section -->
             <TextView
                 android:id="@+id/tv_about_label"
@@ -366,7 +412,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll_info_cards_3" />
+                app:layout_constraintTop_toBottomOf="@id/cv_waitlist_count" />
 
             <TextView
                 android:id="@+id/tv_event_description"
@@ -383,19 +429,71 @@
                 app:layout_constraintTop_toBottomOf="@id/tv_about_label"
                 tools:text="Description" />
 
+            <!-- Lottery Information Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_lottery_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="#EEF2FF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_event_description">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_dialog_info"
+                            app:tint="#5D5FEF" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="How the Lottery Works"
+                            android:textColor="#5D5FEF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Selection is random and equal for all entrants on the waiting list. Every entrant has the same chance of being chosen, regardless of when they joined."
+                        android:textColor="#3730A3"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="4dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Comments Section -->
             <TextView
                 android:id="@+id/tv_comments_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="Comments"
                 android:textColor="@color/dark_blue"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_event_description" />
+                app:layout_constraintTop_toBottomOf="@id/cv_lottery_info" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_comments"
@@ -561,8 +659,15 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/ll_invitation_actions"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Barrier sits below whichever action view is currently visible -->
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/action_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="btn_join_waiting_list,ll_invitation_actions,tv_invitation_status" />
 
             <TextView
                 android:id="@+id/tv_disclaimer"
@@ -574,7 +679,7 @@
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btn_join_waiting_list" />
+                app:layout_constraintTop_toBottomOf="@id/action_barrier" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

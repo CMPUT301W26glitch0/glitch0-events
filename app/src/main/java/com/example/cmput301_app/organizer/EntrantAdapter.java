@@ -32,10 +32,20 @@ import java.util.List;
 
 public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantViewHolder> {
 
+    public interface OnEntrantClickListener {
+        void onEntrantClick(Entrant entrant);
+    }
+
     private List<Entrant> entrants;
+    private OnEntrantClickListener clickListener;
 
     public EntrantAdapter(List<Entrant> entrants) {
         this.entrants = entrants;
+    }
+
+    public EntrantAdapter(List<Entrant> entrants, OnEntrantClickListener clickListener) {
+        this.entrants = entrants;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -110,6 +120,12 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
         badgeBg.setColor(bgColor);
         holder.tvBadge.setTextColor(textColor);
         holder.tvBadge.setBackground(badgeBg);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onEntrantClick(entrant);
+            }
+        });
     }
 
     @Override
