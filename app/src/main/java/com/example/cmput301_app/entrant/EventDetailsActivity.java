@@ -379,7 +379,6 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // Private events are invite-only; non-invited users cannot join the waiting list
         if (currentEvent != null && currentEvent.isPrivate()) {
-            String uid = resolveUid();
             java.util.List<String> invitedIds = currentEvent.getInvitedUserIds();
             boolean isInvited = invitedIds != null && uid != null && invitedIds.contains(uid);
             if (!isInvited) {
