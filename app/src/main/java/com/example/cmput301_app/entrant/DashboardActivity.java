@@ -294,6 +294,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         eventList.clear();
         for (Event event : masterEventList) {
+            // Private events are not shown in public browse; accessible via invitation only
+            if (event.isPrivate()) continue;
             // Keyword search filter
             if (!event.matchesKeyword(currentSearchQuery)) continue;
 

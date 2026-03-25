@@ -26,7 +26,7 @@
         android:layout_marginStart="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_status_badge"
+        app:layout_constraintEnd_toStartOf="@+id/ll_entrant_actions"
         app:layout_constraintStart_toEndOf="@id/tv_entrant_avatar"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -49,19 +49,41 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_status_badge"
+    <LinearLayout
+        android:id="@+id/ll_entrant_actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:text="AWAITING RESPONSE"
-        android:textColor="@color/primary_blue"
-        android:textSize="10sp"
-        android:textStyle="bold"
-        android:textAllCaps="true"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_status_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:text="AWAITING RESPONSE"
+            android:textColor="@color/primary_blue"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textAllCaps="true" />
+
+        <Button
+            android:id="@+id/btn_cancel_entrant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="#F44336"
+            android:textSize="11sp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:background="@android:color/transparent"
+            android:visibility="gone" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

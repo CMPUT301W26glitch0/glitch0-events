@@ -187,6 +187,25 @@
         app:iconTint="@color/primary_blue"
         app:strokeColor="@color/primary_blue"
         app:strokeWidth="1dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_export_csv" />
+
+    <Button
+        android:id="@+id/btn_export_csv"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/white"
+        android:text="Export Enrolled List (CSV)"
+        android:textAllCaps="false"
+        android:textColor="@color/primary_blue"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:cornerRadius="12dp"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconTint="@color/primary_blue"
+        app:strokeColor="@color/primary_blue"
+        app:strokeWidth="1dp"
         app:layout_constraintBottom_toTopOf="@id/btn_run_lottery" />
 
     <Button

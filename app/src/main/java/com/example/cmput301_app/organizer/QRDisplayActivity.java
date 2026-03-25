@@ -37,6 +37,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.cmput301_app.util.ImageUtils;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
 import com.google.zxing.BarcodeFormat;
@@ -106,7 +107,7 @@ public class QRDisplayActivity extends AppCompatActivity {
                 if (tvEventIdSecondary != null) tvEventIdSecondary.setText("ID: " + eventId);
 
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-                    Glide.with(this).load(event.getPosterUrl()).into(ivPreviewPoster);
+                    ImageUtils.loadImage(this, event.getPosterUrl(), ivPreviewPoster, false);
                 }
 
                 qrBitmap = generateQR("event_details:" + eventId);

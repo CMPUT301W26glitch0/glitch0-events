@@ -36,8 +36,13 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
         void onEntrantClick(Entrant entrant);
     }
 
+    public interface OnCancelClickListener {
+        void onCancelClick(Entrant entrant);
+    }
+
     private List<Entrant> entrants;
     private OnEntrantClickListener clickListener;
+    private OnCancelClickListener cancelListener;
 
     public EntrantAdapter(List<Entrant> entrants) {
         this.entrants = entrants;
@@ -46,6 +51,12 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
     public EntrantAdapter(List<Entrant> entrants, OnEntrantClickListener clickListener) {
         this.entrants = entrants;
         this.clickListener = clickListener;
+    }
+
+    public EntrantAdapter(List<Entrant> entrants, OnEntrantClickListener clickListener, OnCancelClickListener cancelListener) {
+        this.entrants = entrants;
+        this.clickListener = clickListener;
+        this.cancelListener = cancelListener;
     }
 
     @NonNull
@@ -121,6 +132,17 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
         holder.tvBadge.setTextColor(textColor);
         holder.tvBadge.setBackground(badgeBg);
 
+        // Show cancel button only for entrants awaiting a response
+        if ("AWAITING RESPONSE".equals(status)) {
+            holder.btnCancel.setVisibility(View.VISIBLE);
+            holder.btnCancel.setOnClickListener(v -> {
+                if (cancelListener != null) cancelListener.onCancelClick(entrant);
+            });
+        } else {
+            holder.btnCancel.setVisibility(View.GONE);
+            holder.btnCancel.setOnClickListener(null);
+        }
+
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
                 clickListener.onEntrantClick(entrant);
@@ -135,6 +157,7 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
 
     static class EntrantViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvInfo, tvAvatar, tvBadge;
+        android.widget.Button btnCancel;
 
         public EntrantViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -142,6 +165,7 @@ public class EntrantAdapter extends RecyclerView.Adapter<EntrantAdapter.EntrantV
             tvInfo = itemView.findViewById(R.id.tv_entrant_info);
             tvAvatar = itemView.findViewById(R.id.tv_entrant_avatar);
             tvBadge = itemView.findViewById(R.id.tv_status_badge);
+            btnCancel = itemView.findViewById(R.id.btn_cancel_entrant);
         }
     }
 }

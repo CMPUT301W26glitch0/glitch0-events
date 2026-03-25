@@ -103,6 +103,21 @@
         <activity
             android:name=".organizer.WaitingListMapActivity"
             android:exported="false" />
+        <activity
+            android:name=".organizer.NotifyWaitingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.NotifySelectedEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.NotifyCancelledEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.InviteEntrantToWaitingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.AssignCoOrganizerActivity"
+            android:exported="false" />
 
         <!-- FileProvider for sharing QR codes -->
         <provider

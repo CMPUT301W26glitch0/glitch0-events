@@ -236,7 +236,9 @@ public class Entrant extends Profile {
             /** Entrant was not selected in the lottery draw */
             NOT_SELECTED,
             /** Entrant was cancelled by the organizer */
-            CANCELLED
+            CANCELLED,
+            /** Entrant has been invited to join a private event's waiting list and has not yet responded */
+            PENDING_INVITE
         }
 
         /** The ID of the event this record refers to */

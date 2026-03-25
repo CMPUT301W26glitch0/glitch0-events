@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.cmput301_app.util.ImageUtils;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.EventDB;
@@ -216,7 +217,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         btnPostComment.setEnabled(false);
         entrantDB.getEntrant(uid, entrant -> {
             String authorName = (entrant != null && entrant.getName() != null) ? entrant.getName() : "Unknown Entrant";
-            Comment newComment = new Comment(content, authorName, com.google.firebase.Timestamp.now());
+            Comment newComment = new Comment(java.util.UUID.randomUUID().toString(), content, authorName, com.google.firebase.Timestamp.now(), false);
 
             db.collection("events").document(eventId)
                     .update("comments", FieldValue.arrayUnion(newComment))
@@ -261,10 +262,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
 
         if (ivHeader != null && currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
-            Glide.with(this)
-                    .load(currentEvent.getPosterUrl())
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .into(ivHeader);
+            ImageUtils.loadImage(this, currentEvent.getPosterUrl(), ivHeader, false);
         }
 
         SimpleDateFormat fullFormat = new SimpleDateFormat("EEE, MMM dd HH:mm:ss", Locale.getDefault());
@@ -343,10 +341,16 @@ public class EventDetailsActivity extends AppCompatActivity {
 
                     if (currentOutcome == Entrant.RegistrationRecord.Outcome.SELECTED) {
                         showInvitationActions();
+                    } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.PENDING_INVITE) {
+                        showPrivateInvitationActions();
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.ACCEPTED) {
                         showInvitationStatus("✓ You have already accepted this invitation");
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.DECLINED) {
-                        showInvitationStatus("Invitation Declined");
+                        if (currentEvent != null && currentEvent.isPrivate()) {
+                            showInvitationStatus("Invitation Declined — Contact the organizer to be re-invited");
+                        } else {
+                            showInvitationStatus("Invitation Declined");
+                        }
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.NOT_SELECTED) {
                         showInvitationStatus("Not Selected in Lottery");
                     } else if (currentOutcome == Entrant.RegistrationRecord.Outcome.WAITING) {
@@ -364,6 +368,26 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void showWaitlistButton() {
         if (llInvitationActions != null) llInvitationActions.setVisibility(View.GONE);
         if (tvInvitationStatus != null) tvInvitationStatus.setVisibility(View.GONE);
+
+        // Co-organizers cannot join the waiting list
+        String uid = resolveUid();
+        java.util.List<String> coOrgIds = currentEvent != null ? currentEvent.getCoOrganizerIds() : null;
+        if (uid != null && coOrgIds != null && coOrgIds.contains(uid)) {
+            showInvitationStatus("You are a co-organizer for this event");
+            return;
+        }
+
+        // Private events are invite-only; non-invited users cannot join the waiting list
+        if (currentEvent != null && currentEvent.isPrivate()) {
+            String uid = resolveUid();
+            java.util.List<String> invitedIds = currentEvent.getInvitedUserIds();
+            boolean isInvited = invitedIds != null && uid != null && invitedIds.contains(uid);
+            if (!isInvited) {
+                if (btnJoin != null) btnJoin.setVisibility(View.GONE);
+                showInvitationStatus("Private Event — Invite Only");
+                return;
+            }
+        }
 
         if (currentEvent.checkIsRegistrationOpen()) {
             long limit = currentEvent.getWaitingListLimit();
@@ -713,6 +737,119 @@ public class EventDetailsActivity extends AppCompatActivity {
                 btnJoin.setEnabled(true);
             }
         });
+    }
+
+    // -----------------------------------------------------------------------
+    // Private event waiting-list invitation flow
+    // -----------------------------------------------------------------------
+
+    /** Shows Accept / Decline buttons wired to the private-invite handlers. */
+    private void showPrivateInvitationActions() {
+        if (btnJoin != null) btnJoin.setVisibility(View.GONE);
+        if (tvInvitationStatus != null) tvInvitationStatus.setVisibility(View.GONE);
+        if (llInvitationActions != null) {
+            llInvitationActions.setVisibility(View.VISIBLE);
+            if (btnAccept != null) {
+                btnAccept.setOnClickListener(v ->
+                        new android.app.AlertDialog.Builder(this)
+                                .setTitle("Accept Invitation")
+                                .setMessage("Accept this invitation and join the waiting list?")
+                                .setPositiveButton("Accept", (d, w) -> handlePrivateInviteAccept())
+                                .setNegativeButton("Cancel", null)
+                                .show());
+            }
+            if (btnDecline != null) {
+                btnDecline.setOnClickListener(v ->
+                        new android.app.AlertDialog.Builder(this)
+                                .setTitle("Decline Invitation")
+                                .setMessage("Decline this invitation? You will need to be re-invited by the organizer to join.")
+                                .setPositiveButton("Decline", (d, w) -> handlePrivateInviteDecline())
+                                .setNegativeButton("Cancel", null)
+                                .show());
+            }
+        }
+    }
+
+    private void handlePrivateInviteAccept() {
+        String uid = resolveUid();
+        if (uid == null) return;
+
+        if (btnAccept != null) btnAccept.setEnabled(false);
+        if (btnDecline != null) btnDecline.setEnabled(false);
+
+        // Transition PENDING_INVITE → WAITING and add to waiting lists
+        updateEntrantOutcome(uid, eventId, "PENDING_INVITE", "WAITING", () -> {
+            entrantDB.addToWaitingList(uid, eventId, aVoid ->
+                    eventDB.addToWaitingList(eventId, uid, aVoid2 -> {
+                        Toast.makeText(this, "You've joined the waiting list!", Toast.LENGTH_SHORT).show();
+                        showInvitationStatus("✓ You are on the waiting list");
+                        notifyOrganizerOfResponse(uid, true);
+                    }, e -> {
+                        Toast.makeText(this, "Joined but event record not updated", Toast.LENGTH_SHORT).show();
+                        showInvitationStatus("✓ You are on the waiting list");
+                        notifyOrganizerOfResponse(uid, true);
+                    }),
+                    e -> {
+                        Toast.makeText(this, "Failed to join waiting list", Toast.LENGTH_SHORT).show();
+                        if (btnAccept != null) btnAccept.setEnabled(true);
+                        if (btnDecline != null) btnDecline.setEnabled(true);
+                    });
+        });
+    }
+
+    private void handlePrivateInviteDecline() {
+        String uid = resolveUid();
+        if (uid == null) return;
+
+        if (btnAccept != null) btnAccept.setEnabled(false);
+        if (btnDecline != null) btnDecline.setEnabled(false);
+
+        // Transition PENDING_INVITE → DECLINED and remove from invitedUserIds
+        updateEntrantOutcome(uid, eventId, "PENDING_INVITE", "DECLINED", () -> {
+            db.collection("events").document(eventId)
+                    .update("invitedUserIds", FieldValue.arrayRemove(uid))
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Invitation declined.", Toast.LENGTH_SHORT).show();
+                        showInvitationStatus("Invitation Declined — Contact the organizer to be re-invited");
+                        notifyOrganizerOfResponse(uid, false);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Declined but record may not be fully updated", Toast.LENGTH_SHORT).show();
+                        showInvitationStatus("Invitation Declined — Contact the organizer to be re-invited");
+                        notifyOrganizerOfResponse(uid, false);
+                    });
+        });
+    }
+
+    /**
+     * Sends a Firestore in-app notification to the event organizer when an entrant
+     * accepts or declines a private waiting-list invitation.
+     */
+    private void notifyOrganizerOfResponse(String entrantId, boolean accepted) {
+        if (currentEvent == null || currentEvent.getOrganizerId() == null) return;
+
+        String organizerId = currentEvent.getOrganizerId();
+        String eventName = currentEvent.getName() != null ? currentEvent.getName() : "your event";
+
+        entrantDB.getEntrant(entrantId, entrant -> {
+            String entrantName = (entrant != null && entrant.getName() != null)
+                    ? entrant.getName() : "An entrant";
+            String action = accepted ? "accepted" : "declined";
+            String message = entrantName + " has " + action
+                    + " the waiting list invitation for \"" + eventName + "\".";
+
+            com.example.cmput301_app.database.NotificationDB notifDB =
+                    new com.example.cmput301_app.database.NotificationDB();
+            com.example.cmput301_app.model.Notification notif =
+                    new com.example.cmput301_app.model.Notification(
+                            null, eventId, entrantId, message,
+                            com.example.cmput301_app.model.Notification.NotificationType.ORGANIZER_BROADCAST,
+                            com.google.firebase.Timestamp.now()
+                    );
+            notif.addRecipient(organizerId);
+            notifDB.createNotification(notif, n -> {}, e ->
+                    Log.w(TAG, "Failed to notify organizer of invite response", e));
+        }, e -> Log.w(TAG, "Could not fetch entrant name for organizer notification", e));
     }
 
     /**

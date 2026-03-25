@@ -35,17 +35,15 @@ import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.database.OrganizerDB;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.util.ImageUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
     private static final String TAG = "CreateEventActivity";
@@ -54,15 +52,18 @@ public class CreateEventActivity extends AppCompatActivity {
     private TextInputLayout tilName, tilDescription, tilLocation, tilCategory, tilPrice, tilCapacity, tilWaitlistLimit;
     private Button btnPickDate, btnPublish, btnPickRegOpen, btnPickRegClose;
     private SwitchMaterial swGeolocation;
+    private SwitchMaterial swPrivateEvent;
     private ImageView ivPosterPreview;
     private FrameLayout loadingOverlay;
     private TextView tvLoadingText;
     private Uri posterUri;
+    private boolean posterRemoved = false;
+    private View cvUploadPoster;
+    private View llPosterActions;
     private Calendar eventCalendar, regOpenCalendar, regCloseCalendar;
     private boolean dateSet = false, openSet = false, closeSet = false;
     private EventDB eventDB;
     private OrganizerDB organizerDB;
-    private FirebaseStorage storage;
     private FirebaseAuth mAuth;
     private String existingEventId = null;
     private Event existingEvent = null;
@@ -74,8 +75,11 @@ public class CreateEventActivity extends AppCompatActivity {
             new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
                     posterUri = uri;
+                    posterRemoved = false;
                     ivPosterPreview.setVisibility(View.VISIBLE);
                     Glide.with(this).load(uri).into(ivPosterPreview);
+                    if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.GONE);
+                    if (llPosterActions != null) llPosterActions.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -87,7 +91,6 @@ public class CreateEventActivity extends AppCompatActivity {
 
         eventDB = new EventDB();
         organizerDB = new OrganizerDB();
-        storage = FirebaseStorage.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
         eventCalendar = Calendar.getInstance();
@@ -124,9 +127,12 @@ public class CreateEventActivity extends AppCompatActivity {
         btnPickRegClose = findViewById(R.id.btn_pick_reg_close);
         btnPublish = findViewById(R.id.btn_publish_event);
         swGeolocation = findViewById(R.id.sw_geolocation);
+        swPrivateEvent = findViewById(R.id.sw_private_event);
         ivPosterPreview = findViewById(R.id.iv_poster_preview);
         loadingOverlay = findViewById(R.id.loading_overlay);
         tvLoadingText = findViewById(R.id.tv_loading_text);
+        cvUploadPoster = findViewById(R.id.cv_upload_poster);
+        llPosterActions = findViewById(R.id.ll_poster_actions);
 
         View mainView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -160,10 +166,15 @@ public class CreateEventActivity extends AppCompatActivity {
                 if (swGeolocation != null) {
                     swGeolocation.setChecked(event.isGeolocationEnabled());
                 }
+                if (swPrivateEvent != null) {
+                    swPrivateEvent.setChecked(event.isPrivate());
+                }
 
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                     ivPosterPreview.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(event.getPosterUrl()).into(ivPosterPreview);
+                    ImageUtils.loadImage(this, event.getPosterUrl(), ivPosterPreview, false);
+                    if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.GONE);
+                    if (llPosterActions != null) llPosterActions.setVisibility(View.VISIBLE);
                 }
 
                 if (event.getDate() != null) {
@@ -196,6 +207,21 @@ public class CreateEventActivity extends AppCompatActivity {
             pickMedia.launch(new PickVisualMediaRequest.Builder()
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                     .build());
+        });
+
+        findViewById(R.id.btn_replace_poster).setOnClickListener(v -> {
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
+
+        findViewById(R.id.btn_remove_poster).setOnClickListener(v -> {
+            posterUri = null;
+            posterRemoved = true;
+            ivPosterPreview.setImageDrawable(null);
+            ivPosterPreview.setVisibility(View.GONE);
+            if (llPosterActions != null) llPosterActions.setVisibility(View.GONE);
+            if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.VISIBLE);
         });
 
         btnPickDate.setOnClickListener(v -> showDateTimePicker(eventCalendar, btnPickDate, "Event Date", 1));
@@ -336,6 +362,7 @@ public class CreateEventActivity extends AppCompatActivity {
         event.setRegistrationOpen(new Timestamp(regOpenCalendar.getTime()));
         event.setRegistrationClose(new Timestamp(regCloseCalendar.getTime()));
         event.setGeolocationEnabled(swGeolocation != null && swGeolocation.isChecked());
+        event.setPrivate(swPrivateEvent != null && swPrivateEvent.isChecked());
 
         if (existingEvent == null) {
             String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
@@ -347,6 +374,9 @@ public class CreateEventActivity extends AppCompatActivity {
         if (posterUri != null) {
             uploadPosterAndSaveEvent(event);
         } else {
+            if (posterRemoved) {
+                event.setPosterUrl("");
+            }
             saveEventToFirestore(event);
         }
     }
@@ -359,15 +389,14 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void uploadPosterAndSaveEvent(Event event) {
-        String posterPath = "event_posters/" + UUID.randomUUID().toString() + ".jpg";
-        StorageReference ref = storage.getReference().child(posterPath);
-        ref.putFile(posterUri).addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl().addOnSuccessListener(uri -> {
-            event.setPosterUrl(uri.toString());
-            saveEventToFirestore(event);
-        })).addOnFailureListener(e -> {
-            Log.e(TAG, "Poster upload failed", e);
-            saveEventToFirestore(event);
-        });
+        // Compress to ~800×800 px at 55% JPEG quality and store as Base64 in Firestore
+        String base64 = ImageUtils.compressToBase64(this, posterUri, 800, 55);
+        if (base64 != null) {
+            event.setPosterUrl(base64);
+        } else {
+            Log.e(TAG, "Poster compression failed, saving event without poster");
+        }
+        saveEventToFirestore(event);
     }
 
     private void saveEventToFirestore(Event event) {

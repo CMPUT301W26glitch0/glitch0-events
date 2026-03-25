@@ -39,13 +39,14 @@ public class EventDB {
         String generatedId = docRef.getId();
         event.setEventId(generatedId);
 
-        // Generate the unique promotional QR code link
-        String qrData = "event_details:" + generatedId;
-        event.setQrCode(qrData);
+        // Private events do not get a promotional QR code
+        if (!event.isPrivate()) {
+            String qrData = "event_details:" + generatedId;
+            event.setQrCode(qrData);
+        }
 
         Map<String, Object> data = getEventMap(event);
         data.put("eventId", generatedId);
-        data.put("qrCode", qrData);
         data.put("waitingListCount", 0);
 
         docRef.set(data)
@@ -75,6 +76,26 @@ public class EventDB {
         db.collection(COLLECTION)
                 .document(event.getEventId())
                 .update(data)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a single comment from an event's comments array using arrayRemove.
+     * The comment map must exactly match the stored entry.
+     */
+    public void deleteComment(String eventId, com.example.cmput301_app.model.Comment comment,
+                              OnSuccessListener<Void> successListener,
+                              OnFailureListener failureListener) {
+        Map<String, Object> commentMap = new HashMap<>();
+        if (comment.getId() != null) commentMap.put("id", comment.getId());
+        if (comment.getContent() != null) commentMap.put("content", comment.getContent());
+        if (comment.getAuthorName() != null) commentMap.put("authorName", comment.getAuthorName());
+        if (comment.getTimestamp() != null) commentMap.put("timestamp", comment.getTimestamp());
+        if (comment.isOrganizerComment()) commentMap.put("organizerComment", true);
+
+        db.collection(COLLECTION).document(eventId)
+                .update("comments", FieldValue.arrayRemove(commentMap))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }
@@ -110,7 +131,23 @@ public class EventDB {
         data.put("waitingListLimit", event.getWaitingListLimit());
         data.put("waitingListIds", event.getWaitingListIds());
         data.put("confirmedAttendeesIds", event.getConfirmedAttendeesIds());
+        data.put("isPrivate", event.isPrivate());
+        data.put("invitedUserIds", event.getInvitedUserIds());
         return data;
+    }
+
+    /**
+     * Adds a deviceId to the event's invitedUserIds array in Firestore.
+     * Uses Firestore's ArrayUnion to safely add without duplicates.
+     */
+    public void addInvitedUser(String eventId, String deviceId,
+                               OnSuccessListener<Void> successListener,
+                               OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("invitedUserIds", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     /**
@@ -327,6 +364,41 @@ public class EventDB {
         db.collection(COLLECTION)
                 .document(eventId)
                 .update("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Directly assigns an entrant as co-organizer (no pending invite step).
+     * Removes them from the waiting list and clears any pending invite.
+     * Pass wasOnWaitingList=true to also decrement waitingListCount.
+     */
+    public void assignCoOrganizer(String eventId, String deviceId, boolean wasOnWaitingList,
+                                   OnSuccessListener<Void> successListener,
+                                   OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("coOrganizerIds", FieldValue.arrayUnion(deviceId));
+        updates.put("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId));
+        updates.put("waitingListIds", FieldValue.arrayRemove(deviceId));
+        if (wasOnWaitingList) {
+            updates.put("waitingListCount", FieldValue.increment(-1));
+        }
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a co-organizer assignment from an event.
+     */
+    public void removeCoOrganizer(String eventId, String deviceId,
+                                   OnSuccessListener<Void> successListener,
+                                   OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("coOrganizerIds", FieldValue.arrayRemove(deviceId))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }

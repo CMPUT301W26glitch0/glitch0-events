@@ -29,6 +29,8 @@ public class Event {
     private List<Comment> comments;
     private List<String> coOrganizerIds;
     private List<String> pendingCoOrganizerInvites;
+    private boolean isPrivate;
+    private List<String> invitedUserIds;
 
     public Event() {
         this.waitingListIds = new ArrayList<>();
@@ -36,8 +38,10 @@ public class Event {
         this.comments = new ArrayList<>();
         this.coOrganizerIds = new ArrayList<>();
         this.pendingCoOrganizerInvites = new ArrayList<>();
+        this.invitedUserIds = new ArrayList<>();
         this.waitingListLimit = -1;
         this.waitingListCount = 0;
+        this.isPrivate = false;
     }
 
     // Standard Getters and Setters
@@ -83,6 +87,10 @@ public class Event {
     public void setCoOrganizerIds(List<String> ids) { this.coOrganizerIds = ids != null ? ids : new ArrayList<>(); }
     public List<String> getPendingCoOrganizerInvites() { return pendingCoOrganizerInvites; }
     public void setPendingCoOrganizerInvites(List<String> ids) { this.pendingCoOrganizerInvites = ids != null ? ids : new ArrayList<>(); }
+    public boolean isPrivate() { return isPrivate; }
+    public void setPrivate(boolean isPrivate) { this.isPrivate = isPrivate; }
+    public List<String> getInvitedUserIds() { return invitedUserIds; }
+    public void setInvitedUserIds(List<String> ids) { this.invitedUserIds = ids != null ? ids : new ArrayList<>(); }
 
     @Exclude
     public boolean checkIsRegistrationOpen() {

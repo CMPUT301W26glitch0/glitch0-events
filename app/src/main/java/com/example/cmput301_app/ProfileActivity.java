@@ -30,20 +30,14 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.OrganizerDB;
+import com.example.cmput301_app.util.ImageUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageException;
-import com.google.firebase.storage.StorageReference;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EntrantDB entrantDB;
     private OrganizerDB organizerDB;
-    private FirebaseStorage mStorage;
     private FirebaseFirestore db;
     private EditText etName, etEmail, etPhone;
     private ImageView ivProfile;
@@ -71,7 +65,6 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         entrantDB = new EntrantDB();
         organizerDB = new OrganizerDB();
-        mStorage = FirebaseStorage.getInstance();
         db = FirebaseFirestore.getInstance();
 
         initViews();
@@ -154,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                     String photoUrl = documentSnapshot.getString("profileImageUrl");
                     if (photoUrl != null && !photoUrl.isEmpty()) {
-                        Glide.with(this).load(photoUrl).circleCrop().into(ivProfile);
+                        ImageUtils.loadImage(this, photoUrl, ivProfile, true);
                     }
                 }
             });
@@ -165,37 +158,18 @@ public class ProfileActivity extends AppCompatActivity {
         resolveUid(uid -> {
             if (uid == null) { logout(); return; }
 
-            // Read all bytes on the main thread (where the content URI grant is valid),
-            // then upload via putBytes() to avoid -13010 errors from background thread URI access.
-            byte[] imageBytes;
-            try {
-                InputStream is = getContentResolver().openInputStream(imageUri);
-                if (is == null) {
-                    Toast.makeText(this, "Could not read image", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                byte[] chunk = new byte[4096];
-                int bytesRead;
-                while ((bytesRead = is.read(chunk)) != -1) buffer.write(chunk, 0, bytesRead);
-                is.close();
-                imageBytes = buffer.toByteArray();
-            } catch (Exception e) {
-                Toast.makeText(this, "Could not read image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            StorageReference storageRef = mStorage.getReference().child("profile_pictures/" + uid + ".jpg");
             btnSave.setEnabled(false);
-            btnSave.setText("Uploading...");
-            storageRef.putBytes(imageBytes).addOnSuccessListener(taskSnapshot ->
-                storageRef.getDownloadUrl().addOnSuccessListener(uri -> saveChanges(uri.toString()))
-            ).addOnFailureListener(e -> {
+            btnSave.setText("Saving...");
+
+            // Compress to ~400×400 px at 50% JPEG quality and store as Base64 in Firestore
+            String base64 = ImageUtils.compressToBase64(this, imageUri, 400, 50);
+            if (base64 == null) {
                 btnSave.setEnabled(true);
                 btnSave.setText("Save Changes");
-                android.util.Log.e("ProfileActivity", "Storage upload failed", e);
-                Toast.makeText(this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            });
+                Toast.makeText(this, "Could not process image", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            saveChanges(base64);
         });
     }
 

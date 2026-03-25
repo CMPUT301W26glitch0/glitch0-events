@@ -31,9 +31,17 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.cmput301_app.model.Comment;
+import com.google.firebase.firestore.FieldValue;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -45,14 +53,12 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
 import com.bumptech.glide.Glide;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.database.NotificationDB;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.util.ImageUtils;
 import com.example.cmput301_app.model.Notification;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -72,15 +78,22 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private TextView tvCoOrgCount, tvCoOrgHint;
     private android.widget.LinearLayout llCoOrganizers;
     private ImageView ivPoster, ivQrCode;
-    private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement;
+    private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement,
+            btnNotifyWaitingList, btnNotifySelectedEntrants, btnNotifyCancelledEntrants,
+            btnInviteEntrant;
     private String eventId;
     private EventDB eventDB;
     private NotificationDB notificationDB;
     private Event currentEvent;
     private Bitmap qrBitmap;
     private com.google.firebase.firestore.FirebaseFirestore db;
-    private FirebaseStorage mStorage;
     private Uri newPosterUri;
+    private RecyclerView rvComments;
+    private OrganizerCommentAdapter commentAdapter;
+    private TextView tvNoComments;
+    private EditText etCommentInput;
+    private ImageButton btnPostComment;
+    private com.google.firebase.firestore.ListenerRegistration eventListener;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickPosterMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -100,7 +113,6 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         eventDB = new EventDB();
         notificationDB = new NotificationDB();
         db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
-        mStorage = FirebaseStorage.getInstance();
         eventId = getIntent().getStringExtra("eventId");
 
         initViews();
@@ -130,13 +142,68 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvCoOrgHint = findViewById(R.id.tv_co_org_hint);
         llCoOrganizers = findViewById(R.id.ll_co_organizers);
 
+        findViewById(R.id.btn_assign_co_organizer).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AssignCoOrganizerActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
         btnViewEntrants = findViewById(R.id.btn_view_entrants);
         btnManageLottery = findViewById(R.id.btn_manage_lottery);
         btnEdit = findViewById(R.id.btn_edit_event_details);
         btnDelete = findViewById(R.id.btn_delete_event_details);
         btnDrawReplacement = findViewById(R.id.btn_draw_replacement);
+        btnNotifyWaitingList = findViewById(R.id.btn_notify_waiting_list);
+
+        rvComments = findViewById(R.id.rv_org_comments);
+        tvNoComments = findViewById(R.id.tv_org_no_comments);
+        etCommentInput = findViewById(R.id.et_org_comment_input);
+        btnPostComment = findViewById(R.id.btn_org_post_comment);
+        rvComments.setLayoutManager(new LinearLayoutManager(this));
+        commentAdapter = new OrganizerCommentAdapter(new java.util.ArrayList<>(), this::confirmAndDeleteComment);
+        rvComments.setAdapter(commentAdapter);
+        btnPostComment.setOnClickListener(v -> postComment());
 
         btnDrawReplacement.setOnClickListener(v -> drawReplacement());
+
+        btnNotifyWaitingList.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotifyWaitingListActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnNotifySelectedEntrants = findViewById(R.id.btn_notify_selected_entrants);
+        btnNotifySelectedEntrants.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotifySelectedEntrantsActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnNotifyCancelledEntrants = findViewById(R.id.btn_notify_cancelled_entrants);
+        btnNotifyCancelledEntrants.setOnClickListener(v -> {
+            Intent intent = new Intent(this, NotifyCancelledEntrantsActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnInviteEntrant = findViewById(R.id.btn_invite_entrant);
+        btnInviteEntrant.setOnClickListener(v -> {
+            String orgId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+            if (orgId != null) {
+                db.collection("users").document(orgId).get()
+                        .addOnSuccessListener(doc -> {
+                            String orgName = doc.getString("name");
+                            launchInviteScreen(orgName != null ? orgName : "The organizer");
+                        })
+                        .addOnFailureListener(e -> launchInviteScreen("The organizer"));
+            } else {
+                launchInviteScreen("The organizer");
+            }
+        });
 
         findViewById(R.id.fab_change_poster).setOnClickListener(v ->
                 pickPosterMedia.launch(new PickVisualMediaRequest.Builder()
@@ -189,15 +256,29 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     private void loadEventDetails() {
-        eventDB.getEvent(eventId, event -> {
-            if (event != null) {
-                currentEvent = event;
-                updateUI();
+        eventListener = db.collection("events").document(eventId).addSnapshotListener((doc, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Failed to load event", e);
+                return;
             }
-        }, e -> {
-            Log.e(TAG, "Failed to load event", e);
-            Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
+            if (doc != null && doc.exists()) {
+                try {
+                    currentEvent = doc.toObject(Event.class);
+                    if (currentEvent != null) {
+                        currentEvent.setEventId(doc.getId());
+                        updateUI();
+                    }
+                } catch (Exception ex) {
+                    Log.e(TAG, "Error parsing event", ex);
+                }
+            }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (eventListener != null) eventListener.remove();
     }
 
     private void updateUI() {
@@ -209,10 +290,16 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvDescription.setText(currentEvent.getDescription());
 
         if (currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
-            Glide.with(this).load(currentEvent.getPosterUrl()).into(ivPoster);
+            ImageUtils.loadImage(this, currentEvent.getPosterUrl(), ivPoster, false);
         }
 
-        if (currentEvent.getQrCode() != null) {
+        // Hide QR code section for private events
+        int qrVisibility = currentEvent.isPrivate() ? View.GONE : View.VISIBLE;
+        findViewById(R.id.tv_qr_label).setVisibility(qrVisibility);
+        findViewById(R.id.cv_qr_code).setVisibility(qrVisibility);
+        findViewById(R.id.btn_share_qr_details).setVisibility(qrVisibility);
+
+        if (!currentEvent.isPrivate() && currentEvent.getQrCode() != null) {
             qrBitmap = generateQRCode(currentEvent.getQrCode());
             if (qrBitmap != null) ivQrCode.setImageBitmap(qrBitmap);
         }
@@ -238,7 +325,101 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             btnManageLottery.setVisibility(View.GONE);
         }
 
+        // Show "Invite Entrant" button only for private events
+        btnInviteEntrant.setVisibility(currentEvent.isPrivate() ? View.VISIBLE : View.GONE);
+
         loadCoOrganizers();
+        displayComments();
+    }
+
+    private void postComment() {
+        if (etCommentInput == null || currentEvent == null) return;
+        String content = etCommentInput.getText().toString().trim();
+        if (content.isEmpty()) {
+            Toast.makeText(this, "Comment cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String orgId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+        btnPostComment.setEnabled(false);
+
+        Runnable postWithName = () -> db.collection("users")
+                .document(orgId != null ? orgId : "")
+                .get()
+                .addOnSuccessListener(doc -> {
+                    String name = doc.getString("name");
+                    String authorName = (name != null && !name.isEmpty()) ? name : "Organizer";
+                    Comment comment = new Comment(
+                            java.util.UUID.randomUUID().toString(),
+                            content, authorName,
+                            com.google.firebase.Timestamp.now(),
+                            true);
+                    db.collection("events").document(eventId)
+                            .update("comments", FieldValue.arrayUnion(comment))
+                            .addOnSuccessListener(aVoid -> {
+                                etCommentInput.setText("");
+                                btnPostComment.setEnabled(true);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                                btnPostComment.setEnabled(true);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch profile", Toast.LENGTH_SHORT).show();
+                    btnPostComment.setEnabled(true);
+                });
+
+        if (orgId != null) {
+            postWithName.run();
+        } else {
+            // No user ID — still post with generic label
+            Comment comment = new Comment(
+                    java.util.UUID.randomUUID().toString(),
+                    content, "Organizer",
+                    com.google.firebase.Timestamp.now(),
+                    true);
+            db.collection("events").document(eventId)
+                    .update("comments", FieldValue.arrayUnion(comment))
+                    .addOnSuccessListener(aVoid -> {
+                        etCommentInput.setText("");
+                        btnPostComment.setEnabled(true);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        btnPostComment.setEnabled(true);
+                    });
+        }
+    }
+
+    private void displayComments() {
+        java.util.List<Comment> comments = currentEvent.getComments();
+        if (comments == null || comments.isEmpty()) {
+            rvComments.setVisibility(View.GONE);
+            tvNoComments.setVisibility(View.VISIBLE);
+        } else {
+            tvNoComments.setVisibility(View.GONE);
+            rvComments.setVisibility(View.VISIBLE);
+            java.util.List<Comment> sorted = new java.util.ArrayList<>(comments);
+            sorted.sort((a, b) -> {
+                if (a.getTimestamp() == null) return -1;
+                if (b.getTimestamp() == null) return 1;
+                return a.getTimestamp().compareTo(b.getTimestamp());
+            });
+            commentAdapter.setComments(sorted);
+        }
+    }
+
+    private void confirmAndDeleteComment(Comment comment) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Delete Comment")
+                .setMessage("Are you sure you want to delete this comment?")
+                .setPositiveButton("Delete", (dialog, which) ->
+                        eventDB.deleteComment(eventId, comment,
+                                aVoid -> Toast.makeText(this, "Comment deleted", Toast.LENGTH_SHORT).show(),
+                                e -> Toast.makeText(this, "Failed to delete comment", Toast.LENGTH_SHORT).show()))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void loadCoOrganizers() {
@@ -320,13 +501,50 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                             badgeBg.setColor(0xFFF4F3FF);
                             badge.setBackground(badgeBg);
 
+                            // Remove button
+                            android.widget.Button btnRemove = new android.widget.Button(this);
+                            android.widget.LinearLayout.LayoutParams removeParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            btnRemove.setLayoutParams(removeParams);
+                            btnRemove.setText("Remove");
+                            btnRemove.setTextSize(11f);
+                            btnRemove.setAllCaps(false);
+                            btnRemove.setTextColor(0xFFD92D20);
+                            btnRemove.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                            btnRemove.setOnClickListener(v -> confirmRemoveCoOrganizer(userId, displayName));
+
                             row.addView(avatar);
                             row.addView(tvName);
                             row.addView(badge);
+                            row.addView(btnRemove);
                             llCoOrganizers.addView(row);
                         });
                     });
         }
+    }
+
+    private void confirmRemoveCoOrganizer(String userId, String displayName) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Remove Co-Organizer")
+                .setMessage("Remove " + displayName + " as co-organizer?")
+                .setPositiveButton("Remove", (dialog, which) ->
+                        eventDB.removeCoOrganizer(eventId, userId,
+                                aVoid -> Toast.makeText(this, displayName + " removed as co-organizer",
+                                        Toast.LENGTH_SHORT).show(),
+                                e -> Toast.makeText(this, "Failed to remove co-organizer",
+                                        Toast.LENGTH_SHORT).show()))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void launchInviteScreen(String organizerName) {
+        Intent intent = new Intent(this, InviteEntrantToWaitingListActivity.class);
+        intent.putExtra("eventId", eventId);
+        if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+        intent.putExtra("organizerName", organizerName);
+        startActivity(intent);
     }
 
     private void loadReplacementStatus() {
@@ -480,36 +698,16 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private void uploadPosterAndUpdate() {
         if (newPosterUri == null || currentEvent == null) return;
 
-        byte[] imageBytes;
-        try {
-            java.io.InputStream is = getContentResolver().openInputStream(newPosterUri);
-            if (is == null) {
-                Toast.makeText(this, "Could not read image", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
-            byte[] chunk = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = is.read(chunk)) != -1) buffer.write(chunk, 0, bytesRead);
-            is.close();
-            imageBytes = buffer.toByteArray();
-        } catch (Exception e) {
-            Toast.makeText(this, "Could not read image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        // Compress to ~800×800 px at 55% JPEG quality and store as Base64 in Firestore
+        String base64 = ImageUtils.compressToBase64(this, newPosterUri, 800, 55);
+        if (base64 == null) {
+            Toast.makeText(this, "Could not process image", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        String posterPath = "event_posters/" + eventId + "_" + System.currentTimeMillis() + ".jpg";
-        StorageReference ref = mStorage.getReference().child(posterPath);
-        Toast.makeText(this, "Uploading photo...", Toast.LENGTH_SHORT).show();
-        ref.putBytes(imageBytes)
-                .addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl()
-                        .addOnSuccessListener(uri -> {
-                            currentEvent.setPosterUrl(uri.toString());
-                            eventDB.updateEvent(currentEvent,
-                                    aVoid -> Toast.makeText(this, "Event photo updated", Toast.LENGTH_SHORT).show(),
-                                    e -> Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show());
-                        }))
-                .addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        currentEvent.setPosterUrl(base64);
+        eventDB.updateEvent(currentEvent,
+                aVoid -> Toast.makeText(this, "Event photo updated", Toast.LENGTH_SHORT).show(),
+                e -> Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show());
     }
 
     private Bitmap generateQRCode(String data) {

@@ -362,6 +362,17 @@
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btn_assign_co_organizer"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="+ Assign"
+                            android:textAllCaps="false"
+                            android:textColor="#7F56D9"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <!-- Co-organizer list container -->
@@ -380,7 +391,7 @@
                         android:layout_marginTop="8dp"
                         android:drawablePadding="6dp"
                         android:gravity="center_vertical"
-                        android:text="Tap an entrant in the Entrants list to invite them as co-organizer"
+                        android:text="Tap \"+ Assign\" to add a co-organizer"
                         android:textColor="@color/gray_text"
                         android:textSize="12sp"
                         android:visibility="visible" />
@@ -407,11 +418,87 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:paddingHorizontal="24dp"
-                android:paddingBottom="100dp"
                 android:textColor="@color/gray_text"
                 android:textSize="14sp"
                 app:layout_constraintTop_toBottomOf="@id/tv_desc_label"
                 tools:text="Event description goes here..." />
+
+            <!-- Comments Section -->
+            <TextView
+                android:id="@+id/tv_comments_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:text="Comments"
+                android:textColor="@color/dark_blue"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_org_description" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_org_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/tv_comments_label" />
+
+            <TextView
+                android:id="@+id/tv_org_no_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingHorizontal="24dp"
+                android:text="No comments yet."
+                android:textColor="@color/gray_text"
+                android:textSize="13sp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/rv_org_comments" />
+
+            <!-- Organizer comment input -->
+            <LinearLayout
+                android:id="@+id/ll_comment_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/tv_org_no_comments">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_org_comment_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Add a comment as organizer..."
+                        android:maxLines="3"
+                        android:inputType="textMultiLine|textCapSentences" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/btn_org_post_comment"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/badge_bg"
+                    android:backgroundTint="@color/primary_blue"
+                    android:contentDescription="Post comment"
+                    android:src="@android:drawable/ic_menu_send"
+                    android:tint="@color/white" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                app:layout_constraintTop_toBottomOf="@id/ll_comment_input" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
@@ -494,6 +581,59 @@
             android:textColor="@color/white"
             android:visibility="gone"
             app:cornerRadius="12dp" />
+
+        <Button
+            android:id="@+id/btn_notify_waiting_list"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/primary_blue"
+            android:text="Notify Waiting List"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/white" />
+
+        <Button
+            android:id="@+id/btn_notify_selected_entrants"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/secondary_blue"
+            android:text="Notify Selected Entrants"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/white" />
+
+        <Button
+            android:id="@+id/btn_invite_entrant"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#7F56D9"
+            android:text="Invite Entrant to Waiting List"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/white" />
+
+        <Button
+            android:id="@+id/btn_notify_cancelled_entrants"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#D92D20"
+            android:text="Notify Cancelled Entrants"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/white" />
     </LinearLayout>
 
 
