@@ -7,11 +7,11 @@ package com.example.cmput301_app.entrant;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -690,18 +690,18 @@ public class EventDetailsActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (loc == null) return;
-
-        eventDB.saveWaitingListLocation(
-                eventId, deviceId,
-                loc.getLatitude(), loc.getLongitude(),
-                com.google.firebase.Timestamp.now(),
-                aVoid -> Log.d(TAG, "Location saved for waitlist"),
-                e -> Log.e(TAG, "Failed to save location", e));
+        FusedLocationProviderClient fusedClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(loc -> {
+                    if (loc == null) return;
+                    eventDB.saveWaitingListLocation(
+                            eventId, deviceId,
+                            loc.getLatitude(), loc.getLongitude(),
+                            com.google.firebase.Timestamp.now(),
+                            aVoid -> Log.d(TAG, "Location saved for waitlist"),
+                            e -> Log.e(TAG, "Failed to save location", e));
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to get current location", e));
     }
 
     private void leaveWaitingList() {

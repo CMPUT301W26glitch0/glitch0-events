@@ -183,7 +183,10 @@ public class CoOrganizerInvitationActivity extends AppCompatActivity {
         btnAccept.setEnabled(false);
         btnDecline.setEnabled(false);
 
-        eventDB.acceptCoOrganizerInvite(eventId, deviceId, aVoid -> {
+        boolean wasOnWaitingList = currentEvent != null
+                && currentEvent.getWaitingListIds() != null
+                && currentEvent.getWaitingListIds().contains(deviceId);
+        eventDB.acceptCoOrganizerInvite(eventId, deviceId, wasOnWaitingList, aVoid -> {
             Toast.makeText(this, "You are now a co-organizer!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, EventDetailsActivity.class);
             intent.putExtra("eventId", eventId);

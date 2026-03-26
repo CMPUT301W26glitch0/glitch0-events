@@ -9,7 +9,9 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/ll_organizer_actions"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -503,78 +505,60 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/ll_organizer_actions"
+    <!-- Dim overlay: shown when FAB menu is open -->
+    <View
+        android:id="@+id/view_dim_overlay"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- FAB speed-dial menu container -->
+    <LinearLayout
+        android:id="@+id/ll_fab_menu"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:elevation="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="80dp"
+        android:gravity="end"
         android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_view_entrants"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/primary_blue"
+            android:text="View Entrants"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp" />
 
-            <Button
-                android:id="@+id/btn_view_entrants"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/primary_blue"
-                android:text="Entrants"
-                android:textAllCaps="false"
-                app:cornerRadius="12dp" />
-
-            <Button
-                android:id="@+id/btn_manage_lottery"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/secondary_blue"
-                android:text="Draw Lottery"
-                android:textAllCaps="false"
-                app:cornerRadius="12dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_edit_event_details"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="Edit"
-                android:textAllCaps="false"
-                app:cornerRadius="12dp" />
-
-            <Button
-                android:id="@+id/btn_delete_event_details"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="Delete"
-                android:textAllCaps="false"
-                android:textColor="#D92D20"
-                app:cornerRadius="12dp"
-                app:strokeColor="#D92D20" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/btn_manage_lottery"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/secondary_blue"
+            android:text="Draw Lottery"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp" />
 
         <Button
             android:id="@+id/btn_draw_replacement"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
             android:backgroundTint="#FF9800"
             android:text="Draw Replacement"
             android:textAllCaps="false"
@@ -583,10 +567,47 @@
             app:cornerRadius="12dp" />
 
         <Button
+            android:id="@+id/btn_invite_entrant"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#7F56D9"
+            android:text="Invite to Waiting List"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:cornerRadius="12dp"
+            app:icon="@android:drawable/ic_dialog_email"
+            app:iconTint="@color/white" />
+
+        <Button
+            android:id="@+id/btn_edit_event_details"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:text="Edit Event"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/white" />
+
+        <Button
+            android:id="@+id/btn_delete_event_details"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#D92D20"
+            android:text="Delete Event"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp" />
+
+        <Button
             android:id="@+id/btn_notify_waiting_list"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
             android:backgroundTint="@color/primary_blue"
             android:text="Notify Waiting List"
             android:textAllCaps="false"
@@ -597,44 +618,44 @@
 
         <Button
             android:id="@+id/btn_notify_selected_entrants"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
             android:backgroundTint="@color/secondary_blue"
-            android:text="Notify Selected Entrants"
+            android:text="Notify Selected"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            app:cornerRadius="12dp"
-            app:icon="@android:drawable/ic_dialog_email"
-            app:iconTint="@color/white" />
-
-        <Button
-            android:id="@+id/btn_invite_entrant"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#7F56D9"
-            android:text="Invite Entrant to Waiting List"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:visibility="gone"
             app:cornerRadius="12dp"
             app:icon="@android:drawable/ic_dialog_email"
             app:iconTint="@color/white" />
 
         <Button
             android:id="@+id/btn_notify_cancelled_entrants"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
             android:backgroundTint="#D92D20"
-            android:text="Notify Cancelled Entrants"
+            android:text="Notify Cancelled"
             android:textAllCaps="false"
             android:textColor="@color/white"
             app:cornerRadius="12dp"
             app:icon="@android:drawable/ic_dialog_email"
             app:iconTint="@color/white" />
+
     </LinearLayout>
+
+    <!-- Main action FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_main_actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="Open actions menu"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/primary_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

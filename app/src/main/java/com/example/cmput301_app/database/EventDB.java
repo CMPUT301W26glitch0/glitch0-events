@@ -92,7 +92,7 @@ public class EventDB {
         if (comment.getContent() != null) commentMap.put("content", comment.getContent());
         if (comment.getAuthorName() != null) commentMap.put("authorName", comment.getAuthorName());
         if (comment.getTimestamp() != null) commentMap.put("timestamp", comment.getTimestamp());
-        if (comment.isOrganizerComment()) commentMap.put("organizerComment", true);
+        commentMap.put("organizerComment", comment.isOrganizerComment());
 
         db.collection(COLLECTION).document(eventId)
                 .update("comments", FieldValue.arrayRemove(commentMap))
@@ -305,14 +305,16 @@ public class EventDB {
      * @param successListener called when the operation completes successfully
      * @param failureListener called if the operation fails
      */
-    public void acceptCoOrganizerInvite(String eventId, String deviceId,
+    public void acceptCoOrganizerInvite(String eventId, String deviceId, boolean wasOnWaitingList,
                                          OnSuccessListener<Void> successListener,
                                          OnFailureListener failureListener) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId));
         updates.put("coOrganizerIds", FieldValue.arrayUnion(deviceId));
         updates.put("waitingListIds", FieldValue.arrayRemove(deviceId));
-        updates.put("waitingListCount", FieldValue.increment(-1));
+        if (wasOnWaitingList) {
+            updates.put("waitingListCount", FieldValue.increment(-1));
+        }
 
         db.collection(COLLECTION)
                 .document(eventId)

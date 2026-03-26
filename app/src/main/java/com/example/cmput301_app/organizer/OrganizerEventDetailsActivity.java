@@ -32,6 +32,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -81,6 +83,10 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement,
             btnNotifyWaitingList, btnNotifySelectedEntrants, btnNotifyCancelledEntrants,
             btnInviteEntrant;
+    private FloatingActionButton fabMainActions;
+    private View viewDimOverlay;
+    private LinearLayout llFabMenu;
+    private boolean isFabMenuOpen = false;
     private String eventId;
     private EventDB eventDB;
     private NotificationDB notificationDB;
@@ -165,9 +171,20 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         rvComments.setAdapter(commentAdapter);
         btnPostComment.setOnClickListener(v -> postComment());
 
-        btnDrawReplacement.setOnClickListener(v -> drawReplacement());
+        fabMainActions = findViewById(R.id.fab_main_actions);
+        viewDimOverlay = findViewById(R.id.view_dim_overlay);
+        llFabMenu = findViewById(R.id.ll_fab_menu);
+
+        fabMainActions.setOnClickListener(v -> toggleFabMenu());
+        viewDimOverlay.setOnClickListener(v -> closeFabMenu());
+
+        btnDrawReplacement.setOnClickListener(v -> {
+            closeFabMenu();
+            drawReplacement();
+        });
 
         btnNotifyWaitingList.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, NotifyWaitingListActivity.class);
             intent.putExtra("eventId", eventId);
             if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
@@ -176,6 +193,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         btnNotifySelectedEntrants = findViewById(R.id.btn_notify_selected_entrants);
         btnNotifySelectedEntrants.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, NotifySelectedEntrantsActivity.class);
             intent.putExtra("eventId", eventId);
             if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
@@ -184,6 +202,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         btnNotifyCancelledEntrants = findViewById(R.id.btn_notify_cancelled_entrants);
         btnNotifyCancelledEntrants.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, NotifyCancelledEntrantsActivity.class);
             intent.putExtra("eventId", eventId);
             if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
@@ -192,6 +211,7 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
 
         btnInviteEntrant = findViewById(R.id.btn_invite_entrant);
         btnInviteEntrant.setOnClickListener(v -> {
+            closeFabMenu();
             String orgId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
             if (orgId != null) {
                 db.collection("users").document(orgId).get()
@@ -218,24 +238,35 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         });
 
         btnEdit.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, CreateEventActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
 
-        btnDelete.setOnClickListener(v ->
-                eventDB.deleteEvent(eventId, aVoid -> {
-                    Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show()));
+        btnDelete.setOnClickListener(v -> {
+            closeFabMenu();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Delete Event")
+                    .setMessage("Are you sure you want to delete this event? This action cannot be undone.")
+                    .setPositiveButton("Delete", (dialog, which) ->
+                            eventDB.deleteEvent(eventId, aVoid -> {
+                                Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show()))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
 
         btnViewEntrants.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, EntrantListActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
 
         btnManageLottery.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, LotteryDrawActivity.class);
             intent.putExtra("eventId", eventId);
             if (currentEvent != null) {
@@ -587,6 +618,26 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void toggleFabMenu() {
+        isFabMenuOpen = !isFabMenuOpen;
+        if (isFabMenuOpen) {
+            viewDimOverlay.setVisibility(View.VISIBLE);
+            llFabMenu.setVisibility(View.VISIBLE);
+            fabMainActions.animate().rotation(45f).setDuration(200).start();
+        } else {
+            viewDimOverlay.setVisibility(View.GONE);
+            llFabMenu.setVisibility(View.GONE);
+            fabMainActions.animate().rotation(0f).setDuration(200).start();
+        }
+    }
+
+    private void closeFabMenu() {
+        isFabMenuOpen = false;
+        viewDimOverlay.setVisibility(View.GONE);
+        llFabMenu.setVisibility(View.GONE);
+        fabMainActions.animate().rotation(0f).setDuration(200).start();
     }
 
     private void drawReplacement() {

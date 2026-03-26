@@ -57,6 +57,7 @@ dependencies {
     // QR Code
     implementation(libs.zxing)
     implementation(libs.play.services.code.scanner)
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
