@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/page_bg">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_entrants"
@@ -55,7 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        app:cardBackgroundColor="#E8F2FF"
+        app:cardBackgroundColor="@color/light_blue_bg"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar_entrants">
@@ -176,7 +176,7 @@
         android:layout_height="52dp"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/card_bg"
         android:text="View Waitlist Map"
         android:textAllCaps="false"
         android:textColor="@color/primary_blue"
@@ -195,7 +195,7 @@
         android:layout_height="52dp"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/white"
+        android:backgroundTint="@color/card_bg"
         android:text="Export Enrolled List (CSV)"
         android:textAllCaps="false"
         android:textColor="@color/primary_blue"

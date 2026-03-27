@@ -6,6 +6,7 @@
 package com.example.cmput301_app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -44,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button btnSave, btnLogout;
     private TextView tvDeleteProfile;
     private SwitchMaterial switchNotifications;
+    private SwitchMaterial switchDarkMode;
     private View btnBack;
     private Uri imageUri;
     private String userRole = "entrant"; // Default
@@ -81,6 +84,21 @@ public class ProfileActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_profile_back);
         tvDeleteProfile = findViewById(R.id.tv_delete_profile_btn);
         switchNotifications = findViewById(R.id.switch_notifications);
+        switchDarkMode = findViewById(R.id.switch_dark_mode);
+
+        boolean isDarkMode = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .getBoolean("darkModeEnabled", false);
+        switchDarkMode.setChecked(isDarkMode);
+
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            boolean saved = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                    .getBoolean("darkModeEnabled", false);
+            if (saved == isChecked) return; // already in sync, avoids recreation loop
+            getSharedPreferences("AppPrefs", MODE_PRIVATE).edit()
+                    .putBoolean("darkModeEnabled", isChecked).apply();
+            AppCompatDelegate.setDefaultNightMode(
+                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -145,6 +163,15 @@ public class ProfileActivity extends AppCompatActivity {
                         switchNotifications.setChecked(true);
                     }
 
+                    // Always sync dark mode from Firestore for the current user
+                    SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+                    Boolean darkMode = documentSnapshot.getBoolean("darkModeEnabled");
+                    boolean isDark = darkMode != null && darkMode;
+                    prefs.edit().putBoolean("darkModeEnabled", isDark).apply();
+                    switchDarkMode.setChecked(isDark);
+                    AppCompatDelegate.setDefaultNightMode(
+                            isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
                     String photoUrl = documentSnapshot.getString("profileImageUrl");
                     if (photoUrl != null && !photoUrl.isEmpty()) {
                         ImageUtils.loadImage(this, photoUrl, ivProfile, true);
@@ -194,7 +221,8 @@ public class ProfileActivity extends AppCompatActivity {
                     "email", email,
                     "phoneNumber", phone,
                     "profileImageUrl", photoUrl != null ? photoUrl : "",
-                    "notificationsEnabled", switchNotifications.isChecked()
+                    "notificationsEnabled", switchNotifications.isChecked(),
+                    "darkModeEnabled", switchDarkMode.isChecked()
             ).addOnSuccessListener(aVoid -> {
                 Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
                 finish();
@@ -203,6 +231,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        getSharedPreferences("AppPrefs", MODE_PRIVATE).edit()
+                .remove("darkModeEnabled").apply();
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         mAuth.signOut();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
