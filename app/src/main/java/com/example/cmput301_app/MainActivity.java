@@ -136,6 +136,14 @@ public class MainActivity extends AppCompatActivity {
                     .edit().putString("last_uid", uid).apply();
 
             if (doc.exists()) {
+                // Restore dark mode preference from Firestore on login
+                Boolean darkMode = doc.getBoolean("darkModeEnabled");
+                boolean isDark = darkMode != null && darkMode;
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("darkModeEnabled", isDark).apply();
+                AppCompatDelegate.setDefaultNightMode(
+                        isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
                 String role = doc.getString("role");
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
