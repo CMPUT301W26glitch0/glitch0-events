@@ -163,14 +163,18 @@ public class ProfileActivity extends AppCompatActivity {
                         switchNotifications.setChecked(true);
                     }
 
-                    // Always sync dark mode from Firestore for the current user
+                    // Only sync dark mode from Firestore if no local preference exists yet.
+                    // If a local preference exists, the user may have just toggled it and not
+                    // saved yet — overwriting it here causes the toggle to glitch on recreation.
                     SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-                    Boolean darkMode = documentSnapshot.getBoolean("darkModeEnabled");
-                    boolean isDark = darkMode != null && darkMode;
-                    prefs.edit().putBoolean("darkModeEnabled", isDark).apply();
-                    switchDarkMode.setChecked(isDark);
-                    AppCompatDelegate.setDefaultNightMode(
-                            isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+                    if (!prefs.contains("darkModeEnabled")) {
+                        Boolean darkMode = documentSnapshot.getBoolean("darkModeEnabled");
+                        boolean isDark = darkMode != null && darkMode;
+                        prefs.edit().putBoolean("darkModeEnabled", isDark).apply();
+                        switchDarkMode.setChecked(isDark);
+                        AppCompatDelegate.setDefaultNightMode(
+                                isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+                    }
 
                     String photoUrl = documentSnapshot.getString("profileImageUrl");
                     if (photoUrl != null && !photoUrl.isEmpty()) {
