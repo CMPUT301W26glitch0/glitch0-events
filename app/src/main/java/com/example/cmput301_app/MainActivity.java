@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
                     intent = new Intent(this, OrganizerDashboardActivity.class);
-                } else if ("admin".equalsIgnoreCase(role)) {
+                } else if ("com/example/cmput301_app/admin".equalsIgnoreCase(role)) {
                     intent = new Intent(this, DashboardActivity.class);
                     Toast.makeText(this, "Logged in as Admin", Toast.LENGTH_SHORT).show();
                 } else {
