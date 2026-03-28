@@ -25,11 +25,23 @@ public class Event {
     private long waitingListLimit;
     private List<String> waitingListIds;
     private long waitingListCount;
+    private List<String> confirmedAttendeesIds;
+    private List<Comment> comments;
+    private List<String> coOrganizerIds;
+    private List<String> pendingCoOrganizerInvites;
+    private boolean isPrivate;
+    private List<String> invitedUserIds;
 
     public Event() {
         this.waitingListIds = new ArrayList<>();
+        this.confirmedAttendeesIds = new ArrayList<>();
+        this.comments = new ArrayList<>();
+        this.coOrganizerIds = new ArrayList<>();
+        this.pendingCoOrganizerInvites = new ArrayList<>();
+        this.invitedUserIds = new ArrayList<>();
         this.waitingListLimit = -1;
         this.waitingListCount = 0;
+        this.isPrivate = false;
     }
 
     // Standard Getters and Setters
@@ -67,11 +79,78 @@ public class Event {
     public void setWaitingListIds(List<String> ids) { this.waitingListIds = ids != null ? ids : new ArrayList<>(); }
     public long getWaitingListCount() { return waitingListCount; }
     public void setWaitingListCount(long count) { this.waitingListCount = count; }
+    public List<String> getConfirmedAttendeesIds() { return confirmedAttendeesIds; }
+    public void setConfirmedAttendeesIds(List<String> ids) { this.confirmedAttendeesIds = ids != null ? ids : new ArrayList<>(); }
+    public List<Comment> getComments() { return comments; }
+    public void setComments(List<Comment> comments) { this.comments = comments != null ? comments : new ArrayList<>(); }
+    public List<String> getCoOrganizerIds() { return coOrganizerIds; }
+    public void setCoOrganizerIds(List<String> ids) { this.coOrganizerIds = ids != null ? ids : new ArrayList<>(); }
+    public List<String> getPendingCoOrganizerInvites() { return pendingCoOrganizerInvites; }
+    public void setPendingCoOrganizerInvites(List<String> ids) { this.pendingCoOrganizerInvites = ids != null ? ids : new ArrayList<>(); }
+    public boolean isPrivate() { return isPrivate; }
+    public void setPrivate(boolean isPrivate) { this.isPrivate = isPrivate; }
+    public List<String> getInvitedUserIds() { return invitedUserIds; }
+    public void setInvitedUserIds(List<String> ids) { this.invitedUserIds = ids != null ? ids : new ArrayList<>(); }
 
     @Exclude
     public boolean checkIsRegistrationOpen() {
-        if (registrationOpen == null || registrationClose == null) return false;
         long now = System.currentTimeMillis();
+        if (registrationOpen == null && registrationClose == null) return true;
+        if (registrationClose == null) return now >= registrationOpen.toDate().getTime();
+        if (registrationOpen == null) return now <= registrationClose.toDate().getTime();
         return now >= registrationOpen.toDate().getTime() && now <= registrationClose.toDate().getTime();
     }
+
+    // ─── Filter Helpers (US 01.01.04) ───
+
+    /** Returns the Calendar day-of-week constant (1=Sun … 7=Sat), or -1 if date is null. */
+    @Exclude
+    public int getDayOfWeek() {
+        if (date == null) return -1;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(date.toDate());
+        return cal.get(java.util.Calendar.DAY_OF_WEEK);
+    }
+
+    /** Returns the hour of the day (0-23), or -1 if date is null. */
+    @Exclude
+    public int getHourOfDay() {
+        if (date == null) return -1;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(date.toDate());
+        return cal.get(java.util.Calendar.HOUR_OF_DAY);
+    }
+
+    /** Returns true if the waitlist has space (unlimited or count < limit). */
+    @Exclude
+    public boolean hasWaitlistSpace() {
+        if (waitingListLimit == -1) return true;
+        return waitingListCount < waitingListLimit;
+    }
+
+    /** Returns true if the event has reached its capacity. */
+    @Exclude
+    public boolean isFull() {
+        if (capacity <= 0) return false;
+        int confirmed = (confirmedAttendeesIds != null) ? confirmedAttendeesIds.size() : 0;
+        return confirmed >= capacity;
+    }
+
+    // ─── Search Helper (US: Entrant Search by Keyword) ───
+
+    /**
+     * Returns true if the keyword matches the event's name, description, or category
+     * (case-insensitive). A null or empty keyword matches everything.
+     */
+    @Exclude
+    public boolean matchesKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) return true;
+        String lower = keyword.trim().toLowerCase();
+        if (name != null && name.toLowerCase().contains(lower)) return true;
+        if (description != null && description.toLowerCase().contains(lower)) return true;
+        if (category != null && category.toLowerCase().contains(lower)) return true;
+        if (location != null && location.toLowerCase().contains(lower)) return true;
+        return false;
+    }
 }
+

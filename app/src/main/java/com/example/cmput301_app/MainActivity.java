@@ -1,3 +1,8 @@
+/*
+ * Purpose: Main entry point of the application, routing users to their respective dashboards based on roles.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app;
 
 import android.content.Context;
@@ -12,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDb = FirebaseFirestore.getInstance();
+
+        boolean isDarkMode = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                .getBoolean("darkModeEnabled", false);
+        AppCompatDelegate.setDefaultNightMode(
+                isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -61,19 +72,30 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogin = findViewById(R.id.btn_login);
         Button btnDeviceLogin = findViewById(R.id.btn_device_login);
         TextView tvRegisterLink = findViewById(R.id.tv_register_link);
+        TextView tvForgotPassword = findViewById(R.id.tv_forgot_password);
+
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(v -> {
+                String email = etEmail.getText().toString().trim();
+                if (email.isEmpty()) {
+                    Toast.makeText(this, "Enter your email above first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnSuccessListener(unused ->
+                                Toast.makeText(this, "Reset email sent to " + email, Toast.LENGTH_LONG).show())
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            });
+        }
 
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+            // Don't trim passwords as spaces can be valid
+            String password = etPassword.getText().toString();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // checks if inputted email address is in proper format
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -91,14 +113,14 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        // Device login now just acts as a shortcut if the user is already signed in
         if (btnDeviceLogin != null) {
             btnDeviceLogin.setOnClickListener(v -> {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    checkUserAndNavigate(user.getUid());
+                SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+                String lastUid = prefs.getString("last_uid", null);
+                if (lastUid != null) {
+                    checkUserAndNavigate(lastUid);
                 } else {
-                    Toast.makeText(this, "Please log in with your email and password.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "No previous session found. Log in with email first.", Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -109,22 +131,40 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkUserAndNavigate(String uid) {
         mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+            // Save UID for device login convenience
+            getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                    .edit().putString("last_uid", uid).apply();
+
             if (doc.exists()) {
+                // Restore dark mode preference from Firestore on login
+                Boolean darkMode = doc.getBoolean("darkModeEnabled");
+                boolean isDark = darkMode != null && darkMode;
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("darkModeEnabled", isDark).apply();
+                AppCompatDelegate.setDefaultNightMode(
+                        isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
                 String role = doc.getString("role");
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
                     intent = new Intent(this, OrganizerDashboardActivity.class);
+                } else if ("admin".equalsIgnoreCase(role)) {
+                    intent = new Intent(this, DashboardActivity.class);
+                    Toast.makeText(this, "Logged in as Admin", Toast.LENGTH_SHORT).show();
                 } else {
                     intent = new Intent(this, DashboardActivity.class);
                 }
                 startActivity(intent);
                 finish();
             } else {
-                // Signed in to Firebase Auth but no Firestore profile — send to register
+                // No profile found — clear stale SharedPreferences and send to registration
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().remove("last_uid").apply();
                 mAuth.signOut();
-                Toast.makeText(this, "No profile found. Please register.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No account found. Please register.", Toast.LENGTH_LONG).show();
             }
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Error loading profile. Check your connection.", Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Connection error. Please try again.", Toast.LENGTH_SHORT).show();
+        });
     }
 }

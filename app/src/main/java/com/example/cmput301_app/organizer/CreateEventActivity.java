@@ -1,3 +1,8 @@
+/*
+ * Purpose: Allows organizers to create new events or edit existing ones.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.app.DatePickerDialog;
@@ -14,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,46 +35,51 @@ import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.database.OrganizerDB;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.util.ImageUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.UUID;
 
 public class CreateEventActivity extends AppCompatActivity {
     private static final String TAG = "CreateEventActivity";
-    private TextInputEditText etName, etDescription, etLocation, etPrice, etCapacity;
+    private TextInputEditText etName, etDescription, etLocation, etPrice, etCapacity, etWaitlistLimit;
     private AutoCompleteTextView actCategory;
-    private TextInputLayout tilName, tilDescription, tilLocation, tilCategory, tilPrice, tilCapacity;
+    private TextInputLayout tilName, tilDescription, tilLocation, tilCategory, tilPrice, tilCapacity, tilWaitlistLimit;
     private Button btnPickDate, btnPublish, btnPickRegOpen, btnPickRegClose;
+    private SwitchMaterial swGeolocation;
+    private SwitchMaterial swPrivateEvent;
     private ImageView ivPosterPreview;
     private FrameLayout loadingOverlay;
     private TextView tvLoadingText;
     private Uri posterUri;
+    private boolean posterRemoved = false;
+    private View cvUploadPoster;
+    private View llPosterActions;
     private Calendar eventCalendar, regOpenCalendar, regCloseCalendar;
     private boolean dateSet = false, openSet = false, closeSet = false;
     private EventDB eventDB;
     private OrganizerDB organizerDB;
-    private FirebaseStorage storage;
     private FirebaseAuth mAuth;
     private String existingEventId = null;
     private Event existingEvent = null;
 
     private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
-    private static final String[] CATEGORIES = {"Sports", "Gamble", "Arts", "Kids", "Seniors", "Music", "Education"};
+    private static final String[] CATEGORIES = { "Sports", "Gamble", "Arts", "Kids", "Seniors", "Music", "Education" };
 
-    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMedia = registerForActivityResult(
+            new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
                     posterUri = uri;
+                    posterRemoved = false;
                     ivPosterPreview.setVisibility(View.VISIBLE);
                     Glide.with(this).load(uri).into(ivPosterPreview);
+                    if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.GONE);
+                    if (llPosterActions != null) llPosterActions.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -80,9 +91,8 @@ public class CreateEventActivity extends AppCompatActivity {
 
         eventDB = new EventDB();
         organizerDB = new OrganizerDB();
-        storage = FirebaseStorage.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        
+
         eventCalendar = Calendar.getInstance();
         regOpenCalendar = Calendar.getInstance();
         regCloseCalendar = Calendar.getInstance();
@@ -103,6 +113,7 @@ public class CreateEventActivity extends AppCompatActivity {
         etLocation = findViewById(R.id.et_event_location);
         etPrice = findViewById(R.id.et_event_price);
         etCapacity = findViewById(R.id.et_event_capacity);
+        etWaitlistLimit = findViewById(R.id.et_waitlist_limit);
         actCategory = findViewById(R.id.act_event_category);
         tilName = findViewById(R.id.til_name);
         tilDescription = findViewById(R.id.til_description);
@@ -110,13 +121,18 @@ public class CreateEventActivity extends AppCompatActivity {
         tilCategory = findViewById(R.id.til_category);
         tilPrice = findViewById(R.id.til_price);
         tilCapacity = findViewById(R.id.til_capacity);
+        tilWaitlistLimit = findViewById(R.id.til_waitlist_limit);
         btnPickDate = findViewById(R.id.btn_pick_date);
         btnPickRegOpen = findViewById(R.id.btn_pick_reg_open);
         btnPickRegClose = findViewById(R.id.btn_pick_reg_close);
         btnPublish = findViewById(R.id.btn_publish_event);
+        swGeolocation = findViewById(R.id.sw_geolocation);
+        swPrivateEvent = findViewById(R.id.sw_private_event);
         ivPosterPreview = findViewById(R.id.iv_poster_preview);
         loadingOverlay = findViewById(R.id.loading_overlay);
         tvLoadingText = findViewById(R.id.tv_loading_text);
+        cvUploadPoster = findViewById(R.id.cv_upload_poster);
+        llPosterActions = findViewById(R.id.ll_poster_actions);
 
         View mainView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -128,8 +144,9 @@ public class CreateEventActivity extends AppCompatActivity {
 
     private void loadExistingEvent() {
         btnPublish.setText("Update Event");
-        if (tvLoadingText != null) tvLoadingText.setText("Updating event...");
-        
+        if (tvLoadingText != null)
+            tvLoadingText.setText("Updating event...");
+
         eventDB.getEvent(existingEventId, event -> {
             if (event != null) {
                 existingEvent = event;
@@ -137,12 +154,27 @@ public class CreateEventActivity extends AppCompatActivity {
                 etDescription.setText(event.getDescription());
                 etLocation.setText(event.getLocation());
                 actCategory.setText(event.getCategory(), false);
-                etPrice.setText(String.format(Locale.getDefault(), "%.2f", event.getPrice()));
+                etPrice.setText(String.valueOf(event.getPrice()));
                 etCapacity.setText(String.valueOf(event.getCapacity()));
                 
+                if (event.getWaitingListLimit() > 0) {
+                    etWaitlistLimit.setText(String.valueOf(event.getWaitingListLimit()));
+                }
+                etPrice.setText(String.format(Locale.getDefault(), "%.2f", event.getPrice()));
+                etCapacity.setText(String.valueOf(event.getCapacity()));
+
+                if (swGeolocation != null) {
+                    swGeolocation.setChecked(event.isGeolocationEnabled());
+                }
+                if (swPrivateEvent != null) {
+                    swPrivateEvent.setChecked(event.isPrivate());
+                }
+
                 if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                     ivPosterPreview.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(event.getPosterUrl()).into(ivPosterPreview);
+                    ImageUtils.loadImage(this, event.getPosterUrl(), ivPosterPreview, false);
+                    if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.GONE);
+                    if (llPosterActions != null) llPosterActions.setVisibility(View.VISIBLE);
                 }
 
                 if (event.getDate() != null) {
@@ -177,6 +209,21 @@ public class CreateEventActivity extends AppCompatActivity {
                     .build());
         });
 
+        findViewById(R.id.btn_replace_poster).setOnClickListener(v -> {
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        });
+
+        findViewById(R.id.btn_remove_poster).setOnClickListener(v -> {
+            posterUri = null;
+            posterRemoved = true;
+            ivPosterPreview.setImageDrawable(null);
+            ivPosterPreview.setVisibility(View.GONE);
+            if (llPosterActions != null) llPosterActions.setVisibility(View.GONE);
+            if (cvUploadPoster != null) cvUploadPoster.setVisibility(View.VISIBLE);
+        });
+
         btnPickDate.setOnClickListener(v -> showDateTimePicker(eventCalendar, btnPickDate, "Event Date", 1));
         btnPickRegOpen.setOnClickListener(v -> showDateTimePicker(regOpenCalendar, btnPickRegOpen, "Reg Open", 2));
         btnPickRegClose.setOnClickListener(v -> showDateTimePicker(regCloseCalendar, btnPickRegClose, "Reg Close", 3));
@@ -195,23 +242,26 @@ public class CreateEventActivity extends AppCompatActivity {
                 calendar.set(Calendar.MINUTE, minute);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
-                
+
                 button.setText(label + ": " + dateTimeFormat.format(calendar.getTime()));
-                if (type == 1) dateSet = true;
-                if (type == 2) openSet = true;
-                if (type == 3) closeSet = true;
+                if (type == 1)
+                    dateSet = true;
+                if (type == 2)
+                    openSet = true;
+                if (type == 3)
+                    closeSet = true;
 
                 validateDateOrder();
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show();
 
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-        
+
         if (type == 3 && openSet) {
             datePickerDialog.getDatePicker().setMinDate(regOpenCalendar.getTimeInMillis());
         } else if (type == 1 && closeSet) {
             datePickerDialog.getDatePicker().setMinDate(regCloseCalendar.getTimeInMillis());
         }
-        
+
         datePickerDialog.show();
     }
 
@@ -247,31 +297,55 @@ public class CreateEventActivity extends AppCompatActivity {
         String category = actCategory.getText().toString().trim();
         String priceStr = etPrice.getText().toString().trim();
         String capStr = etCapacity.getText().toString().trim();
+        String limitStr = etWaitlistLimit.getText().toString().trim();
 
         boolean isValid = true;
+        
+        // ... previous validations ...
         if (name.isEmpty()) { tilName.setError("Required"); isValid = false; } else tilName.setError(null);
         if (description.isEmpty()) { tilDescription.setError("Required"); isValid = false; } else tilDescription.setError(null);
         if (location.isEmpty()) { tilLocation.setError("Required"); isValid = false; } else tilLocation.setError(null);
         if (category.isEmpty()) { tilCategory.setError("Required"); isValid = false; } else tilCategory.setError(null);
-        
+
         if (priceStr.isEmpty()) {
-            tilPrice.setError("Required"); isValid = false;
+            tilPrice.setError("Required");
+            isValid = false;
         } else {
             try {
                 double price = Double.parseDouble(priceStr);
-                if (price < 0) {
-                    tilPrice.setError("Invalid Price"); isValid = false;
-                } else tilPrice.setError(null);
+                if (price < 0) { tilPrice.setError("Invalid Price"); isValid = false; }
+                else tilPrice.setError(null);
             } catch (Exception e) { tilPrice.setError("Invalid Number"); isValid = false; }
         }
 
+        long capacity = 0;
         if (capStr.isEmpty()) {
-            tilCapacity.setError("Required"); isValid = false;
+            tilCapacity.setError("Required");
+            isValid = false;
         } else {
             try {
-                long capacity = Long.parseLong(capStr);
-                if (capacity <= 0) { tilCapacity.setError("Must be > 0"); isValid = false; } else tilCapacity.setError(null);
+                capacity = Long.parseLong(capStr);
+                if (capacity <= 0) { tilCapacity.setError("Must be > 0"); isValid = false; }
+                else tilCapacity.setError(null);
             } catch (Exception e) { tilCapacity.setError("Invalid Number"); isValid = false; }
+        }
+
+        long waitlistLimit = -1;
+        if (!limitStr.isEmpty()) {
+            try {
+                waitlistLimit = Long.parseLong(limitStr);
+                if (waitlistLimit <= capacity) {
+                    tilWaitlistLimit.setError("Must be > Event Capacity");
+                    isValid = false;
+                } else {
+                    tilWaitlistLimit.setError(null);
+                }
+            } catch (Exception e) {
+                tilWaitlistLimit.setError("Invalid Number");
+                isValid = false;
+            }
+        } else {
+            tilWaitlistLimit.setError(null);
         }
 
         if (!isValid) return;
@@ -282,11 +356,14 @@ public class CreateEventActivity extends AppCompatActivity {
         event.setLocation(location);
         event.setCategory(category);
         event.setPrice(Double.parseDouble(priceStr));
-        event.setCapacity(Long.parseLong(capStr));
+        event.setCapacity(capacity);
+        event.setWaitingListLimit(waitlistLimit);
         event.setDate(new Timestamp(eventCalendar.getTime()));
         event.setRegistrationOpen(new Timestamp(regOpenCalendar.getTime()));
         event.setRegistrationClose(new Timestamp(regCloseCalendar.getTime()));
-        
+        event.setGeolocationEnabled(swGeolocation != null && swGeolocation.isChecked());
+        event.setPrivate(swPrivateEvent != null && swPrivateEvent.isChecked());
+
         if (existingEvent == null) {
             String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
             event.setOrganizerId(uid);
@@ -297,6 +374,9 @@ public class CreateEventActivity extends AppCompatActivity {
         if (posterUri != null) {
             uploadPosterAndSaveEvent(event);
         } else {
+            if (posterRemoved) {
+                event.setPosterUrl("");
+            }
             saveEventToFirestore(event);
         }
     }
@@ -309,47 +389,48 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
     private void uploadPosterAndSaveEvent(Event event) {
-        String posterPath = "event_posters/" + UUID.randomUUID().toString() + ".jpg";
-        StorageReference ref = storage.getReference().child(posterPath);
-        ref.putFile(posterUri).addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl().addOnSuccessListener(uri -> {
-            event.setPosterUrl(uri.toString());
-            saveEventToFirestore(event);
-        })).addOnFailureListener(e -> {
-            Log.e(TAG, "Poster upload failed", e);
-            saveEventToFirestore(event);
-        });
+        // Compress to ~800×800 px at 55% JPEG quality and store as Base64 in Firestore
+        String base64 = ImageUtils.compressToBase64(this, posterUri, 800, 55);
+        if (base64 != null) {
+            event.setPosterUrl(base64);
+        } else {
+            Log.e(TAG, "Poster compression failed, saving event without poster");
+        }
+        saveEventToFirestore(event);
     }
 
     private void saveEventToFirestore(Event event) {
         String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-        if (event.getOrganizerId() == null) event.setOrganizerId(uid);
+        if (event.getOrganizerId() == null)
+            event.setOrganizerId(uid);
 
         if (existingEventId == null) {
             eventDB.createEvent(event, savedEvent -> {
                 String orgId = savedEvent.getOrganizerId();
-                if (orgId == null) orgId = uid;
-                
-                organizerDB.addOrganizedEvent(orgId, savedEvent.getEventId(), 
-                    aVoid -> {
-                        showLoading(false);
-                        navigateToQRDisplay(savedEvent.getEventId());
-                    }, 
-                    e -> {
-                        Log.e(TAG, "Failed to link event to organizer", e);
-                        showLoading(false);
-                        navigateToQRDisplay(savedEvent.getEventId());
-                    });
-            }, e -> { 
+                if (orgId == null)
+                    orgId = uid;
+
+                organizerDB.addOrganizedEvent(orgId, savedEvent.getEventId(),
+                        aVoid -> {
+                            showLoading(false);
+                            navigateToQRDisplay(savedEvent.getEventId());
+                        },
+                        e -> {
+                            Log.e(TAG, "Failed to link event to organizer", e);
+                            showLoading(false);
+                            navigateToQRDisplay(savedEvent.getEventId());
+                        });
+            }, e -> {
                 showLoading(false);
-                Toast.makeText(this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show(); 
+                Toast.makeText(this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
         } else {
             eventDB.updateEvent(event, aVoid -> {
                 showLoading(false);
                 navigateToDetails(existingEventId);
-            }, e -> { 
+            }, e -> {
                 showLoading(false);
-                Toast.makeText(this, "Firestore Update Error: " + e.getMessage(), Toast.LENGTH_SHORT).show(); 
+                Toast.makeText(this, "Firestore Update Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
         }
     }

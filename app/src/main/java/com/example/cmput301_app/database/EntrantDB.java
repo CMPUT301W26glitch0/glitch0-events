@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class for Entrant-related Firestore operations.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.Entrant;
@@ -67,7 +72,7 @@ public class EntrantDB {
         data.put("email", entrant.getEmail());
         data.put("phoneNumber", entrant.getPhoneNumber());
         data.put("geolocation", entrant.getGeolocation());
-        data.put("profileImageUrl", entrant.getProfileImageUrl());
+        data.put("profileImageUrl", entrant.getProfileImageUrl() != null ? entrant.getProfileImageUrl() : "");
         data.put("role", "entrant");
         data.put("waitingListIds", entrant.getWaitingListIds());
         data.put("registrationHistory", entrant.getRegistrationHistory());

@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="@color/card_bg">
 
+    <!-- Status badge (Open / Upcoming / Closed) -->
     <TextView
         android:id="@+id/tv_badge"
         android:layout_width="wrap_content"
@@ -21,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Event ID pill -->
     <TextView
         android:id="@+id/tv_event_id"
         android:layout_width="wrap_content"
@@ -33,6 +35,7 @@
         app:layout_constraintTop_toTopOf="@id/tv_badge"
         tools:text="ID: #4092" />
 
+    <!-- Event title -->
     <TextView
         android:id="@+id/tv_event_title"
         android:layout_width="0dp"
@@ -46,52 +49,80 @@
         app:layout_constraintTop_toBottomOf="@id/tv_badge"
         tools:text="Senior Yoga - Session A" />
 
+    <!-- Row 1: Date icon + date -->
     <ImageView
         android:id="@+id/iv_draws"
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_marginTop="8dp"
-        android:src="@android:drawable/ic_menu_recent_history"
+        android:src="@android:drawable/ic_menu_my_calendar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_event_title"
-        app:tint="#F04438" />
+        app:tint="@color/gray_text" />
 
     <TextView
         android:id="@+id/tv_draws_info"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:textColor="#F04438"
+        android:textColor="@color/gray_text"
         android:textSize="12sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/iv_draws"
+        app:layout_constraintEnd_toStartOf="@id/btn_join_list"
         app:layout_constraintStart_toEndOf="@id/iv_draws"
         app:layout_constraintTop_toTopOf="@id/iv_draws"
-        tools:text="Draws in 4h" />
+        tools:text="Mar 20, 2025 10:00" />
 
+    <!-- Row 2: Location icon + location -->
     <ImageView
         android:id="@+id/iv_applicants"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
         android:src="@android:drawable/ic_menu_mylocation"
-        app:layout_constraintBottom_toBottomOf="@id/iv_draws"
-        app:layout_constraintStart_toEndOf="@id/tv_draws_info"
-        app:layout_constraintTop_toTopOf="@id/iv_draws"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_draws"
         app:tint="@color/gray_text" />
 
     <TextView
         android:id="@+id/tv_applicants_info"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:textColor="@color/gray_text"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@id/iv_applicants"
+        app:layout_constraintEnd_toStartOf="@id/btn_join_list"
         app:layout_constraintStart_toEndOf="@id/iv_applicants"
         app:layout_constraintTop_toTopOf="@id/iv_applicants"
-        tools:text="12 spots / 34 applicants" />
+        tools:text="Community Centre, Edmonton" />
 
+    <!-- Row 3: Reg-close icon + reg-close date -->
+    <ImageView
+        android:id="@+id/iv_reg_close"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="4dp"
+        android:src="@android:drawable/ic_menu_recent_history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_applicants"
+        app:tint="#F04438" />
+
+    <TextView
+        android:id="@+id/tv_reg_close_info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textColor="#F04438"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/iv_reg_close"
+        app:layout_constraintEnd_toStartOf="@id/btn_join_list"
+        app:layout_constraintStart_toEndOf="@id/iv_reg_close"
+        app:layout_constraintTop_toTopOf="@id/iv_reg_close"
+        tools:text="Reg. closes: Mar 15, 2025" />
+
+    <!-- Description -->
     <TextView
         android:id="@+id/tv_event_description"
         android:layout_width="0dp"
@@ -103,9 +134,10 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="@id/tv_event_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_draws"
+        app:layout_constraintTop_toBottomOf="@id/iv_reg_close"
         tools:text="A gentle flow yoga class suitable for all..." />
 
+    <!-- Join/View button -->
     <Button
         android:id="@+id/btn_join_list"
         android:layout_width="80dp"
@@ -114,7 +146,7 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:padding="0dp"
-        android:text="Join\nList"
+        android:text="View"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="14sp"

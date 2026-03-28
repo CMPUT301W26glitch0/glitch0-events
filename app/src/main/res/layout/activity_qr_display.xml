@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FB">
+    android:background="@color/page_bg">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_qr"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
+        android:background="@color/card_bg"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -58,7 +58,7 @@
                 android:src="@android:drawable/ic_menu_send"
                 app:tint="@color/primary_blue"
                 android:background="@drawable/badge_bg"
-                android:backgroundTint="#E8F2FF"
+                android:backgroundTint="@color/light_blue_bg"
                 android:padding="12dp" />
 
             <TextView
@@ -84,13 +84,14 @@
                 android:layout_width="280dp"
                 android:layout_height="280dp"
                 android:layout_marginTop="32dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#FFD8B1"
+                    android:background="@color/card_bg"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -142,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="12dp"
-                android:backgroundTint="#E8F2FF"
+                android:backgroundTint="@color/light_blue_bg"
                 android:text="Share QR Code"
                 android:textAllCaps="false"
                 android:textColor="@color/primary_blue"
@@ -166,6 +167,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 

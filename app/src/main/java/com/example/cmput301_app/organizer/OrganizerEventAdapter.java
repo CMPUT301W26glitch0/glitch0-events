@@ -1,3 +1,14 @@
+/**
+ * RecyclerView adapter for displaying an organizer's created events on the
+ * OrganizerDashboardActivity.
+ *
+ * Each item uses the shared {@code item_event} layout and shows the event name,
+ * description, applicant count, and a category badge. Both the list item and
+ * the "Manage" button navigate to OrganizerEventDetailsActivity for the
+ * selected event.
+ *
+ * Outstanding issues: None.
+ */
 package com.example.cmput301_app.organizer;
 
 import android.content.Context;
@@ -46,14 +57,20 @@ public class OrganizerEventAdapter extends RecyclerView.Adapter<OrganizerEventAd
         
         holder.tvApplicants.setText(event.getWaitingListCount() + " / " + event.getCapacity() + " applicants");
         
-        // Use category as badge text if available
-        String category = event.getCategory();
-        if (category != null && !category.isEmpty()) {
-            holder.tvBadge.setText(category);
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.primary_blue));
+        // Private events get a "Private" badge; otherwise use category
+        if (event.isPrivate()) {
+            holder.tvBadge.setText("Private");
+            holder.tvBadge.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(0xFF7F56D9));
         } else {
-            holder.tvBadge.setText("Active");
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
+            String category = event.getCategory();
+            if (category != null && !category.isEmpty()) {
+                holder.tvBadge.setText(category);
+                holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.primary_blue));
+            } else {
+                holder.tvBadge.setText("Active");
+                holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
+            }
         }
         holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.white));
 

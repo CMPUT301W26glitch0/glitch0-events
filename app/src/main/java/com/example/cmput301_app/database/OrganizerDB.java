@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class handling Organizer-specific Firestore queries.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.Organizer;
@@ -68,7 +73,7 @@ public class OrganizerDB {
         data.put("email", organizer.getEmail());
         data.put("phoneNumber", organizer.getPhoneNumber());
         data.put("geolocation", organizer.getGeolocation());
-        data.put("profileImageUrl", organizer.getProfileImageUrl());
+        data.put("profileImageUrl", organizer.getProfileImageUrl() != null ? organizer.getProfileImageUrl() : "");
         data.put("role", "organizer");
         data.put("organizedEventIds", organizer.getOrganizedEventIds());
 

@@ -1,3 +1,19 @@
+/**
+ * Shows the current entrant's personal event history.
+ *
+ * Fetches the user's {@code registrationHistory} array from Firestore via
+ * EntrantDB, then resolves each event document via EventDB. The resolved events
+ * are paired with their lottery outcome and displayed in a RecyclerView backed
+ * by MyEventsAdapter, sorted by event date (most recent first).
+ *
+ * This activity is part of the entrant bottom navigation and is also reachable
+ * from DashboardActivity's "My Events" tab, which duplicates this functionality
+ * inside the tab container.
+ *
+ * Outstanding issues:
+ * - DashboardActivity now hosts the My Events tab inline, making this standalone
+ *   activity potentially redundant. The two implementations should be unified.
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Intent;
@@ -21,6 +37,8 @@ import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.google.firebase.auth.FirebaseAuth;
+
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,7 +78,7 @@ public class MyEventsActivity extends AppCompatActivity {
         tvEmptyState = findViewById(R.id.tv_empty_state);
         rvMyEvents.setLayoutManager(new LinearLayoutManager(this));
         myEventItems = new ArrayList<>();
-        adapter = new MyEventsAdapter(myEventItems);
+        adapter = new MyEventsAdapter(myEventItems, item -> openEventDetails(item));
         rvMyEvents.setAdapter(adapter);
 
         // bottom nav click handlers
@@ -139,5 +157,13 @@ public class MyEventsActivity extends AppCompatActivity {
         }, e -> {
             Toast.makeText(this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void openEventDetails(MyEventsAdapter.MyEventItem item) {
+        if (item.event == null || item.event.getEventId() == null) return;
+        
+        Intent intent = new Intent(this, EventDetailsActivity.class);
+        intent.putExtra("eventId", item.event.getEventId());
+        startActivity(intent);
     }
 }

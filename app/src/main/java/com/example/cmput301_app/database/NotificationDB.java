@@ -1,3 +1,8 @@
+/*
+ * Purpose: Database helper class for pushing and retrieving user notifications.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.database;
 
 import com.example.cmput301_app.model.Notification;
@@ -71,6 +76,7 @@ public class NotificationDB {
         data.put("message", notification.getMessage());
         data.put("type", notification.getType().name());
         data.put("timestamp", notification.getTimestamp());
+        data.put("inviterName", notification.getInviterName());
 
         db.collection(COLLECTION)
                 .add(data)
@@ -195,5 +201,38 @@ public class NotificationDB {
                                             OnSuccessListener<List<Notification>> successListener,
                                             OnFailureListener failureListener) {
         // Not yet implemented
+    }
+
+    /**
+     * Fetches all notification documents where the given device ID appears in
+     * the recipientIds array, ordered by timestamp descending.
+     * Used to populate the entrant's notification dropdown.
+     *
+     * @param deviceId        the device ID of the recipient
+     * @param successListener called with the list of Notification objects
+     * @param failureListener called if the operation fails
+     */
+    public void getNotificationsByRecipient(String deviceId,
+                                            OnSuccessListener<List<Notification>> successListener,
+                                            OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .whereArrayContains("recipientIds", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Notification notification = document.toObject(Notification.class);
+                        notifications.add(notification);
+                    }
+                    // Sort by timestamp descending (newest first)
+                    notifications.sort((a, b) -> {
+                        if (a.getTimestamp() == null && b.getTimestamp() == null) return 0;
+                        if (a.getTimestamp() == null) return 1;
+                        if (b.getTimestamp() == null) return -1;
+                        return b.getTimestamp().compareTo(a.getTimestamp());
+                    });
+                    successListener.onSuccess(notifications);
+                })
+                .addOnFailureListener(failureListener);
     }
 }

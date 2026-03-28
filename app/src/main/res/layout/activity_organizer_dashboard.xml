@@ -5,7 +5,7 @@
     android:id="@+id/organizer_dashboard_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/page_bg">
 
     <!-- Header -->
     <TextView
@@ -76,7 +76,7 @@
         android:id="@+id/bottom_nav_organizer"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/white"
+        android:background="@color/page_bg"
         android:elevation="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -121,6 +121,7 @@
                 android:textColor="@color/gray_text"
                 android:textSize="12sp" />
         </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

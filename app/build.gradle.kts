@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.cmput301_app"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.cmput301_app"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -56,6 +56,8 @@ dependencies {
 
     // QR Code
     implementation(libs.zxing)
+    implementation(libs.play.services.code.scanner)
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -70,7 +72,10 @@ dependencies {
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.0")
-    implementation("androidx.camera:camera-camera2:1.3.0}")
+    implementation("androidx.camera:camera-camera2:1.3.0")
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
+
+    // OpenStreetMap (no API key required)
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }

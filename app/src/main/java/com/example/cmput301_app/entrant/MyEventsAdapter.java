@@ -1,3 +1,16 @@
+/**
+ * RecyclerView adapter for displaying an entrant's registered-event history.
+ *
+ * Each list item pairs an {@link Event} with a {@link com.example.cmput301_app.model.Entrant.RegistrationRecord.Outcome}
+ * (exposed via the inner {@link MyEventItem} data class) and renders the event name,
+ * date, and a colour-coded status badge reflecting the entrant's lottery outcome
+ * (Waitlist, Pending, Won, Declined, Not Selected, Cancelled).
+ *
+ * Click events are forwarded to the caller via the {@link OnItemClickListener}
+ * interface so the host Activity can open {@link EventDetailsActivity}.
+ *
+ * Outstanding issues: None.
+ */
 package com.example.cmput301_app.entrant;
 
 import android.content.Context;
@@ -21,10 +34,16 @@ import java.util.Locale;
 
 public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEventViewHolder> {
 
-    private List<MyEventItem> items;
+    public interface OnItemClickListener {
+        void onItemClick(MyEventItem item);
+    }
 
-    public MyEventsAdapter(List<MyEventItem> items) {
+    private List<MyEventItem> items;
+    private OnItemClickListener listener;
+
+    public MyEventsAdapter(List<MyEventItem> items, OnItemClickListener listener) {
         this.items = items;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,6 +62,10 @@ public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEven
         // set event name
         holder.tvTitle.setText(item.event.getName() != null ? item.event.getName() : "Untitled Event");
 
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onItemClick(item);
+        });
+
         // set event date
         if (item.event.getDate() != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, h:mm a", Locale.getDefault());
@@ -54,13 +77,13 @@ public class MyEventsAdapter extends RecyclerView.Adapter<MyEventsAdapter.MyEven
         // set status badge text and colors based on outcome
         switch (item.outcome) {
             case WAITING:
-                setBadgeStyle(context, holder.tvStatus, "Waitlist", R.color.badge_gray_bg, R.color.badge_gray_text);
+                setBadgeStyle(context, holder.tvStatus, "Waiting", R.color.badge_gray_bg, R.color.badge_gray_text);
                 break;
             case SELECTED:
-                setBadgeStyle(context, holder.tvStatus, "Pending", R.color.badge_orange_bg, R.color.badge_orange_text);
+                setBadgeStyle(context, holder.tvStatus, "Selected", R.color.badge_orange_bg, R.color.badge_orange_text);
                 break;
             case ACCEPTED:
-                setBadgeStyle(context, holder.tvStatus, "Won", R.color.light_blue_bg, R.color.primary_blue);
+                setBadgeStyle(context, holder.tvStatus, "Accepted", R.color.badge_green_bg, R.color.badge_green_text);
                 break;
             case DECLINED:
                 setBadgeStyle(context, holder.tvStatus, "Declined", R.color.badge_orange_bg, R.color.badge_orange_text);

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/page_bg">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_entrants"
@@ -36,7 +36,8 @@
                 android:layout_height="wrap_content"
                 android:text="Community Center • Fall 2024"
                 android:textColor="@color/gray_text"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
         <ImageView
             android:layout_width="24dp"
@@ -47,28 +48,17 @@
             app:tint="@color/gray_text" />
     </androidx.appcompat.widget.Toolbar>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout_entrants"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_entrants"
-        app:tabIndicatorColor="@color/primary_blue"
-        app:tabSelectedTextColor="@color/primary_blue"
-        app:tabTextColor="@color/gray_text">
-        <com.google.android.material.tabs.TabItem android:text="Waiting List" />
-        <com.google.android.material.tabs.TabItem android:text="Enrolled" />
-        <com.google.android.material.tabs.TabItem android:text="Cancelled" />
-    </com.google.android.material.tabs.TabLayout>
+
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_total_entrants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        app:cardBackgroundColor="#E8F2FF"
+        app:cardBackgroundColor="@color/light_blue_bg"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout_entrants">
+        app:layout_constraintTop_toBottomOf="@id/toolbar_entrants">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -107,18 +97,46 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
+    <EditText
+        android:id="@+id/et_search_entrants"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_search_bar"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="12dp"
+        android:hint="Search by name..."
+        android:paddingHorizontal="16dp"
+        android:textColorHint="@color/gray_text"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/cv_total_entrants" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout_entrants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="12dp"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/primary_blue"
+        app:tabTextColor="@color/gray_text"
+        app:tabIndicatorColor="@color/primary_blue"
+        app:layout_constraintTop_toBottomOf="@id/et_search_entrants" />
+
     <TextView
         android:id="@+id/tv_recent_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:text="RECENT SIGN-UPS"
-        android:textColor="@color/dark_blue"
+        android:layout_marginTop="16dp"
+        android:text="ENTRANT LIST"
+        android:textColor="@color/gray_text"
         android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cv_total_entrants" />
+        app:layout_constraintTop_toBottomOf="@id/tab_layout_entrants" />
 
     <TextView
         android:id="@+id/tv_sort_by"
@@ -136,8 +154,59 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_run_lottery"
+        app:layout_constraintBottom_toTopOf="@id/btn_view_map"
         app:layout_constraintTop_toBottomOf="@id/tv_recent_label" />
+
+    <TextView
+        android:id="@+id/tv_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:padding="32dp"
+        android:textColor="@color/gray_text"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btn_view_map"
+        app:layout_constraintTop_toBottomOf="@id/tv_recent_label" />
+
+    <Button
+        android:id="@+id/btn_view_map"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/card_bg"
+        android:text="View Waitlist Map"
+        android:textAllCaps="false"
+        android:textColor="@color/primary_blue"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:cornerRadius="12dp"
+        app:icon="@android:drawable/ic_dialog_map"
+        app:iconTint="@color/primary_blue"
+        app:strokeColor="@color/primary_blue"
+        app:strokeWidth="1dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_export_csv" />
+
+    <Button
+        android:id="@+id/btn_export_csv"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/card_bg"
+        android:text="Export Enrolled List (CSV)"
+        android:textAllCaps="false"
+        android:textColor="@color/primary_blue"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:cornerRadius="12dp"
+        app:icon="@android:drawable/ic_menu_save"
+        app:iconTint="@color/primary_blue"
+        app:strokeColor="@color/primary_blue"
+        app:strokeWidth="1dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_run_lottery" />
 
     <Button
         android:id="@+id/btn_run_lottery"

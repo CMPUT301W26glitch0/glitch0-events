@@ -1,3 +1,22 @@
+/**
+ * Activity providing a live CameraX preview with real-time QR code detection.
+ *
+ * Uses the ML Kit Barcode Scanning API to continuously analyse camera frames and
+ * automatically recognise QR codes without requiring the user to press a button.
+ * When a code matching the {@code "event_details:"} prefix is detected, the
+ * activity verifies the event exists in Firestore via EventDB and navigates to
+ * EventDetailsActivity.
+ *
+ * Also supports scanning QR codes from the device gallery via
+ * {@code ActivityResultContracts.GetContent}.
+ *
+ * The CameraX lifecycle is bound to the activity so that camera resources are
+ * automatically released when the activity is destroyed.
+ *
+ * Outstanding issues:
+ * - The "History" and "My Entries" bottom buttons are placeholder stubs and
+ *   are not yet linked to real functionality.
+ */
 package com.example.cmput301_app.entrant;
 
 import android.Manifest;

@@ -5,7 +5,7 @@
     android:id="@+id/register_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/page_bg"
     tools:context=".RegisterActivity">
 
     <ScrollView
@@ -182,7 +182,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
-                android:backgroundTint="@color/dark_blue"
+                android:backgroundTint="@color/primary_blue"
                 android:text="Create Account"
                 android:textAllCaps="false"
                 android:textColor="@color/white"

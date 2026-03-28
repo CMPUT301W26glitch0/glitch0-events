@@ -1,3 +1,20 @@
+/**
+ * Handles permanent deletion of the current user's account.
+ *
+ * Presents the user with a confirmation form (they must type "DELETE" to proceed)
+ * and a summary of what will be lost. On confirmation, this activity:
+ *  - For organizers: deletes all events created by the organizer from Firestore,
+ *    then deletes the user document.
+ *  - For entrants: deletes only the user document.
+ * In both cases the corresponding Firebase Authentication account is deleted and
+ * SharedPreferences is cleared, returning the user to the login screen.
+ *
+ * The role is passed via intent extra "role" ("organizer" or "entrant").
+ *
+ * Outstanding issues:
+ * - Entrant cleanup does not remove the user from waiting lists or
+ *   registrationHistory arrays of events they joined.
+ */
 package com.example.cmput301_app;
 
 import android.content.Context;
@@ -23,10 +40,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.provider.Settings;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -40,7 +57,6 @@ public class DeleteProfileActivity extends AppCompatActivity {
     private EditText etConfirmDelete;
     private Button btnConfirmDelete;
     private LinearLayout llLossItems;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +64,14 @@ public class DeleteProfileActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_delete_profile);
 
-        mAuth = FirebaseAuth.getInstance();
-
         role = getIntent().getStringExtra("role");
-        if (role == null) role = "entrant";
+        if (role == null)
+            role = "entrant";
 
-        // Use Firebase Auth UID as the user identifier
-        if (mAuth.getCurrentUser() != null) {
-            deviceId = mAuth.getCurrentUser().getUid();
-        } else {
-            // Not signed in — go back to login
-            startActivity(new Intent(this, MainActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        // Use Android ID as the user identifier — same as MainActivity /
+        // ProfileActivity
+        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (deviceId == null) {
             finish();
             return;
         }
@@ -115,8 +127,7 @@ public class DeleteProfileActivity extends AppCompatActivity {
         tv.setTextSize(16);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(24, 0, 0, 0);
         tv.setLayoutParams(params);
 
@@ -128,7 +139,8 @@ public class DeleteProfileActivity extends AppCompatActivity {
     private void setupValidation() {
         etConfirmDelete.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -138,7 +150,8 @@ public class DeleteProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -147,7 +160,6 @@ public class DeleteProfileActivity extends AppCompatActivity {
         btnConfirmDelete.setText("Deleting...");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         Log.d("DeleteProfile", "Starting deletion for device: " + deviceId + " role: " + role);
 
@@ -165,43 +177,33 @@ public class DeleteProfileActivity extends AppCompatActivity {
                         Log.d("DeleteProfile", "Deleting " + deleteTasks.size() + " events");
 
                         Tasks.whenAll(deleteTasks)
-                                .addOnSuccessListener(aVoid -> deleteUserDocument(db, user))
+                                .addOnSuccessListener(aVoid -> deleteUserDocument(db))
                                 .addOnFailureListener(e -> {
                                     Log.e("DeleteProfile", "Failed to delete events", e);
                                     // Proceed to delete user doc even if event deletion partially fails
-                                    deleteUserDocument(db, user);
+                                    deleteUserDocument(db);
                                 });
                     })
                     .addOnFailureListener(e -> {
                         Log.e("DeleteProfile", "Failed to query events", e);
                         // Proceed to delete user doc even if event query fails
-                        deleteUserDocument(db, user);
+                        deleteUserDocument(db);
                     });
         } else {
-            deleteUserDocument(db, user);
+            deleteUserDocument(db);
         }
     }
 
-    private void deleteUserDocument(FirebaseFirestore db, FirebaseUser user) {
+    private void deleteUserDocument(FirebaseFirestore db) {
         db.collection("users").document(deviceId).delete()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.d("DeleteProfile", "Firestore user document deleted successfully");
-                        if (user != null) {
-                            user.delete().addOnCompleteListener(authTask -> {
-                                if (authTask.isSuccessful()) {
-                                    Log.d("DeleteProfile", "Firebase Auth user deleted successfully");
-                                } else {
-                                    Log.e("DeleteProfile", "Auth deletion failed", authTask.getException());
-                                }
-                                finalizeDeletion();
-                            });
-                        } else {
-                            finalizeDeletion();
-                        }
+                        finalizeDeletion();
                     } else {
                         Log.e("DeleteProfile", "Firestore deletion failed", task.getException());
-                        Toast.makeText(this, "Failed to delete from database. Please check your connection.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Failed to delete from database. Please check your connection.",
+                                Toast.LENGTH_LONG).show();
                         btnConfirmDelete.setEnabled(true);
                         btnConfirmDelete.setText("Delete Profile");
                     }
@@ -209,9 +211,6 @@ public class DeleteProfileActivity extends AppCompatActivity {
     }
 
     private void finalizeDeletion() {
-        // Sign out just in case deletion didn't handle it
-        FirebaseAuth.getInstance().signOut();
-
         // Clear local preferences
         SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
