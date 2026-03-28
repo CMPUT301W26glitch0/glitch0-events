@@ -10,11 +10,16 @@ import com.example.cmput301_app.model.Notification;
 import com.example.cmput301_app.model.Profile;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Handles all Firestore database operations for Admin actions.
@@ -46,6 +51,9 @@ public class AdminDB {
     /** The Firestore instance used for all database operations */
     private FirebaseFirestore db;
 
+    /** NotificationDB used for creating and deleting notifications */
+    private NotificationDB notificationDB;
+
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
@@ -55,6 +63,38 @@ public class AdminDB {
      */
     public AdminDB() {
         this.db = FirebaseFirestore.getInstance();
+        this.notificationDB = new NotificationDB();
+    }
+
+    // -------------------------------------------------------------------------
+    // Create Operations
+    // -------------------------------------------------------------------------
+
+    /**
+     * Creates a new admin document in the "users" collection.
+     * Uses the Firebase Auth UID as the document ID so that checkUserAndNavigate()
+     * in MainActivity can look it up and route to AdminDashboardActivity.
+     *
+     * @param uid             the Firebase Auth UID for the new admin account
+     * @param name            the admin's display name
+     * @param email           the admin's email address
+     * @param successListener called when the write completes successfully
+     * @param failureListener called if the write fails
+     */
+    public void createAdmin(String uid, String name, String email,
+                            OnSuccessListener<Void> successListener,
+                            OnFailureListener failureListener) {
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("role", "admin");
+        data.put("name", name);
+        data.put("email", email);
+        data.put("adminId", uid);
+
+        db.collection(USERS_COLLECTION)
+                .document(uid)
+                .set(data)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     // -------------------------------------------------------------------------
@@ -112,11 +152,11 @@ public class AdminDB {
     // -------------------------------------------------------------------------
 
     /**
-     * TODO: Not required for the halfway checkpoint.
-     * Removes an event and all associated data including lottery pool, poster,
-     * and notifications. Coordinates across EventDB, LotteryDB, PosterDB,
-     * and NotificationDB to clean up all related documents.
-     * To be implemented in a future sprint.
+     * Removes an event and all associated data:
+     * 1. Sends a cancellation notification to all entrants (waiting list + confirmed attendees).
+     * 2. Deletes all notification documents associated with this event.
+     * 3. Deletes the poster image from Firebase Storage (if a posterUrl is set).
+     * 4. Deletes the event document from Firestore.
      *
      * @param eventId         the ID of the event to remove
      * @param successListener called when all operations complete successfully
@@ -125,11 +165,77 @@ public class AdminDB {
     public void removeEvent(String eventId,
                             OnSuccessListener<Void> successListener,
                             OnFailureListener failureListener) {
-        // Not yet implemented
+        // Step 1: fetch the event so we have entrant lists and posterUrl
+        db.collection(EVENTS_COLLECTION).document(eventId).get()
+                .addOnFailureListener(failureListener)
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        // Already gone — treat as success
+                        successListener.onSuccess(null);
+                        return;
+                    }
+                    Event event = doc.toObject(Event.class);
+                    if (event != null) {
+                        event.setEventId(doc.getId());
+                    }
+
+                    // Collect all entrant IDs who should be notified
+                    Set<String> entrantIds = new HashSet<>();
+                    if (event != null && event.getWaitingListIds() != null) {
+                        entrantIds.addAll(event.getWaitingListIds());
+                    }
+                    if (event != null && event.getConfirmedAttendeesIds() != null) {
+                        entrantIds.addAll(event.getConfirmedAttendeesIds());
+                    }
+
+                    String posterUrl = (event != null) ? event.getPosterUrl() : null;
+                    String eventName = (event != null && event.getName() != null)
+                            ? event.getName() : "an event";
+
+                    // Step 2: send cancellation notification (fire-and-forget)
+                    if (!entrantIds.isEmpty()) {
+                        Notification cancellation = new Notification(
+                                null, eventId, "admin",
+                                "The event \"" + eventName + "\" has been cancelled by an administrator.",
+                                Notification.NotificationType.INVITATION_CANCELLED,
+                                Timestamp.now());
+                        cancellation.setRecipientIds(new ArrayList<>(entrantIds));
+                        notificationDB.createNotification(cancellation, n -> {}, e -> {});
+                    }
+
+                    // Step 3: delete all notifications for this event (fire-and-forget)
+                    notificationDB.deleteNotificationsByEvent(eventId, v -> {}, e -> {});
+
+                    // Step 4: delete poster from Firebase Storage if present
+                    if (posterUrl != null && !posterUrl.isEmpty()) {
+                        try {
+                            StorageReference posterRef = FirebaseStorage.getInstance()
+                                    .getReferenceFromUrl(posterUrl);
+                            posterRef.delete().addOnCompleteListener(task -> {
+                                // Proceed regardless of storage deletion result
+                                deleteEventDocument(eventId, successListener, failureListener);
+                            });
+                        } catch (IllegalArgumentException e) {
+                            // URL not a valid Firebase Storage URL — skip storage deletion
+                            deleteEventDocument(eventId, successListener, failureListener);
+                        }
+                    } else {
+                        deleteEventDocument(eventId, successListener, failureListener);
+                    }
+                });
+    }
+
+    /** Deletes the event Firestore document as the final step of removeEvent(). */
+    private void deleteEventDocument(String eventId,
+                                     OnSuccessListener<Void> successListener,
+                                     OnFailureListener failureListener) {
+        db.collection(EVENTS_COLLECTION).document(eventId)
+                .delete()
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     /**
-     * TODO: Not required for the halfway checkpoint.
      * Removes a user profile from Firestore. Determines whether the profile
      * belongs to an entrant or organizer and delegates to the appropriate
      * DB class. If the profile belongs to an organizer, all associated events

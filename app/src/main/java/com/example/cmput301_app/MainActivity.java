@@ -22,6 +22,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cmput301_app.admin.AdminDashboardActivity;
 import com.example.cmput301_app.entrant.DashboardActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -148,9 +149,8 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
                     intent = new Intent(this, OrganizerDashboardActivity.class);
-                } else if ("com/example/cmput301_app/admin".equalsIgnoreCase(role)) {
-                    intent = new Intent(this, DashboardActivity.class);
-                    Toast.makeText(this, "Logged in as Admin", Toast.LENGTH_SHORT).show();
+                } else if ("admin".equalsIgnoreCase(role)) {
+                    intent = new Intent(this, AdminDashboardActivity.class);
                 } else {
                     intent = new Intent(this, DashboardActivity.class);
                 }

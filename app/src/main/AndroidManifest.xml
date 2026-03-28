@@ -47,6 +47,11 @@
             android:name=".DeleteProfileActivity"
             android:exported="false" />
 
+        <!-- Admin Activities -->
+        <activity
+            android:name=".admin.AdminDashboardActivity"
+            android:exported="false" />
+
         <!-- Entrant Activities -->
         <activity
             android:name=".entrant.DashboardActivity"
