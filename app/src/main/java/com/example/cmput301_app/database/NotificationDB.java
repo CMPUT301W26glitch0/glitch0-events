@@ -187,6 +187,47 @@ public class NotificationDB {
     }
 
     /**
+     * Deletes all notification documents associated with a specific event.
+     * Used by AdminDB.removeEvent() to clean up event-linked notifications.
+     *
+     * @param eventId         the ID of the event whose notifications to delete
+     * @param successListener called when all deletions complete (or if there are none)
+     * @param failureListener called if the query fails
+     */
+    public void deleteNotificationsByEvent(String eventId,
+                                           OnSuccessListener<Void> successListener,
+                                           OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnFailureListener(failureListener)
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        successListener.onSuccess(null);
+                        return;
+                    }
+                    // Use a counter to know when all deletes finish
+                    final int[] remaining = {querySnapshot.size()};
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        doc.getReference().delete()
+                                .addOnSuccessListener(v -> {
+                                    remaining[0]--;
+                                    if (remaining[0] == 0) {
+                                        successListener.onSuccess(null);
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    remaining[0]--;
+                                    // Continue deleting; report failure only if all done
+                                    if (remaining[0] == 0) {
+                                        failureListener.onFailure(e);
+                                    }
+                                });
+                    }
+                });
+    }
+
+    /**
      * TODO: Not required for the halfway checkpoint.
      * Fetches all notification documents sent by a specific organizer and returns
      * them as a list of Notification objects via the success listener.
