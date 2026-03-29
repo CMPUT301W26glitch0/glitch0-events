@@ -57,14 +57,20 @@ public class OrganizerEventAdapter extends RecyclerView.Adapter<OrganizerEventAd
         
         holder.tvApplicants.setText(event.getWaitingListCount() + " / " + event.getCapacity() + " applicants");
         
-        // Use category as badge text if available
-        String category = event.getCategory();
-        if (category != null && !category.isEmpty()) {
-            holder.tvBadge.setText(category);
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.primary_blue));
+        // Private events get a "Private" badge; otherwise use category
+        if (event.isPrivate()) {
+            holder.tvBadge.setText("Private");
+            holder.tvBadge.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(0xFF7F56D9));
         } else {
-            holder.tvBadge.setText("Active");
-            holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
+            String category = event.getCategory();
+            if (category != null && !category.isEmpty()) {
+                holder.tvBadge.setText(category);
+                holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.primary_blue));
+            } else {
+                holder.tvBadge.setText("Active");
+                holder.tvBadge.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.badge_green_bg));
+            }
         }
         holder.tvBadge.setTextColor(ContextCompat.getColor(context, R.color.white));
 

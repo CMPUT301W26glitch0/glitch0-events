@@ -21,6 +21,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cmput301_app.admin.AdminDashboardActivity;
+import com.example.cmput301_app.database.AdminDB;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.OrganizerDB;
 import com.example.cmput301_app.entrant.DashboardActivity;
@@ -33,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EntrantDB entrantDB;
     private OrganizerDB organizerDB;
+    private AdminDB adminDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         entrantDB = new EntrantDB();
         organizerDB = new OrganizerDB();
+        adminDB = new AdminDB();
 
         View registerMain = findViewById(R.id.register_main);
         if (registerMain != null) {
@@ -60,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
         Button btnRegister = findViewById(R.id.btn_register);
         TextView tvLoginLink = findViewById(R.id.tv_login_link);
 
-        String[] roles = {"Entrant", "Organizer"};
+        String[] roles = {"Entrant", "Organizer", "Admin"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         if (spinnerRole != null) spinnerRole.setAdapter(adapter);
@@ -68,7 +72,8 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+            // DO NOT trim password
+            String password = etPassword.getText().toString();
             String role = spinnerRole != null ? spinnerRole.getSelectedItem().toString() : "Entrant";
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
@@ -105,7 +110,15 @@ public class RegisterActivity extends AppCompatActivity {
                                     navigateToDashboard("Organizer");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error creating profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                });
+                            } else if ("Admin".equals(role)) {
+                                adminDB.createAdmin(uid, name, email, aVoid -> {
+                                    Toast.makeText(this, "Welcome, " + name + "!", Toast.LENGTH_SHORT).show();
+                                    navigateToDashboard("Admin");
+                                }, e -> {
+                                    btnRegister.setEnabled(true);
+                                    Toast.makeText(this, "Error creating profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             } else {
                                 Entrant entrant = new Entrant(uid, name, email, null);
@@ -114,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     navigateToDashboard("Entrant");
                                 }, e -> {
                                     btnRegister.setEnabled(true);
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, "Error creating profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 });
                             }
                         } else {
@@ -136,6 +149,8 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent;
         if ("Organizer".equals(role)) {
             intent = new Intent(this, OrganizerDashboardActivity.class);
+        } else if ("Admin".equals(role)) {
+            intent = new Intent(this, AdminDashboardActivity.class);
         } else {
             intent = new Intent(this, DashboardActivity.class);
         }

@@ -39,13 +39,20 @@ public class EventDB {
         String generatedId = docRef.getId();
         event.setEventId(generatedId);
 
+<<<<<<< HEAD
         // Generate the unique promotional QR code link
         String qrData = "event_details:" + generatedId;
         event.setQrCode(qrData);
+=======
+        // Private events do not get a promotional QR code
+        if (!event.isPrivate()) {
+            String qrData = "event_details:" + generatedId;
+            event.setQrCode(qrData);
+        }
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         Map<String, Object> data = getEventMap(event);
         data.put("eventId", generatedId);
-        data.put("qrCode", qrData);
         data.put("waitingListCount", 0);
 
         docRef.set(data)
@@ -75,6 +82,26 @@ public class EventDB {
         db.collection(COLLECTION)
                 .document(event.getEventId())
                 .update(data)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a single comment from an event's comments array using arrayRemove.
+     * The comment map must exactly match the stored entry.
+     */
+    public void deleteComment(String eventId, com.example.cmput301_app.model.Comment comment,
+                              OnSuccessListener<Void> successListener,
+                              OnFailureListener failureListener) {
+        Map<String, Object> commentMap = new HashMap<>();
+        if (comment.getId() != null) commentMap.put("id", comment.getId());
+        if (comment.getContent() != null) commentMap.put("content", comment.getContent());
+        if (comment.getAuthorName() != null) commentMap.put("authorName", comment.getAuthorName());
+        if (comment.getTimestamp() != null) commentMap.put("timestamp", comment.getTimestamp());
+        commentMap.put("organizerComment", comment.isOrganizerComment());
+
+        db.collection(COLLECTION).document(eventId)
+                .update("comments", FieldValue.arrayRemove(commentMap))
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }
@@ -110,7 +137,26 @@ public class EventDB {
         data.put("waitingListLimit", event.getWaitingListLimit());
         data.put("waitingListIds", event.getWaitingListIds());
         data.put("confirmedAttendeesIds", event.getConfirmedAttendeesIds());
+<<<<<<< HEAD
+=======
+        data.put("isPrivate", event.isPrivate());
+        data.put("invitedUserIds", event.getInvitedUserIds());
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         return data;
+    }
+
+    /**
+     * Adds a deviceId to the event's invitedUserIds array in Firestore.
+     * Uses Firestore's ArrayUnion to safely add without duplicates.
+     */
+    public void addInvitedUser(String eventId, String deviceId,
+                               OnSuccessListener<Void> successListener,
+                               OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("invitedUserIds", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     /**
@@ -236,7 +282,138 @@ public class EventDB {
                                         OnFailureListener failureListener) {
         db.collection(COLLECTION)
                 .document(eventId)
+<<<<<<< HEAD
                 .update("confirmedAttendeesIds", com.google.firebase.firestore.FieldValue.arrayUnion(deviceId))
+=======
+                .update("confirmedAttendeesIds", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Adds a device ID to the event's pendingCoOrganizerInvites array.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant being invited
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void addPendingCoOrganizerInvite(String eventId, String deviceId,
+                                             OnSuccessListener<Void> successListener,
+                                             OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("pendingCoOrganizerInvites", FieldValue.arrayUnion(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Accepts a co-organizer invitation: moves deviceId from pendingCoOrganizerInvites
+     * to coOrganizerIds, and removes them from the waiting list.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant accepting the invitation
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void acceptCoOrganizerInvite(String eventId, String deviceId, boolean wasOnWaitingList,
+                                         OnSuccessListener<Void> successListener,
+                                         OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId));
+        updates.put("coOrganizerIds", FieldValue.arrayUnion(deviceId));
+        updates.put("waitingListIds", FieldValue.arrayRemove(deviceId));
+        if (wasOnWaitingList) {
+            updates.put("waitingListCount", FieldValue.increment(-1));
+        }
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Stores the geographic location at which an entrant joined the waiting list.
+     * The location is written under {@code waitingListLocations.<deviceId>} in the event document.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant
+     * @param latitude        latitude of the entrant's location
+     * @param longitude       longitude of the entrant's location
+     * @param joinedAt        timestamp when the entrant joined
+     * @param successListener called when the write completes
+     * @param failureListener called if the write fails
+     */
+    public void saveWaitingListLocation(String eventId, String deviceId,
+                                        double latitude, double longitude,
+                                        com.google.firebase.Timestamp joinedAt,
+                                        OnSuccessListener<Void> successListener,
+                                        OnFailureListener failureListener) {
+        Map<String, Object> locationData = new HashMap<>();
+        locationData.put("latitude", latitude);
+        locationData.put("longitude", longitude);
+        locationData.put("joinedAt", joinedAt);
+
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("waitingListLocations." + deviceId, locationData)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Declines a co-organizer invitation: removes deviceId from pendingCoOrganizerInvites.
+     *
+     * @param eventId         the ID of the event
+     * @param deviceId        the device ID of the entrant declining the invitation
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void declineCoOrganizerInvite(String eventId, String deviceId,
+                                          OnSuccessListener<Void> successListener,
+                                          OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId))
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Directly assigns an entrant as co-organizer (no pending invite step).
+     * Removes them from the waiting list and clears any pending invite.
+     * Pass wasOnWaitingList=true to also decrement waitingListCount.
+     */
+    public void assignCoOrganizer(String eventId, String deviceId, boolean wasOnWaitingList,
+                                   OnSuccessListener<Void> successListener,
+                                   OnFailureListener failureListener) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("coOrganizerIds", FieldValue.arrayUnion(deviceId));
+        updates.put("pendingCoOrganizerInvites", FieldValue.arrayRemove(deviceId));
+        updates.put("waitingListIds", FieldValue.arrayRemove(deviceId));
+        if (wasOnWaitingList) {
+            updates.put("waitingListCount", FieldValue.increment(-1));
+        }
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update(updates)
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes a co-organizer assignment from an event.
+     */
+    public void removeCoOrganizer(String eventId, String deviceId,
+                                   OnSuccessListener<Void> successListener,
+                                   OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .document(eventId)
+                .update("coOrganizerIds", FieldValue.arrayRemove(deviceId))
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 .addOnSuccessListener(successListener)
                 .addOnFailureListener(failureListener);
     }

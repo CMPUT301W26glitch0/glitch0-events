@@ -7,11 +7,28 @@ package com.example.cmput301_app.entrant;
 
 import android.content.Intent;
 import android.os.Bundle;
+<<<<<<< HEAD
 import android.view.View;
+=======
+import android.content.res.ColorStateList;
+import android.graphics.drawable.ColorDrawable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.PopupWindow;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -23,8 +40,14 @@ import com.example.cmput301_app.ProfileActivity;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EntrantDB;
 import com.example.cmput301_app.database.EventDB;
+<<<<<<< HEAD
+=======
+import com.example.cmput301_app.database.NotificationDB;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
+import com.example.cmput301_app.model.Notification;
+import com.example.cmput301_app.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -41,11 +64,23 @@ public class DashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EventDB eventDB;
     private EntrantDB entrantDB;
+<<<<<<< HEAD
+=======
+    private NotificationDB notificationDB;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     // Browse tab
     private RecyclerView rvEvents;
     private EventAdapter browseAdapter;
+<<<<<<< HEAD
     private List<Event> eventList;
+=======
+    private List<Event> eventList;          // displayed (possibly filtered)
+    private List<Event> masterEventList;    // all events from DB
+    private EditText etSearch;
+    private TextView tvBrowseEmptyState;
+    private String currentSearchQuery = "";
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     // My Events tab
     private RecyclerView rvMyEvents;
@@ -57,7 +92,26 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView tvTabBrowse, tvTabMyEvents;
     private View clBrowseContent, clMyEventsContent;
 
+<<<<<<< HEAD
     private boolean myEventsLoaded = false;
+=======
+    // Notification bell
+    private FrameLayout flNotificationBell;
+    private View badgeNotification;
+
+    private boolean myEventsLoaded = false;
+
+    // Filter state (preserved for re-opening the filter screen)
+    private int[] filterDays = null;
+    private boolean filterMorning = false;
+    private boolean filterAfternoon = false;
+    private boolean filterEvening = false;
+    private boolean filterWaitlist = false;
+    private boolean filterHideFull = false;
+
+    private Button btnFilterSort;
+    private ActivityResultLauncher<Intent> filterLauncher;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +122,10 @@ public class DashboardActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         eventDB = new EventDB();
         entrantDB = new EntrantDB();
+<<<<<<< HEAD
+=======
+        notificationDB = new NotificationDB();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         View dashboardMain = findViewById(R.id.dashboard_main);
         if (dashboardMain != null) {
@@ -78,10 +136,46 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
+<<<<<<< HEAD
+=======
+        // --- Filter launcher ---
+        filterLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        filterDays = data.getIntArrayExtra(FilterEventsActivity.EXTRA_SELECTED_DAYS);
+                        filterMorning = data.getBooleanExtra(FilterEventsActivity.EXTRA_MORNING, false);
+                        filterAfternoon = data.getBooleanExtra(FilterEventsActivity.EXTRA_AFTERNOON, false);
+                        filterEvening = data.getBooleanExtra(FilterEventsActivity.EXTRA_EVENING, false);
+                        filterWaitlist = data.getBooleanExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, false);
+                        filterHideFull = data.getBooleanExtra(FilterEventsActivity.EXTRA_HIDE_FULL, false);
+                        applyLocalFilters();
+                        updateFilterButtonAppearance();
+                    }
+                });
+
+        // --- Search bar ---
+        etSearch = findViewById(R.id.et_search);
+        tvBrowseEmptyState = findViewById(R.id.tv_browse_empty_state);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString();
+                applyLocalFilters();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         // --- Browse RecyclerView ---
         rvEvents = findViewById(R.id.rv_events);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
         eventList = new ArrayList<>();
+<<<<<<< HEAD
+=======
+        masterEventList = new ArrayList<>();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         browseAdapter = new EventAdapter(eventList, this);
         rvEvents.setAdapter(browseAdapter);
 
@@ -107,10 +201,21 @@ public class DashboardActivity extends AppCompatActivity {
 
         tvTabBrowse.setOnClickListener(v -> showTab(false));
         tvTabMyEvents.setOnClickListener(v -> showTab(true));
+<<<<<<< HEAD
 
         // Start on Browse tab
         showTab(false);
 
+=======
+        showTab(false);
+
+        // --- Filter button ---
+        btnFilterSort = findViewById(R.id.btn_filter_sort);
+        if (btnFilterSort != null) {
+            btnFilterSort.setOnClickListener(v -> openFilterScreen());
+        }
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         // --- Bottom nav ---
         View navProfile = findViewById(R.id.nav_profile);
         if (navProfile != null) navProfile.setOnClickListener(v ->
@@ -120,6 +225,7 @@ public class DashboardActivity extends AppCompatActivity {
         if (navScanQr != null) navScanQr.setOnClickListener(v ->
                 startActivity(new Intent(this, ScanQRActivity.class)));
 
+<<<<<<< HEAD
         // Events bottom nav = stay on dashboard (already here)
         View navEvents = findViewById(R.id.nav_events);
         if (navEvents != null) navEvents.setOnClickListener(v -> showTab(false));
@@ -157,6 +263,217 @@ public class DashboardActivity extends AppCompatActivity {
             eventList.clear();
             eventList.addAll(events);
             browseAdapter.notifyDataSetChanged();
+=======
+        View navEvents = findViewById(R.id.nav_events);
+        if (navEvents != null) navEvents.setOnClickListener(v -> showTab(false));
+
+        // --- Notification bell ---
+        flNotificationBell = findViewById(R.id.fl_notification_bell);
+        badgeNotification = findViewById(R.id.badge_notification);
+        if (flNotificationBell != null) {
+            flNotificationBell.setOnClickListener(v -> showNotificationDropdown());
+        }
+
+        loadBrowseEvents();
+        loadNotificationBadge();
+    }
+
+    /**
+     * Checks if there are any notifications for the current user and shows/hides the badge.
+     */
+    private void loadNotificationBadge() {
+        String uid = resolveUid();
+        if (uid == null) return;
+
+        notificationDB.getNotificationsByRecipient(uid, notifications -> {
+            if (badgeNotification != null) {
+                badgeNotification.setVisibility(
+                        (notifications != null && !notifications.isEmpty()) ? View.VISIBLE : View.GONE);
+            }
+        }, e -> {});
+    }
+
+    /**
+     * Displays a PopupWindow dropdown anchored below the bell icon showing
+     * the current user's notifications. Tapping a notification navigates to
+     * the EventDetailsActivity for that event.
+     */
+    private void showNotificationDropdown() {
+        String uid = resolveUid();
+        if (uid == null) {
+            Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        notificationDB.getNotificationsByRecipient(uid, notifications -> {
+            // Inflate the popup layout
+            View popupView = LayoutInflater.from(this).inflate(R.layout.popup_notifications, null);
+            RecyclerView rvNotifications = popupView.findViewById(R.id.rv_popup_notifications);
+            TextView tvEmpty = popupView.findViewById(R.id.tv_popup_empty);
+
+            // Determine popup dimensions
+            int popupWidth = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+            int popupHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+            PopupWindow popupWindow = new PopupWindow(popupView, popupWidth, popupHeight, true);
+            popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.WHITE));
+            popupWindow.setElevation(16f);
+            popupWindow.setOutsideTouchable(true);
+
+            if (notifications == null || notifications.isEmpty()) {
+                if (rvNotifications != null) rvNotifications.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
+            } else {
+                if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
+                if (rvNotifications != null) {
+                    rvNotifications.setVisibility(View.VISIBLE);
+                    rvNotifications.setLayoutManager(new LinearLayoutManager(this));
+                    NotificationAdapter adapter = new NotificationAdapter(notifications, notification -> {
+                        popupWindow.dismiss();
+                        if (notification.getEventId() != null) {
+                            if (notification.getType() == com.example.cmput301_app.model.Notification.NotificationType.CO_ORGANIZER_INVITATION) {
+                                Intent intent = new Intent(this, CoOrganizerInvitationActivity.class);
+                                intent.putExtra("eventId", notification.getEventId());
+                                intent.putExtra("notificationId", notification.getNotificationId());
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(this, EventDetailsActivity.class);
+                                intent.putExtra("eventId", notification.getEventId());
+                                startActivity(intent);
+                            }
+                        }
+                    });
+                    rvNotifications.setAdapter(adapter);
+                }
+            }
+
+            // Show below the bell icon
+            popupWindow.showAsDropDown(flNotificationBell, 0, 8, Gravity.END);
+        }, e -> Toast.makeText(this, "Error loading notifications", Toast.LENGTH_SHORT).show());
+    }
+
+    private void openFilterScreen() {
+        Intent intent = new Intent(this, FilterEventsActivity.class);
+        if (filterDays != null) intent.putExtra(FilterEventsActivity.EXTRA_SELECTED_DAYS, filterDays);
+        intent.putExtra(FilterEventsActivity.EXTRA_MORNING, filterMorning);
+        intent.putExtra(FilterEventsActivity.EXTRA_AFTERNOON, filterAfternoon);
+        intent.putExtra(FilterEventsActivity.EXTRA_EVENING, filterEvening);
+        intent.putExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, filterWaitlist);
+        intent.putExtra(FilterEventsActivity.EXTRA_HIDE_FULL, filterHideFull);
+        filterLauncher.launch(intent);
+    }
+
+    /**
+     * Checks on each resume whether the current user's Firestore document still exists.
+     * If an admin has deleted this profile, the document will be gone and we sign the user out.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        mAuth.signOut();
+                        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                                .edit().remove("last_uid").apply();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                });
+    }
+
+    private void applyLocalFilters() {
+        boolean anyDay = filterDays != null && filterDays.length > 0;
+        boolean anyTime = filterMorning || filterAfternoon || filterEvening;
+
+        eventList.clear();
+        for (Event event : masterEventList) {
+            // Private events are not shown in public browse; accessible via invitation only
+            if (event.isPrivate()) continue;
+            // Keyword search filter
+            if (!event.matchesKeyword(currentSearchQuery)) continue;
+
+            if (anyDay) {
+                int eventDay = event.getDayOfWeek();
+                if (eventDay == -1) continue;
+                boolean match = false;
+                for (int d : filterDays) { if (d == eventDay) { match = true; break; } }
+                if (!match) continue;
+            }
+            if (anyTime) {
+                int hour = event.getHourOfDay();
+                if (hour == -1) continue;
+                boolean timeMatch = false;
+                if (filterMorning && hour < 12) timeMatch = true;
+                if (filterAfternoon && hour >= 12 && hour < 16) timeMatch = true;
+                if (filterEvening && hour >= 16) timeMatch = true;
+                if (!timeMatch) continue;
+            }
+            if (filterWaitlist && !event.hasWaitlistSpace()) continue;
+            if (filterHideFull && event.isFull()) continue;
+            eventList.add(event);
+        }
+        browseAdapter.notifyDataSetChanged();
+
+        // Show/hide empty state
+        if (tvBrowseEmptyState != null) {
+            boolean isEmpty = eventList.isEmpty() && !masterEventList.isEmpty();
+            tvBrowseEmptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            rvEvents.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    /** Updates the filter button text and color to indicate whether filters are active. */
+    private void updateFilterButtonAppearance() {
+        if (btnFilterSort == null) return;
+
+        int activeCount = 0;
+        if (filterDays != null && filterDays.length > 0) activeCount++;
+        if (filterMorning || filterAfternoon || filterEvening) activeCount++;
+        if (filterWaitlist) activeCount++;
+        if (filterHideFull) activeCount++;
+
+        if (activeCount > 0) {
+            btnFilterSort.setText("Filters (" + activeCount + ")");
+            btnFilterSort.setBackgroundTintList(ColorStateList.valueOf(
+                    getResources().getColor(R.color.primary_blue, getTheme())));
+            btnFilterSort.setTextColor(getResources().getColor(R.color.white, getTheme()));
+        } else {
+            btnFilterSort.setText("Filter");
+            btnFilterSort.setBackgroundTintList(null);
+            btnFilterSort.setTextColor(getResources().getColor(R.color.primary_blue, getTheme()));
+        }
+    }
+
+    private void showTab(boolean showMyEvents) {
+        if (showMyEvents) {
+            clBrowseContent.setVisibility(View.GONE);
+            clMyEventsContent.setVisibility(View.VISIBLE);
+            tvTabBrowse.setAlpha(0.5f);
+            tvTabMyEvents.setAlpha(1.0f);
+            if (!myEventsLoaded) { myEventsLoaded = true; loadMyEvents(); }
+        } else {
+            clBrowseContent.setVisibility(View.VISIBLE);
+            clMyEventsContent.setVisibility(View.GONE);
+            tvTabBrowse.setAlpha(1.0f);
+            tvTabMyEvents.setAlpha(0.5f);
+        }
+    }
+
+    private String resolveUid() {
+        if (mAuth.getCurrentUser() != null) return mAuth.getCurrentUser().getUid();
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+    }
+
+    private void loadBrowseEvents() {
+        eventDB.getAllEvents(events -> {
+            masterEventList.clear();
+            masterEventList.addAll(events);
+            applyLocalFilters();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         }, e -> Toast.makeText(this, "Error loading events: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
@@ -178,11 +495,41 @@ public class DashboardActivity extends AppCompatActivity {
             }
 
             List<Entrant.RegistrationRecord> history = entrant.getRegistrationHistory();
+<<<<<<< HEAD
             List<MyEventsAdapter.MyEventItem> items = new ArrayList<>();
             int[] completed = {0};
             int total = history.size();
 
             for (Entrant.RegistrationRecord record : history) {
+=======
+
+            // Deduplicate: keep only the latest record per eventId to guard against
+            // stale duplicate entries left by the arrayRemove timestamp-mismatch bug.
+            java.util.Map<String, Entrant.RegistrationRecord> latestByEvent = new java.util.LinkedHashMap<>();
+            for (Entrant.RegistrationRecord record : history) {
+                Entrant.RegistrationRecord existing = latestByEvent.get(record.getEventId());
+                if (existing == null
+                        || (record.getTimestamp() != null && existing.getTimestamp() != null
+                            && record.getTimestamp().compareTo(existing.getTimestamp()) > 0)) {
+                    latestByEvent.put(record.getEventId(), record);
+                }
+            }
+            List<Entrant.RegistrationRecord> dedupedHistory = new ArrayList<>(latestByEvent.values());
+
+            List<MyEventsAdapter.MyEventItem> items = new ArrayList<>();
+            int[] completed = {0};
+            int total = dedupedHistory.size();
+
+            if (total == 0) {
+                if (tvEmptyState != null) {
+                    tvEmptyState.setVisibility(View.VISIBLE);
+                    rvMyEvents.setVisibility(View.GONE);
+                }
+                return;
+            }
+
+            for (Entrant.RegistrationRecord record : dedupedHistory) {
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 eventDB.getEvent(record.getEventId(), event -> {
                     if (event != null) {
                         items.add(new MyEventsAdapter.MyEventItem(event, record.getOutcome()));

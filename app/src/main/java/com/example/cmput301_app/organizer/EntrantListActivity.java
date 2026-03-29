@@ -20,12 +20,20 @@
  */
 package com.example.cmput301_app.organizer;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+<<<<<<< HEAD
+=======
+import android.provider.MediaStore;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.OutputStream;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,12 +44,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cmput301_app.R;
+<<<<<<< HEAD
+=======
+import com.example.cmput301_app.database.EventDB;
+import com.example.cmput301_app.database.NotificationDB;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 import com.example.cmput301_app.model.Entrant;
+import com.example.cmput301_app.model.Notification;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import android.text.Editable;
@@ -54,7 +69,14 @@ public class EntrantListActivity extends AppCompatActivity {
     private static final String TAG = "EntrantListActivity";
 
     private String eventId;
+<<<<<<< HEAD
     private FirebaseFirestore db;
+=======
+    private String eventName;
+    private FirebaseFirestore db;
+    private EventDB eventDB;
+    private NotificationDB notificationDB;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     private RecyclerView rvEntrants;
     private EntrantAdapter adapter;
@@ -67,10 +89,23 @@ public class EntrantListActivity extends AppCompatActivity {
     private TextView tvEventSubtitle;
     private EditText etSearch;
     private android.widget.Button btnRunLottery;
+<<<<<<< HEAD
 
     /** Unified master list of all entrants. */
     private final List<Entrant> masterList = new ArrayList<>();
     
+=======
+    private android.widget.Button btnViewMap;
+    private android.widget.Button btnExportCsv;
+    private com.google.android.material.tabs.TabLayout tabLayout;
+
+    /** 0 = All Entrants, 1 = Cancelled, 2 = Enrolled */
+    private int selectedTab = 0;
+
+    /** Unified master list of all entrants. */
+    private final List<Entrant> masterList = new ArrayList<>();
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     /** Indicates if there's at least one entrant with WAITING status */
     private boolean hasWaitingEntrants = false;
 
@@ -82,6 +117,11 @@ public class EntrantListActivity extends AppCompatActivity {
 
         eventId = getIntent().getStringExtra("eventId");
         db = FirebaseFirestore.getInstance();
+<<<<<<< HEAD
+=======
+        eventDB = new EventDB();
+        notificationDB = new NotificationDB();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         initViews();
         setupRecyclerView();
@@ -102,6 +142,10 @@ public class EntrantListActivity extends AppCompatActivity {
         tvRecentLabel     = findViewById(R.id.tv_recent_label);
         tvEventNameHeader = findViewById(R.id.tv_event_name_header);
         etSearch          = findViewById(R.id.et_search_entrants);
+<<<<<<< HEAD
+=======
+        tabLayout         = findViewById(R.id.tab_layout_entrants);
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         findViewById(R.id.btn_entrants_back).setOnClickListener(v -> finish());
 
@@ -111,6 +155,16 @@ public class EntrantListActivity extends AppCompatActivity {
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
+
+        btnViewMap = findViewById(R.id.btn_view_map);
+        btnViewMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, WaitingListMapActivity.class);
+            intent.putExtra("eventId", eventId);
+            startActivity(intent);
+        });
+
+        btnExportCsv = findViewById(R.id.btn_export_csv);
+        btnExportCsv.setOnClickListener(v -> exportCsv());
 
         View mainView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
@@ -124,6 +178,7 @@ public class EntrantListActivity extends AppCompatActivity {
         rvEntrants = findViewById(R.id.rv_entrants);
         rvEntrants.setLayoutManager(new LinearLayoutManager(this));
         displayList = new ArrayList<>();
+<<<<<<< HEAD
         adapter = new EntrantAdapter(displayList);
         rvEntrants.setAdapter(adapter);
     }
@@ -137,12 +192,88 @@ public class EntrantListActivity extends AppCompatActivity {
                         String location = doc.getString("location");
                         tvEventNameHeader.setText(name != null ? name : "Event");
                     }
+=======
+        adapter = new EntrantAdapter(displayList, entrant -> showInviteDialog(entrant), entrant -> showCancelConfirmDialog(entrant));
+        rvEntrants.setAdapter(adapter);
+    }
+
+    private void showInviteDialog(Entrant entrant) {
+        String name = entrant.getName() != null ? entrant.getName() : "this entrant";
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Invite as Co-Organizer")
+                .setMessage("Invite " + name + " to be a co-organizer for this event?")
+                .setPositiveButton("Invite", (dialog, which) -> sendCoOrganizerInvite(entrant))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void sendCoOrganizerInvite(Entrant entrant) {
+        String organizerDeviceId = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .getString("last_uid", null);
+        if (organizerDeviceId == null) {
+            Toast.makeText(this, "Could not identify organizer", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("users").document(organizerDeviceId).get()
+                .addOnSuccessListener(organizerDoc -> {
+                    String organizerName = organizerDoc.getString("name");
+                    if (organizerName == null) organizerName = "An organizer";
+
+                    final String finalOrganizerName = organizerName;
+                    String displayEventName = eventName != null ? eventName : "an event";
+                    String message = "You've been invited by " + finalOrganizerName
+                            + " to co-organize \"" + displayEventName + "\"";
+
+                    Notification notif = new Notification(
+                            null,
+                            eventId,
+                            organizerDeviceId,
+                            message,
+                            Notification.NotificationType.CO_ORGANIZER_INVITATION,
+                            com.google.firebase.Timestamp.now()
+                    );
+                    notif.setInviterName(finalOrganizerName);
+                    notif.addRecipient(entrant.getDeviceId());
+
+                    eventDB.addPendingCoOrganizerInvite(eventId, entrant.getDeviceId(),
+                            aVoid -> notificationDB.createNotification(notif,
+                                    savedNotif -> runOnUiThread(() -> Toast.makeText(this,
+                                            "Invitation sent to " + entrant.getName(),
+                                            Toast.LENGTH_SHORT).show()),
+                                    e -> runOnUiThread(() -> Toast.makeText(this,
+                                            "Failed to send notification", Toast.LENGTH_SHORT).show())),
+                            e -> runOnUiThread(() -> Toast.makeText(this,
+                                    "Failed to update event", Toast.LENGTH_SHORT).show()));
+                })
+                .addOnFailureListener(e -> Toast.makeText(this,
+                        "Could not load organizer info", Toast.LENGTH_SHORT).show());
+    }
+
+    /** Loads event name and geolocation flag into the toolbar header. */
+    private void loadEventHeader() {
+        db.collection("events").document(eventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) return;
+                    String name = doc.getString("name");
+                    eventName = name;
+                    if (tvEventNameHeader != null) {
+                        tvEventNameHeader.setText(name != null ? name : "Event");
+                    }
+                    Boolean geolocationEnabled = doc.getBoolean("geolocationEnabled");
+                    if (Boolean.TRUE.equals(geolocationEnabled) && btnViewMap != null) {
+                        btnViewMap.setVisibility(View.VISIBLE);
+                    }
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to load event header", e));
     }
 
     private void setupTabs() {
+<<<<<<< HEAD
         // Tab layout removed. We now setup the Search Bar TextWatcher instead.
+=======
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         if (etSearch != null) {
             etSearch.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -152,6 +283,24 @@ public class EntrantListActivity extends AppCompatActivity {
                 @Override public void afterTextChanged(Editable s) {}
             });
         }
+<<<<<<< HEAD
+=======
+
+        if (tabLayout != null) {
+            tabLayout.addTab(tabLayout.newTab().setText("All Entrants"));
+            tabLayout.addTab(tabLayout.newTab().setText("Cancelled"));
+            tabLayout.addTab(tabLayout.newTab().setText("Enrolled"));
+            tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                    selectedTab = tab.getPosition();
+                    updateDisplay();
+                }
+                @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+                @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            });
+        }
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     }
 
     /**
@@ -186,10 +335,18 @@ public class EntrantListActivity extends AppCompatActivity {
                                     if (userDoc.exists()) {
                                         String name   = userDoc.getString("name");
                                         String email  = userDoc.getString("email");
+<<<<<<< HEAD
+=======
+                                        String phone  = userDoc.getString("phoneNumber");
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                                         String id     = userDoc.getId();
 
                                         String outcome = getOutcomeForEvent(userDoc, eventId);
                                         Entrant entrant = new Entrant(id, name != null ? name : "Unknown", email != null ? email : "", null);
+<<<<<<< HEAD
+=======
+                                        entrant.setPhoneNumber(phone != null ? phone : "");
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
                                         // Map the outcome to a specific real UI status string
                                         switch (outcome) {
@@ -281,21 +438,75 @@ public class EntrantListActivity extends AppCompatActivity {
         masterList.clear();
     }
 
+<<<<<<< HEAD
     /** Updates the RecyclerView content based on master list and search query. */
     private void updateDisplay() {
         String query = etSearch != null ? etSearch.getText().toString().toLowerCase().trim() : "";
         
         List<Entrant> filteredList = new ArrayList<>();
         for (Entrant e : masterList) {
+=======
+    /** Updates the RecyclerView content based on the active tab and search query. */
+    private void updateDisplay() {
+        String query = etSearch != null ? etSearch.getText().toString().toLowerCase().trim() : "";
+
+        // Apply tab filter first
+        List<Entrant> tabFiltered = new ArrayList<>();
+        int enrolledCount = 0;
+        for (Entrant e : masterList) {
+            if ("ACCEPTED".equals(e.getStatus())) enrolledCount++;
+            if (selectedTab == 1) {
+                String s = e.getStatus();
+                if ("DECLINED".equals(s) || "CANCELLED".equals(s)) {
+                    tabFiltered.add(e);
+                }
+            } else if (selectedTab == 2) {
+                if ("ACCEPTED".equals(e.getStatus())) {
+                    tabFiltered.add(e);
+                }
+            } else {
+                tabFiltered.add(e);
+            }
+        }
+
+        // Show Export CSV button only on the Enrolled tab; enable only when there are enrolled entrants
+        if (btnExportCsv != null) {
+            if (selectedTab == 2) {
+                btnExportCsv.setVisibility(View.VISIBLE);
+                btnExportCsv.setEnabled(enrolledCount > 0);
+                btnExportCsv.setAlpha(enrolledCount > 0 ? 1.0f : 0.4f);
+            } else {
+                btnExportCsv.setVisibility(View.GONE);
+            }
+        }
+
+        // Then apply search query
+        List<Entrant> filteredList = new ArrayList<>();
+        for (Entrant e : tabFiltered) {
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
             if (query.isEmpty() || (e.getName() != null && e.getName().toLowerCase().contains(query))) {
                 filteredList.add(e);
             }
         }
 
+<<<<<<< HEAD
         // Count badge reflecting Total Entrants (not filtered)
         int totalCount = masterList.size();
         if (tvTotalCount != null) tvTotalCount.setText(String.valueOf(totalCount));
 
+=======
+        // Count badge always reflects total (all tabs, no search filter)
+        int totalCount = masterList.size();
+        if (tvTotalCount != null) tvTotalCount.setText(String.valueOf(totalCount));
+
+        // Update section label to match active tab
+        if (tvRecentLabel != null) {
+            if (selectedTab == 2) tvRecentLabel.setText("ENROLLED ENTRANTS");
+            else if (selectedTab == 1) tvRecentLabel.setText("CANCELLED / DECLINED");
+            else tvRecentLabel.setText("ENTRANT LIST");
+        }
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         // Swap adapter data
         displayList.clear();
         displayList.addAll(filteredList);
@@ -307,10 +518,23 @@ public class EntrantListActivity extends AppCompatActivity {
             btnRunLottery.setAlpha(hasWaitingEntrants ? 1.0f : 0.4f);
         }
 
+<<<<<<< HEAD
         // Show/hide empty state based on search results vs total list
         if (totalCount == 0) {
             rvEntrants.setVisibility(View.GONE);
             showEmptyState("No entrants have joined the waiting list.");
+=======
+        // Show/hide empty state
+        if (tabFiltered.isEmpty()) {
+            rvEntrants.setVisibility(View.GONE);
+            if (selectedTab == 2) {
+                showEmptyState("No entrants have enrolled yet. Export is unavailable.");
+            } else if (selectedTab == 1) {
+                showEmptyState("No entrants have been cancelled or declined.");
+            } else {
+                showEmptyState("No entrants have joined the waiting list.");
+            }
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         } else if (filteredList.isEmpty()) {
             rvEntrants.setVisibility(View.GONE);
             showEmptyState("No entrants match that name.");
@@ -329,5 +553,127 @@ public class EntrantListActivity extends AppCompatActivity {
 
     private void hideEmptyState() {
         if (tvEmptyState != null) tvEmptyState.setVisibility(View.GONE);
+<<<<<<< HEAD
+=======
+    }
+
+    private void showCancelConfirmDialog(Entrant entrant) {
+        String name = entrant.getName() != null ? entrant.getName() : "this entrant";
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Cancel Invitation")
+                .setMessage("Cancel the invitation for " + name + "? They will be notified that their invitation has been revoked.")
+                .setPositiveButton("Cancel Invitation", (dialog, which) -> cancelEntrantInvitation(entrant))
+                .setNegativeButton("Keep", null)
+                .show();
+    }
+
+    private void cancelEntrantInvitation(Entrant entrant) {
+        String userId = entrant.getDeviceId();
+        if (userId == null || eventId == null) return;
+
+        db.collection("users").document(userId).get()
+                .addOnSuccessListener(doc -> {
+                    List<Map<String, Object>> history =
+                            (List<Map<String, Object>>) doc.get("registrationHistory");
+                    if (history == null) history = new ArrayList<>();
+
+                    for (int i = 0; i < history.size(); i++) {
+                        Map<String, Object> rec = history.get(i);
+                        if (eventId.equals(rec.get("eventId")) && "SELECTED".equals(rec.get("outcome"))) {
+                            Map<String, Object> updated = new HashMap<>(rec);
+                            updated.put("outcome", "CANCELLED");
+                            updated.put("timestamp", com.google.firebase.Timestamp.now());
+                            history.set(i, updated);
+                            break;
+                        }
+                    }
+
+                    final List<Map<String, Object>> finalHistory = history;
+                    db.collection("users").document(userId)
+                            .update("registrationHistory", finalHistory)
+                            .addOnSuccessListener(aVoid -> sendCancellationNotification(userId))
+                            .addOnFailureListener(e -> runOnUiThread(() ->
+                                    Toast.makeText(this, "Failed to cancel invitation", Toast.LENGTH_SHORT).show()));
+                })
+                .addOnFailureListener(e -> runOnUiThread(() ->
+                        Toast.makeText(this, "Failed to load entrant data", Toast.LENGTH_SHORT).show()));
+    }
+
+    private void exportCsv() {
+        List<Entrant> enrolled = new ArrayList<>();
+        for (Entrant e : masterList) {
+            if ("ACCEPTED".equals(e.getStatus())) enrolled.add(e);
+        }
+
+        if (enrolled.isEmpty()) {
+            Toast.makeText(this, "No enrolled entrants to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("Name,Email,Phone Number\n");
+        for (Entrant e : enrolled) {
+            csv.append(escapeCsvField(e.getName() != null ? e.getName() : "")).append(",")
+               .append(escapeCsvField(e.getEmail() != null ? e.getEmail() : "")).append(",")
+               .append(escapeCsvField(e.getPhoneNumber() != null ? e.getPhoneNumber() : "")).append("\n");
+        }
+
+        String fileName = "enrolled_" + eventId + "_" + System.currentTimeMillis() + ".csv";
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+        values.put(MediaStore.Downloads.MIME_TYPE, "text/csv");
+        values.put(MediaStore.Downloads.IS_PENDING, 1);
+
+        Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        Uri itemUri = getContentResolver().insert(collection, values);
+
+        if (itemUri == null) {
+            Toast.makeText(this, "Failed to create export file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try (OutputStream out = getContentResolver().openOutputStream(itemUri)) {
+            out.write(csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        values.clear();
+        values.put(MediaStore.Downloads.IS_PENDING, 0);
+        getContentResolver().update(itemUri, values, null, null);
+        Toast.makeText(this, "Exported " + enrolled.size() + " entrant(s) to Downloads/" + fileName, Toast.LENGTH_LONG).show();
+    }
+
+    private String escapeCsvField(String field) {
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
+    }
+
+    private void sendCancellationNotification(String userId) {
+        String organizerDeviceId = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .getString("last_uid", null);
+        String displayEventName = eventName != null ? eventName : "an event";
+        String message = "Your invitation to \"" + displayEventName
+                + "\" has been cancelled by the organizer.";
+
+        Notification notif = new Notification(
+                null,
+                eventId,
+                organizerDeviceId,
+                message,
+                Notification.NotificationType.INVITATION_CANCELLED,
+                com.google.firebase.Timestamp.now()
+        );
+        notif.addRecipient(userId);
+
+        notificationDB.createNotification(notif,
+                savedNotif -> runOnUiThread(() ->
+                        Toast.makeText(this, "Invitation cancelled and entrant notified", Toast.LENGTH_SHORT).show()),
+                e -> runOnUiThread(() ->
+                        Toast.makeText(this, "Invitation cancelled (notification failed)", Toast.LENGTH_SHORT).show()));
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     }
 }

@@ -73,7 +73,7 @@ public class OrganizerDB {
         data.put("email", organizer.getEmail());
         data.put("phoneNumber", organizer.getPhoneNumber());
         data.put("geolocation", organizer.getGeolocation());
-        data.put("profileImageUrl", organizer.getProfileImageUrl());
+        data.put("profileImageUrl", organizer.getProfileImageUrl() != null ? organizer.getProfileImageUrl() : "");
         data.put("role", "organizer");
         data.put("organizedEventIds", organizer.getOrganizedEventIds());
 

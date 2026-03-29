@@ -12,6 +12,11 @@
         android:maxSdkVersion="28"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<<<<<<< HEAD
+=======
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     <application
         android:allowBackup="true"
@@ -45,6 +50,14 @@
             android:name=".DeleteProfileActivity"
             android:exported="false" />
 
+        <!-- Admin Activities -->
+        <activity
+            android:name=".admin.AdminDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminProfilesActivity"
+            android:exported="false" />
+
         <!-- Entrant Activities -->
         <activity
             android:name=".entrant.DashboardActivity"
@@ -64,9 +77,24 @@
             android:exported="false" />
 
         <activity
+<<<<<<< HEAD
             android:name=".entrant.QRScanActivity"
             android:exported="false" />
 
+=======
+            android:name=".entrant.FilterEventsActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".entrant.QRScanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".entrant.CoOrganizerInvitationActivity"
+            android:exported="false" />
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         <!-- Organizer Activities -->
         <activity
             android:name=".organizer.OrganizerDashboardActivity"
@@ -89,6 +117,35 @@
         <activity
             android:name=".organizer.LotteryDrawActivity"
             android:exported="false" />
+        <activity
+            android:name=".organizer.WaitingListMapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.NotifyWaitingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.NotifySelectedEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.NotifyCancelledEntrantsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.InviteEntrantToWaitingListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".organizer.AssignCoOrganizerActivity"
+            android:exported="false" />
+
+        <!-- FileProvider for sharing QR codes -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
 
         <!-- FileProvider for sharing QR codes -->
         <provider

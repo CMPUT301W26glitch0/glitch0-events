@@ -65,9 +65,15 @@ public class DeleteProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_delete_profile);
 
         role = getIntent().getStringExtra("role");
-        if (role == null) role = "entrant";
+        if (role == null)
+            role = "entrant";
 
+<<<<<<< HEAD
         // Use Android ID as the user identifier — same as MainActivity / ProfileActivity
+=======
+        // Use Android ID as the user identifier — same as MainActivity /
+        // ProfileActivity
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         if (deviceId == null) {
             finish();
@@ -125,8 +131,7 @@ public class DeleteProfileActivity extends AppCompatActivity {
         tv.setTextSize(16);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(24, 0, 0, 0);
         tv.setLayoutParams(params);
 
@@ -138,7 +143,8 @@ public class DeleteProfileActivity extends AppCompatActivity {
     private void setupValidation() {
         etConfirmDelete.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -148,7 +154,8 @@ public class DeleteProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
@@ -199,7 +206,8 @@ public class DeleteProfileActivity extends AppCompatActivity {
                         finalizeDeletion();
                     } else {
                         Log.e("DeleteProfile", "Firestore deletion failed", task.getException());
-                        Toast.makeText(this, "Failed to delete from database. Please check your connection.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Failed to delete from database. Please check your connection.",
+                                Toast.LENGTH_LONG).show();
                         btnConfirmDelete.setEnabled(true);
                         btnConfirmDelete.setText("Delete Profile");
                     }

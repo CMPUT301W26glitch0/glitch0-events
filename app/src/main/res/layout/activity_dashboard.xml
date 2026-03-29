@@ -5,7 +5,7 @@
     android:id="@+id/dashboard_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/page_bg"
     tools:context=".entrant.DashboardActivity">
 
     <!-- Header -->
@@ -22,17 +22,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_notification"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+    <FrameLayout
+        android:id="@+id/fl_notification_bell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:src="@android:drawable/ic_popup_reminder"
         app:layout_constraintBottom_toBottomOf="@id/tv_header_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_header_title"
-        app:tint="@color/gray_text" />
+        app:layout_constraintTop_toTopOf="@id/tv_header_title">
 
+<<<<<<< HEAD
+=======
+        <ImageView
+            android:id="@+id/iv_notification"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_popup_reminder"
+            app:tint="@color/gray_text" />
+
+        <!-- Unread notification badge -->
+        <View
+            android:id="@+id/badge_notification"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="top|end"
+            android:background="@drawable/notification_badge_bg"
+            android:visibility="gone" />
+    </FrameLayout>
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     <!-- Tabs (Browse vs My Events) -->
     <LinearLayout
         android:id="@+id/ll_tabs"
@@ -81,15 +99,47 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintTop_toBottomOf="@id/header_divider">
 
+<<<<<<< HEAD
+=======
+        <!-- Search bar -->
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_search_bar"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="12dp"
+            android:drawableTint="@color/gray_text"
+            android:hint="Search events, sports, or locations..."
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingHorizontal="16dp"
+            android:textColor="@color/dark_blue"
+            android:textColorHint="@color/gray_text"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         <HorizontalScrollView
             android:id="@+id/hsv_filters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:layout_marginTop="12dp"
             android:clipToPadding="false"
             android:paddingHorizontal="24dp"
             android:scrollbars="none"
             app:layout_constraintTop_toTopOf="parent">
+=======
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="24dp"
+            android:scrollbars="none"
+            app:layout_constraintTop_toBottomOf="@id/et_search">
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -101,7 +151,11 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
+<<<<<<< HEAD
                     android:text="Sort: Closing Soon"
+=======
+                    android:text="Filter"
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                     android:textAllCaps="false"
                     android:textColor="@color/primary_blue"
                     android:textSize="12sp"
@@ -111,6 +165,7 @@
                     app:iconTint="@color/primary_blue"
                     app:strokeColor="@color/input_border" />
 
+<<<<<<< HEAD
                 <Button
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
@@ -122,6 +177,8 @@
                     android:textColor="@color/gray_text"
                     android:textSize="12sp"
                     app:cornerRadius="20dp" />
+=======
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -138,7 +195,11 @@
             android:id="@+id/tv_browse_empty_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:text="No events available right now.\nCheck back soon!"
+=======
+            android:text="No events match your search."
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
             android:textAlignment="center"
             android:textColor="@color/gray_text"
             android:textSize="14sp"
@@ -146,7 +207,11 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+<<<<<<< HEAD
             app:layout_constraintTop_toTopOf="parent" />
+=======
+            app:layout_constraintTop_toBottomOf="@id/hsv_filters" />
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -185,7 +250,7 @@
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/white"
+        android:background="@color/page_bg"
         android:elevation="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">

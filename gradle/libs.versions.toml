@@ -14,6 +14,7 @@ firebaseBom = "33.9.0"
 glide = "4.16.0"
 zxing = "3.5.3"
 playServicesCodeScanner = "16.1.0"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

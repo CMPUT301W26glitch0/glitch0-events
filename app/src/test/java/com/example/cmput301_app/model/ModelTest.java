@@ -79,6 +79,7 @@ public class ModelTest {
     @Test
     public void testLotteryPoolDrawReplacement() {
         LotteryPool pool = new LotteryPool(1);
+<<<<<<< HEAD
 
         // Non-empty waiting list should yield a winner
         java.util.List<String> candidates = new java.util.ArrayList<>();
@@ -91,8 +92,188 @@ public class ModelTest {
                 pool.isSelected(chosen));
 
         // Empty waiting list should yield null
+=======
+        java.util.List<String> candidates = new java.util.ArrayList<>();
+        candidates.add("entrant_B");
+        candidates.add("entrant_C");
+        String chosen = pool.drawReplacement(candidates);
+        assertNotNull("drawReplacement should pick someone from a non-empty list", chosen);
+        assertTrue("Chosen entrant should be added to selectedEntrantIds", pool.isSelected(chosen));
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         LotteryPool emptyPool = new LotteryPool(1);
         String result = emptyPool.drawReplacement(new java.util.ArrayList<>());
         assertNull("drawReplacement should return null when waiting list is empty", result);
     }
+<<<<<<< HEAD
 }
+=======
+
+    // ─── Filter Helper Tests (US 01.01.04) ─────────────────────────────
+
+    @Test
+    public void testEventGetDayOfWeek() {
+        Event event = new Event();
+        assertEquals("Day should be -1 when date is null", -1, event.getDayOfWeek());
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(2026, java.util.Calendar.MARCH, 16, 10, 0, 0);
+        event.setDate(new Timestamp(cal.getTime()));
+        assertEquals("March 16 2026 should be Monday",
+                java.util.Calendar.MONDAY, event.getDayOfWeek());
+    }
+
+    @Test
+    public void testEventGetHourOfDay() {
+        Event event = new Event();
+        assertEquals("Hour should be -1 when date is null", -1, event.getHourOfDay());
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(2026, java.util.Calendar.MARCH, 16, 14, 30, 0);
+        event.setDate(new Timestamp(cal.getTime()));
+        assertEquals("Hour should be 14 for 2:30pm", 14, event.getHourOfDay());
+    }
+
+    @Test
+    public void testEventHasWaitlistSpace() {
+        Event event = new Event();
+        assertTrue("Unlimited waitlist should have space", event.hasWaitlistSpace());
+
+        event.setWaitingListLimit(5);
+        event.setWaitingListCount(3);
+        assertTrue("Waitlist with 3/5 should have space", event.hasWaitlistSpace());
+
+        event.setWaitingListCount(5);
+        assertFalse("Waitlist with 5/5 should be full", event.hasWaitlistSpace());
+    }
+
+    @Test
+    public void testEventIsFull() {
+        Event event = new Event();
+        assertFalse("Event with 0 capacity should not be full", event.isFull());
+
+        event.setCapacity(3);
+        java.util.List<String> confirmed = new java.util.ArrayList<>();
+        confirmed.add("user1");
+        confirmed.add("user2");
+        event.setConfirmedAttendeesIds(confirmed);
+        assertFalse("Event with 2/3 confirmed should not be full", event.isFull());
+
+        confirmed.add("user3");
+        event.setConfirmedAttendeesIds(confirmed);
+        assertTrue("Event with 3/3 confirmed should be full", event.isFull());
+    }
+
+    // ─── Search Helper Tests (US: Entrant Search by Keyword) ────────────
+
+    @Test
+    public void testMatchesKeywordByName() {
+        Event event = new Event();
+        event.setName("Senior Yoga - Session A");
+        assertTrue("Should match keyword in name", event.matchesKeyword("yoga"));
+        assertTrue("Should match case-insensitively", event.matchesKeyword("YOGA"));
+    }
+
+    @Test
+    public void testMatchesKeywordByDescription() {
+        Event event = new Event();
+        event.setDescription("A gentle flow yoga class suitable for all levels");
+        assertTrue("Should match keyword in description", event.matchesKeyword("gentle"));
+    }
+
+    @Test
+    public void testMatchesKeywordByCategory() {
+        Event event = new Event();
+        event.setCategory("Fitness");
+        assertTrue("Should match keyword in category", event.matchesKeyword("fitness"));
+    }
+
+    @Test
+    public void testMatchesKeywordByLocation() {
+        Event event = new Event();
+        event.setLocation("Edmonton Community Centre");
+        assertTrue("Should match keyword in location", event.matchesKeyword("edmonton"));
+    }
+
+    @Test
+    public void testMatchesKeywordNoMatch() {
+        Event event = new Event();
+        event.setName("Morning Run");
+        event.setDescription("A brisk morning jog");
+        event.setCategory("Sports");
+        assertFalse("Should not match unrelated keyword", event.matchesKeyword("swimming"));
+    }
+
+    @Test
+    public void testMatchesKeywordNullFields() {
+        Event event = new Event();
+        // All fields are null by default
+        assertFalse("Should return false when all fields are null", event.matchesKeyword("test"));
+    }
+
+    @Test
+    public void testMatchesKeywordEmptyString() {
+        Event event = new Event();
+        event.setName("Cycling");
+        assertTrue("Empty keyword should match everything", event.matchesKeyword(""));
+        assertTrue("Null keyword should match everything", event.matchesKeyword(null));
+    }
+
+    // ─── Notification Model Tests ───────────────────────────────────────
+
+    @Test
+    public void testNotificationConstructorSetsFields() {
+        Timestamp now = Timestamp.now();
+        Notification n = new Notification(
+                "notif123", "event456", "org789",
+                "Test message",
+                Notification.NotificationType.LOTTERY_WIN,
+                now
+        );
+        assertEquals("notif123", n.getNotificationId());
+        assertEquals("event456", n.getEventId());
+        assertEquals("org789", n.getOrganizerId());
+        assertEquals("Test message", n.getMessage());
+        assertEquals(Notification.NotificationType.LOTTERY_WIN, n.getType());
+        assertEquals(now, n.getTimestamp());
+        assertNotNull(n.getRecipientIds());
+        assertTrue(n.getRecipientIds().isEmpty());
+    }
+
+    @Test
+    public void testNotificationRecipientManagement() {
+        Notification n = new Notification();
+
+        // Add recipient
+        n.addRecipient("user1");
+        assertTrue("user1 should be a recipient", n.hasRecipient("user1"));
+        assertFalse("user2 should not be a recipient", n.hasRecipient("user2"));
+
+        // Add duplicate — should not create duplicates
+        n.addRecipient("user1");
+        assertEquals("Should still have only 1 recipient", 1, n.getRecipientIds().size());
+
+        // Add another
+        n.addRecipient("user2");
+        assertTrue("user2 should now be a recipient", n.hasRecipient("user2"));
+        assertEquals(2, n.getRecipientIds().size());
+
+        // Remove
+        n.removeRecipient("user1");
+        assertFalse("user1 should no longer be a recipient", n.hasRecipient("user1"));
+        assertEquals(1, n.getRecipientIds().size());
+    }
+
+    @Test
+    public void testNotificationTypeValues() {
+        // Ensure LOTTERY_WIN and LOTTERY_WIN_REDRAW types exist
+        assertNotNull(Notification.NotificationType.LOTTERY_WIN);
+        assertNotNull(Notification.NotificationType.LOTTERY_WIN_REDRAW);
+        assertNotNull(Notification.NotificationType.LOTTERY_LOSS);
+        assertNotNull(Notification.NotificationType.ORGANIZER_BROADCAST);
+        assertNotNull(Notification.NotificationType.INVITATION_CANCELLED);
+        assertNotNull(Notification.NotificationType.NO_SPOT_AVAILABLE);
+    }
+}
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a

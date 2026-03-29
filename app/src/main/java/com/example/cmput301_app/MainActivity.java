@@ -17,10 +17,12 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.cmput301_app.admin.AdminDashboardActivity;
 import com.example.cmput301_app.entrant.DashboardActivity;
 import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         mDb = FirebaseFirestore.getInstance();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         // Check if user is already logged in via standard Auth or Saved Device ID
         SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
@@ -55,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 >>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
+=======
+        boolean isDarkMode = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                .getBoolean("darkModeEnabled", false);
+        AppCompatDelegate.setDefaultNightMode(
+                isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -101,16 +111,11 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+            // Don't trim passwords as spaces can be valid
+            String password = etPassword.getText().toString();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // checks if inputted email address is in proper format
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -135,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Device login: use the last-used UID stored locally in SharedPreferences.
         // This is set on every successful login (email/password or device), so it
         // always refers to whoever most recently used the app on this device.
@@ -142,13 +148,22 @@ public class MainActivity extends AppCompatActivity {
             btnDeviceLogin.setOnClickListener(v -> {
                 android.content.SharedPreferences prefs =
                         getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE);
+=======
+        if (btnDeviceLogin != null) {
+            btnDeviceLogin.setOnClickListener(v -> {
+                SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 String lastUid = prefs.getString("last_uid", null);
                 if (lastUid != null) {
                     checkUserAndNavigate(lastUid);
                 } else {
+<<<<<<< HEAD
                     Toast.makeText(this,
                             "No previous session found. Please log in with your email and password first.",
                             Toast.LENGTH_LONG).show();
+=======
+                    Toast.makeText(this, "No previous session found. Log in with email first.", Toast.LENGTH_LONG).show();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 }
             });
         }
@@ -179,7 +194,12 @@ public class MainActivity extends AppCompatActivity {
 <<<<<<< HEAD
     private void checkUserAndNavigate(String uid) {
         mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+            // Save UID for device login convenience
+            getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                    .edit().putString("last_uid", uid).apply();
+
             if (doc.exists()) {
+<<<<<<< HEAD
                 // Persist this UID locally so Device ID login works after logout
                 getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE)
                         .edit().putString("last_uid", uid).apply();
@@ -194,21 +214,39 @@ public class MainActivity extends AppCompatActivity {
         mDb.collection("users").document(userId).update("deviceId", deviceId);
     }
 >>>>>>> e647fe8311104827fc8216cccd333b98ab890bef
+=======
+                // Restore dark mode preference from Firestore on login
+                Boolean darkMode = doc.getBoolean("darkModeEnabled");
+                boolean isDark = darkMode != null && darkMode;
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("darkModeEnabled", isDark).apply();
+                AppCompatDelegate.setDefaultNightMode(
+                        isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
                 String role = doc.getString("role");
                 Intent intent;
                 if ("organizer".equalsIgnoreCase(role)) {
                     intent = new Intent(this, OrganizerDashboardActivity.class);
+                } else if ("admin".equalsIgnoreCase(role)) {
+                    intent = new Intent(this, AdminDashboardActivity.class);
                 } else {
                     intent = new Intent(this, DashboardActivity.class);
                 }
                 startActivity(intent);
                 finish();
             } else {
+<<<<<<< HEAD
+=======
+                // No profile found — clear stale SharedPreferences and send to registration
+                getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                        .edit().remove("last_uid").apply();
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                 mAuth.signOut();
-                Toast.makeText(this, "No profile found. Please register.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "No account found. Please register.", Toast.LENGTH_LONG).show();
             }
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Error loading profile. Check your connection.", Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Connection error. Please try again.", Toast.LENGTH_SHORT).show();
+        });
     }
 }

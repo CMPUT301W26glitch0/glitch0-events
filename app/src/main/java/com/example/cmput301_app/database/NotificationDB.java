@@ -76,6 +76,7 @@ public class NotificationDB {
         data.put("message", notification.getMessage());
         data.put("type", notification.getType().name());
         data.put("timestamp", notification.getTimestamp());
+        data.put("inviterName", notification.getInviterName());
 
         db.collection(COLLECTION)
                 .add(data)
@@ -186,6 +187,47 @@ public class NotificationDB {
     }
 
     /**
+     * Deletes all notification documents associated with a specific event.
+     * Used by AdminDB.removeEvent() to clean up event-linked notifications.
+     *
+     * @param eventId         the ID of the event whose notifications to delete
+     * @param successListener called when all deletions complete (or if there are none)
+     * @param failureListener called if the query fails
+     */
+    public void deleteNotificationsByEvent(String eventId,
+                                           OnSuccessListener<Void> successListener,
+                                           OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnFailureListener(failureListener)
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        successListener.onSuccess(null);
+                        return;
+                    }
+                    // Use a counter to know when all deletes finish
+                    final int[] remaining = {querySnapshot.size()};
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        doc.getReference().delete()
+                                .addOnSuccessListener(v -> {
+                                    remaining[0]--;
+                                    if (remaining[0] == 0) {
+                                        successListener.onSuccess(null);
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    remaining[0]--;
+                                    // Continue deleting; report failure only if all done
+                                    if (remaining[0] == 0) {
+                                        failureListener.onFailure(e);
+                                    }
+                                });
+                    }
+                });
+    }
+
+    /**
      * TODO: Not required for the halfway checkpoint.
      * Fetches all notification documents sent by a specific organizer and returns
      * them as a list of Notification objects via the success listener.
@@ -200,5 +242,38 @@ public class NotificationDB {
                                             OnSuccessListener<List<Notification>> successListener,
                                             OnFailureListener failureListener) {
         // Not yet implemented
+    }
+
+    /**
+     * Fetches all notification documents where the given device ID appears in
+     * the recipientIds array, ordered by timestamp descending.
+     * Used to populate the entrant's notification dropdown.
+     *
+     * @param deviceId        the device ID of the recipient
+     * @param successListener called with the list of Notification objects
+     * @param failureListener called if the operation fails
+     */
+    public void getNotificationsByRecipient(String deviceId,
+                                            OnSuccessListener<List<Notification>> successListener,
+                                            OnFailureListener failureListener) {
+        db.collection(COLLECTION)
+                .whereArrayContains("recipientIds", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Notification> notifications = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Notification notification = document.toObject(Notification.class);
+                        notifications.add(notification);
+                    }
+                    // Sort by timestamp descending (newest first)
+                    notifications.sort((a, b) -> {
+                        if (a.getTimestamp() == null && b.getTimestamp() == null) return 0;
+                        if (a.getTimestamp() == null) return 1;
+                        if (b.getTimestamp() == null) return -1;
+                        return b.getTimestamp().compareTo(a.getTimestamp());
+                    });
+                    successListener.onSuccess(notifications);
+                })
+                .addOnFailureListener(failureListener);
     }
 }

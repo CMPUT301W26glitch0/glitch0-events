@@ -31,11 +31,24 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.cmput301_app.model.Comment;
+import com.google.firebase.firestore.FieldValue;
+
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
@@ -47,6 +60,10 @@ import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
 import com.example.cmput301_app.database.NotificationDB;
 import com.example.cmput301_app.model.Event;
+<<<<<<< HEAD
+=======
+import com.example.cmput301_app.util.ImageUtils;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 import com.example.cmput301_app.model.Notification;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -63,14 +80,45 @@ import java.util.Locale;
 public class OrganizerEventDetailsActivity extends AppCompatActivity {
     private static final String TAG = "OrganizerEventDetails";
     private TextView tvName, tvCategory, tvDate, tvLocation, tvPrice, tvCapacity, tvRegDates, tvDescription;
+    private TextView tvCoOrgCount, tvCoOrgHint;
+    private android.widget.LinearLayout llCoOrganizers;
     private ImageView ivPoster, ivQrCode;
+<<<<<<< HEAD
     private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement;
+=======
+    private Button btnViewEntrants, btnManageLottery, btnEdit, btnDelete, btnDrawReplacement,
+            btnNotifyWaitingList, btnNotifySelectedEntrants, btnNotifyCancelledEntrants,
+            btnInviteEntrant;
+    private FloatingActionButton fabMainActions;
+    private View viewDimOverlay;
+    private LinearLayout llFabMenu;
+    private boolean isFabMenuOpen = false;
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     private String eventId;
     private EventDB eventDB;
     private NotificationDB notificationDB;
     private Event currentEvent;
     private Bitmap qrBitmap;
     private com.google.firebase.firestore.FirebaseFirestore db;
+<<<<<<< HEAD
+=======
+    private Uri newPosterUri;
+    private RecyclerView rvComments;
+    private OrganizerCommentAdapter commentAdapter;
+    private TextView tvNoComments;
+    private EditText etCommentInput;
+    private ImageButton btnPostComment;
+    private com.google.firebase.firestore.ListenerRegistration eventListener;
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickPosterMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    newPosterUri = uri;
+                    Glide.with(this).load(uri).centerCrop().into(ivPoster);
+                    uploadPosterAndUpdate();
+                }
+            });
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,13 +154,96 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvRegDates = findViewById(R.id.tv_org_reg_dates);
         tvDescription = findViewById(R.id.tv_org_description);
 
+        tvCoOrgCount = findViewById(R.id.tv_co_org_count);
+        tvCoOrgHint = findViewById(R.id.tv_co_org_hint);
+        llCoOrganizers = findViewById(R.id.ll_co_organizers);
+
+        findViewById(R.id.btn_assign_co_organizer).setOnClickListener(v -> {
+            Intent intent = new Intent(this, AssignCoOrganizerActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
         btnViewEntrants = findViewById(R.id.btn_view_entrants);
         btnManageLottery = findViewById(R.id.btn_manage_lottery);
         btnEdit = findViewById(R.id.btn_edit_event_details);
         btnDelete = findViewById(R.id.btn_delete_event_details);
         btnDrawReplacement = findViewById(R.id.btn_draw_replacement);
+<<<<<<< HEAD
 
         btnDrawReplacement.setOnClickListener(v -> drawReplacement());
+=======
+        btnNotifyWaitingList = findViewById(R.id.btn_notify_waiting_list);
+
+        rvComments = findViewById(R.id.rv_org_comments);
+        tvNoComments = findViewById(R.id.tv_org_no_comments);
+        etCommentInput = findViewById(R.id.et_org_comment_input);
+        btnPostComment = findViewById(R.id.btn_org_post_comment);
+        rvComments.setLayoutManager(new LinearLayoutManager(this));
+        commentAdapter = new OrganizerCommentAdapter(new java.util.ArrayList<>(), this::confirmAndDeleteComment);
+        rvComments.setAdapter(commentAdapter);
+        btnPostComment.setOnClickListener(v -> postComment());
+
+        fabMainActions = findViewById(R.id.fab_main_actions);
+        viewDimOverlay = findViewById(R.id.view_dim_overlay);
+        llFabMenu = findViewById(R.id.ll_fab_menu);
+
+        fabMainActions.setOnClickListener(v -> toggleFabMenu());
+        viewDimOverlay.setOnClickListener(v -> closeFabMenu());
+
+        btnDrawReplacement.setOnClickListener(v -> {
+            closeFabMenu();
+            drawReplacement();
+        });
+
+        btnNotifyWaitingList.setOnClickListener(v -> {
+            closeFabMenu();
+            Intent intent = new Intent(this, NotifyWaitingListActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnNotifySelectedEntrants = findViewById(R.id.btn_notify_selected_entrants);
+        btnNotifySelectedEntrants.setOnClickListener(v -> {
+            closeFabMenu();
+            Intent intent = new Intent(this, NotifySelectedEntrantsActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnNotifyCancelledEntrants = findViewById(R.id.btn_notify_cancelled_entrants);
+        btnNotifyCancelledEntrants.setOnClickListener(v -> {
+            closeFabMenu();
+            Intent intent = new Intent(this, NotifyCancelledEntrantsActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        btnInviteEntrant = findViewById(R.id.btn_invite_entrant);
+        btnInviteEntrant.setOnClickListener(v -> {
+            closeFabMenu();
+            String orgId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+            if (orgId != null) {
+                db.collection("users").document(orgId).get()
+                        .addOnSuccessListener(doc -> {
+                            String orgName = doc.getString("name");
+                            launchInviteScreen(orgName != null ? orgName : "The organizer");
+                        })
+                        .addOnFailureListener(e -> launchInviteScreen("The organizer"));
+            } else {
+                launchInviteScreen("The organizer");
+            }
+        });
+
+        findViewById(R.id.fab_change_poster).setOnClickListener(v ->
+                pickPosterMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build()));
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         findViewById(R.id.btn_org_back).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrganizerDashboardActivity.class);
@@ -122,22 +253,55 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         });
 
         btnEdit.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, CreateEventActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
 
+<<<<<<< HEAD
         btnDelete.setOnClickListener(v ->
                 eventDB.deleteEvent(eventId, aVoid -> {
                     Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
                     finish();
                 }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show()));
+=======
+        btnDelete.setOnClickListener(v -> {
+            closeFabMenu();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Delete Event")
+                    .setMessage("Are you sure you want to delete this event? This action cannot be undone.")
+                    .setPositiveButton("Delete", (dialog, which) ->
+                            eventDB.deleteEvent(eventId, aVoid -> {
+                                Toast.makeText(this, "Event deleted", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }, e -> Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show()))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         btnViewEntrants.setOnClickListener(v -> {
+            closeFabMenu();
             Intent intent = new Intent(this, EntrantListActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
+
+<<<<<<< HEAD
+        // Share / Download button — shows a picker dialog
+        findViewById(R.id.btn_share_qr_details).setOnClickListener(v -> showQROptions());
+=======
+        btnManageLottery.setOnClickListener(v -> {
+            closeFabMenu();
+            Intent intent = new Intent(this, LotteryDrawActivity.class);
+            intent.putExtra("eventId", eventId);
+            if (currentEvent != null) {
+                intent.putExtra("eventCapacity", currentEvent.getCapacity());
+            }
+            startActivity(intent);
+        });
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         // Share / Download button — shows a picker dialog
         findViewById(R.id.btn_share_qr_details).setOnClickListener(v -> showQROptions());
@@ -151,15 +315,29 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
     }
 
     private void loadEventDetails() {
-        eventDB.getEvent(eventId, event -> {
-            if (event != null) {
-                currentEvent = event;
-                updateUI();
+        eventListener = db.collection("events").document(eventId).addSnapshotListener((doc, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Failed to load event", e);
+                return;
             }
-        }, e -> {
-            Log.e(TAG, "Failed to load event", e);
-            Toast.makeText(this, "Failed to load event details", Toast.LENGTH_SHORT).show();
+            if (doc != null && doc.exists()) {
+                try {
+                    currentEvent = doc.toObject(Event.class);
+                    if (currentEvent != null) {
+                        currentEvent.setEventId(doc.getId());
+                        updateUI();
+                    }
+                } catch (Exception ex) {
+                    Log.e(TAG, "Error parsing event", ex);
+                }
+            }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (eventListener != null) eventListener.remove();
     }
 
     private void updateUI() {
@@ -171,10 +349,20 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         tvDescription.setText(currentEvent.getDescription());
 
         if (currentEvent.getPosterUrl() != null && !currentEvent.getPosterUrl().isEmpty()) {
-            Glide.with(this).load(currentEvent.getPosterUrl()).into(ivPoster);
+            ImageUtils.loadImage(this, currentEvent.getPosterUrl(), ivPoster, false);
         }
 
+<<<<<<< HEAD
         if (currentEvent.getQrCode() != null) {
+=======
+        // Hide QR code section for private events
+        int qrVisibility = currentEvent.isPrivate() ? View.GONE : View.VISIBLE;
+        findViewById(R.id.tv_qr_label).setVisibility(qrVisibility);
+        findViewById(R.id.cv_qr_code).setVisibility(qrVisibility);
+        findViewById(R.id.btn_share_qr_details).setVisibility(qrVisibility);
+
+        if (!currentEvent.isPrivate() && currentEvent.getQrCode() != null) {
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
             qrBitmap = generateQRCode(currentEvent.getQrCode());
             if (qrBitmap != null) ivQrCode.setImageBitmap(qrBitmap);
         }
@@ -191,8 +379,240 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
             String close = fullFormat.format(currentEvent.getRegistrationClose().toDate());
             tvRegDates.setText(open + " - " + close);
         }
+
+        // Show "Draw Lottery" only after registration has closed
+        if (currentEvent.getRegistrationClose() != null
+                && currentEvent.getRegistrationClose().toDate().before(new java.util.Date())) {
+            btnManageLottery.setVisibility(View.VISIBLE);
+        } else {
+            btnManageLottery.setVisibility(View.GONE);
+        }
+
+        // Show "Invite Entrant" button only for private events
+        btnInviteEntrant.setVisibility(currentEvent.isPrivate() ? View.VISIBLE : View.GONE);
+
+        loadCoOrganizers();
+        displayComments();
     }
 
+<<<<<<< HEAD
+=======
+    private void postComment() {
+        if (etCommentInput == null || currentEvent == null) return;
+        String content = etCommentInput.getText().toString().trim();
+        if (content.isEmpty()) {
+            Toast.makeText(this, "Comment cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String orgId = getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+        btnPostComment.setEnabled(false);
+
+        Runnable postWithName = () -> db.collection("users")
+                .document(orgId != null ? orgId : "")
+                .get()
+                .addOnSuccessListener(doc -> {
+                    String name = doc.getString("name");
+                    String authorName = (name != null && !name.isEmpty()) ? name : "Organizer";
+                    Comment comment = new Comment(
+                            java.util.UUID.randomUUID().toString(),
+                            content, authorName,
+                            com.google.firebase.Timestamp.now(),
+                            true);
+                    db.collection("events").document(eventId)
+                            .update("comments", FieldValue.arrayUnion(comment))
+                            .addOnSuccessListener(aVoid -> {
+                                etCommentInput.setText("");
+                                btnPostComment.setEnabled(true);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                                btnPostComment.setEnabled(true);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch profile", Toast.LENGTH_SHORT).show();
+                    btnPostComment.setEnabled(true);
+                });
+
+        if (orgId != null) {
+            postWithName.run();
+        } else {
+            // No user ID — still post with generic label
+            Comment comment = new Comment(
+                    java.util.UUID.randomUUID().toString(),
+                    content, "Organizer",
+                    com.google.firebase.Timestamp.now(),
+                    true);
+            db.collection("events").document(eventId)
+                    .update("comments", FieldValue.arrayUnion(comment))
+                    .addOnSuccessListener(aVoid -> {
+                        etCommentInput.setText("");
+                        btnPostComment.setEnabled(true);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        btnPostComment.setEnabled(true);
+                    });
+        }
+    }
+
+    private void displayComments() {
+        java.util.List<Comment> comments = currentEvent.getComments();
+        if (comments == null || comments.isEmpty()) {
+            rvComments.setVisibility(View.GONE);
+            tvNoComments.setVisibility(View.VISIBLE);
+        } else {
+            tvNoComments.setVisibility(View.GONE);
+            rvComments.setVisibility(View.VISIBLE);
+            java.util.List<Comment> sorted = new java.util.ArrayList<>(comments);
+            sorted.sort((a, b) -> {
+                if (a.getTimestamp() == null) return -1;
+                if (b.getTimestamp() == null) return 1;
+                return a.getTimestamp().compareTo(b.getTimestamp());
+            });
+            commentAdapter.setComments(sorted);
+        }
+    }
+
+    private void confirmAndDeleteComment(Comment comment) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Delete Comment")
+                .setMessage("Are you sure you want to delete this comment?")
+                .setPositiveButton("Delete", (dialog, which) ->
+                        eventDB.deleteComment(eventId, comment,
+                                aVoid -> Toast.makeText(this, "Comment deleted", Toast.LENGTH_SHORT).show(),
+                                e -> Toast.makeText(this, "Failed to delete comment", Toast.LENGTH_SHORT).show()))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void loadCoOrganizers() {
+        if (llCoOrganizers == null || currentEvent == null) return;
+
+        java.util.List<String> coOrgIds = currentEvent.getCoOrganizerIds();
+        llCoOrganizers.removeAllViews();
+
+        if (coOrgIds == null || coOrgIds.isEmpty()) {
+            if (tvCoOrgCount != null) tvCoOrgCount.setText("0");
+            if (tvCoOrgHint != null) tvCoOrgHint.setVisibility(android.view.View.VISIBLE);
+            return;
+        }
+
+        if (tvCoOrgCount != null) tvCoOrgCount.setText(String.valueOf(coOrgIds.size()));
+        if (tvCoOrgHint != null) tvCoOrgHint.setVisibility(android.view.View.GONE);
+
+        for (String userId : coOrgIds) {
+            db.collection("users").document(userId).get()
+                    .addOnSuccessListener(doc -> {
+                        String name = doc.getString("name");
+                        if (name == null) name = "Unknown";
+                        final String displayName = name;
+
+                        runOnUiThread(() -> {
+                            // Build initials avatar + name row
+                            android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+                            row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                            android.widget.LinearLayout.LayoutParams rowParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            rowParams.setMargins(0, 0, 0, 10);
+                            row.setLayoutParams(rowParams);
+
+                            // Avatar circle
+                            TextView avatar = new TextView(this);
+                            int size = (int) (40 * getResources().getDisplayMetrics().density);
+                            android.widget.LinearLayout.LayoutParams avatarParams =
+                                    new android.widget.LinearLayout.LayoutParams(size, size);
+                            avatarParams.setMarginEnd((int) (10 * getResources().getDisplayMetrics().density));
+                            avatar.setLayoutParams(avatarParams);
+                            avatar.setGravity(android.view.Gravity.CENTER);
+                            avatar.setText(displayName.substring(0, 1).toUpperCase());
+                            avatar.setTextColor(0xFFFFFFFF);
+                            avatar.setTextSize(16f);
+                            android.graphics.drawable.GradientDrawable circle =
+                                    new android.graphics.drawable.GradientDrawable();
+                            circle.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+                            circle.setColor(0xFF7F56D9);
+                            avatar.setBackground(circle);
+
+                            // Name text
+                            TextView tvName = new TextView(this);
+                            tvName.setLayoutParams(new android.widget.LinearLayout.LayoutParams(
+                                    0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+                            tvName.setText(displayName);
+                            tvName.setTextColor(getResources().getColor(R.color.dark_blue, getTheme()));
+                            tvName.setTextSize(14f);
+
+                            // Purple "Co-Organizer" badge
+                            TextView badge = new TextView(this);
+                            android.widget.LinearLayout.LayoutParams badgeParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            badge.setLayoutParams(badgeParams);
+                            badge.setText("Co-Org");
+                            badge.setTextColor(0xFF7F56D9);
+                            badge.setTextSize(11f);
+                            int hPad = (int) (8 * getResources().getDisplayMetrics().density);
+                            int vPad = (int) (3 * getResources().getDisplayMetrics().density);
+                            badge.setPadding(hPad, vPad, hPad, vPad);
+                            android.graphics.drawable.GradientDrawable badgeBg =
+                                    new android.graphics.drawable.GradientDrawable();
+                            badgeBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                            badgeBg.setCornerRadius(50f);
+                            badgeBg.setColor(0xFFF4F3FF);
+                            badge.setBackground(badgeBg);
+
+                            // Remove button
+                            android.widget.Button btnRemove = new android.widget.Button(this);
+                            android.widget.LinearLayout.LayoutParams removeParams =
+                                    new android.widget.LinearLayout.LayoutParams(
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+                            btnRemove.setLayoutParams(removeParams);
+                            btnRemove.setText("Remove");
+                            btnRemove.setTextSize(11f);
+                            btnRemove.setAllCaps(false);
+                            btnRemove.setTextColor(0xFFD92D20);
+                            btnRemove.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                            btnRemove.setOnClickListener(v -> confirmRemoveCoOrganizer(userId, displayName));
+
+                            row.addView(avatar);
+                            row.addView(tvName);
+                            row.addView(badge);
+                            row.addView(btnRemove);
+                            llCoOrganizers.addView(row);
+                        });
+                    });
+        }
+    }
+
+    private void confirmRemoveCoOrganizer(String userId, String displayName) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Remove Co-Organizer")
+                .setMessage("Remove " + displayName + " as co-organizer?")
+                .setPositiveButton("Remove", (dialog, which) ->
+                        eventDB.removeCoOrganizer(eventId, userId,
+                                aVoid -> Toast.makeText(this, displayName + " removed as co-organizer",
+                                        Toast.LENGTH_SHORT).show(),
+                                e -> Toast.makeText(this, "Failed to remove co-organizer",
+                                        Toast.LENGTH_SHORT).show()))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void launchInviteScreen(String organizerName) {
+        Intent intent = new Intent(this, InviteEntrantToWaitingListActivity.class);
+        intent.putExtra("eventId", eventId);
+        if (currentEvent != null) intent.putExtra("eventName", currentEvent.getName());
+        intent.putExtra("organizerName", organizerName);
+        startActivity(intent);
+    }
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     private void loadReplacementStatus() {
         if (eventId == null) return;
         
@@ -235,6 +655,29 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         });
     }
 
+<<<<<<< HEAD
+=======
+    private void toggleFabMenu() {
+        isFabMenuOpen = !isFabMenuOpen;
+        if (isFabMenuOpen) {
+            viewDimOverlay.setVisibility(View.VISIBLE);
+            llFabMenu.setVisibility(View.VISIBLE);
+            fabMainActions.animate().rotation(45f).setDuration(200).start();
+        } else {
+            viewDimOverlay.setVisibility(View.GONE);
+            llFabMenu.setVisibility(View.GONE);
+            fabMainActions.animate().rotation(0f).setDuration(200).start();
+        }
+    }
+
+    private void closeFabMenu() {
+        isFabMenuOpen = false;
+        viewDimOverlay.setVisibility(View.GONE);
+        llFabMenu.setVisibility(View.GONE);
+        fabMainActions.animate().rotation(0f).setDuration(200).start();
+    }
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     private void drawReplacement() {
         if (eventId == null) return;
         btnDrawReplacement.setEnabled(false);
@@ -255,7 +698,11 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
                 db.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
                     if (userDoc.exists()) {
                         String outcome = getOutcomeForEvent(userDoc, eventId);
+<<<<<<< HEAD
                         if ("WAITING".equals(outcome)) {
+=======
+                        if ("WAITING".equals(outcome) || "NOT_SELECTED".equals(outcome)) {
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
                             synchronized (waitingUsers) { waitingUsers.add(userDoc); }
                         }
                     }
@@ -290,11 +737,21 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         newRecord.put("outcome", "SELECTED");
         newRecord.put("timestamp", com.google.firebase.Timestamp.now());
 
+<<<<<<< HEAD
         // We can't easily update a specific item in an array in Firestore, 
         // so we remove the old WAITING record and add the new SELECTED record.
         java.util.Map<String, Object> oldRecord = new java.util.HashMap<>();
         oldRecord.put("eventId", eventId);
         oldRecord.put("outcome", "WAITING");
+=======
+        String oldOutcome = getOutcomeForEvent(userDoc, eventId);
+
+        // We can't easily update a specific item in an array in Firestore, 
+        // so we remove the old record and add the new SELECTED record.
+        java.util.Map<String, Object> oldRecord = new java.util.HashMap<>();
+        oldRecord.put("eventId", eventId);
+        oldRecord.put("outcome", oldOutcome);
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
         db.collection("users").document(userId)
                 .update(
@@ -339,6 +796,24 @@ public class OrganizerEventDetailsActivity extends AppCompatActivity {
         return "WAITING";
     }
 
+<<<<<<< HEAD
+=======
+    private void uploadPosterAndUpdate() {
+        if (newPosterUri == null || currentEvent == null) return;
+
+        // Compress to ~800×800 px at 55% JPEG quality and store as Base64 in Firestore
+        String base64 = ImageUtils.compressToBase64(this, newPosterUri, 800, 55);
+        if (base64 == null) {
+            Toast.makeText(this, "Could not process image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentEvent.setPosterUrl(base64);
+        eventDB.updateEvent(currentEvent,
+                aVoid -> Toast.makeText(this, "Event photo updated", Toast.LENGTH_SHORT).show(),
+                e -> Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show());
+    }
+
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
     private Bitmap generateQRCode(String data) {
         try {
             BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 400, 400);

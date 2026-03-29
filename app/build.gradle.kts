@@ -57,6 +57,10 @@ dependencies {
     // QR Code
     implementation(libs.zxing)
     implementation(libs.play.services.code.scanner)
+<<<<<<< HEAD
+=======
+    implementation(libs.play.services.location)
+>>>>>>> 2df83395a475e1f465ca98b60788454a30b2549a
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,4 +78,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.3.0")
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
+
+    // OpenStreetMap (no API key required)
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }
