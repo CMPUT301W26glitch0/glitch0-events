@@ -150,7 +150,15 @@ public class MainActivity extends AppCompatActivity {
                 if ("organizer".equalsIgnoreCase(role)) {
                     intent = new Intent(this, OrganizerDashboardActivity.class);
                 } else if ("admin".equalsIgnoreCase(role)) {
-                    intent = new Intent(this, AdminDashboardActivity.class);
+                    String adminViewMode = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                            .getString("adminViewMode", "admin");
+                    if ("organizer".equalsIgnoreCase(adminViewMode)) {
+                        intent = new Intent(this, OrganizerDashboardActivity.class);
+                    } else if ("entrant".equalsIgnoreCase(adminViewMode)) {
+                        intent = new Intent(this, DashboardActivity.class);
+                    } else {
+                        intent = new Intent(this, AdminDashboardActivity.class);
+                    }
                 } else {
                     intent = new Intent(this, DashboardActivity.class);
                 }

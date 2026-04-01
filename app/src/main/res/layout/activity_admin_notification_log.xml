@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/admin_notif_log_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg">
+
+    <!-- Back button -->
+    <ImageView
+        android:id="@+id/btn_notif_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:src="@android:drawable/ic_media_previous"
+        app:tint="@color/dark_blue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tv_notif_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:text="Notification\nLog"
+        android:textColor="@color/dark_blue"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_notif_back" />
+
+    <!-- Search bar -->
+    <EditText
+        android:id="@+id/et_search_notif"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/card_bg"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:hint="Search by organizer or event"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textColor="@color/dark_blue"
+        android:textColorHint="@color/gray_text"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_notif_header" />
+
+    <!-- Date range row -->
+    <LinearLayout
+        android:id="@+id/row_date_range"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_search_notif">
+
+        <TextView
+            android:id="@+id/tv_filter_from"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@color/card_bg"
+            android:gravity="center"
+            android:text="From: All time"
+            android:textColor="@color/gray_text"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_filter_to"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@color/card_bg"
+            android:gravity="center"
+            android:text="To: Now"
+            android:textColor="@color/gray_text"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Section label + count -->
+    <TextView
+        android:id="@+id/tv_notif_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:text="ALL NOTIFICATIONS"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_date_range" />
+
+    <TextView
+        android:id="@+id/tv_notif_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_notif_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_notif_label"
+        tools:text="42 notifications" />
+
+    <!-- Log list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_notif_log"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_notif_label"
+        tools:listitem="@layout/item_admin_notification_log" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tv_notif_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No notifications found."
+        android:textColor="@color/gray_text"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_notif_label" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

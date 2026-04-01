@@ -54,6 +54,27 @@
         <activity
             android:name=".admin.AdminProfilesActivity"
             android:exported="false" />
+        <activity
+            android:name=".admin.AdminImagesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminImagePreviewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminEventsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminProfileBrowseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminProfileDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminNotificationLogActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AdminCommentsActivity"
+            android:exported="false" />
 
         <!-- Entrant Activities -->
         <activity

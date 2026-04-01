@@ -1,5 +1,8 @@
 package com.example.cmput301_app.model;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
+
 /**
  * Represents a user profile in the application.
  *
@@ -35,6 +38,13 @@ public class Profile {
 
     /** Role of this user: "entrant", "organizer", or "admin" */
     private String role;
+
+    /**
+     * The Firestore document creation time, used as the user's join date.
+     * Not stored in Firestore — populated manually from QueryDocumentSnapshot.getCreateTime().
+     */
+    @Exclude
+    private Timestamp joinDate;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -178,4 +188,8 @@ public class Profile {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    @Exclude
+    public Timestamp getJoinDate() { return joinDate; }
+    public void setJoinDate(Timestamp joinDate) { this.joinDate = joinDate; }
 }

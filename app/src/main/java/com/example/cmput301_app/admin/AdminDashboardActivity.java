@@ -80,8 +80,20 @@ public class AdminDashboardActivity extends AppCompatActivity {
         adapter = new AdminEventAdapter(eventList, this, this::onRemoveConfirmed);
         rvEvents.setAdapter(adapter);
 
+        findViewById(R.id.nav_events_admin).setOnClickListener(v ->
+                startActivity(new Intent(AdminDashboardActivity.this, AdminEventsActivity.class)));
+
         findViewById(R.id.nav_users_admin).setOnClickListener(v ->
-                startActivity(new Intent(AdminDashboardActivity.this, AdminProfilesActivity.class)));
+                startActivity(new Intent(AdminDashboardActivity.this, AdminProfileBrowseActivity.class)));
+
+        findViewById(R.id.nav_images_admin).setOnClickListener(v ->
+                startActivity(new Intent(AdminDashboardActivity.this, AdminImagesActivity.class)));
+
+        findViewById(R.id.nav_logs_admin).setOnClickListener(v ->
+                startActivity(new Intent(AdminDashboardActivity.this, AdminNotificationLogActivity.class)));
+
+        findViewById(R.id.nav_comments_admin).setOnClickListener(v ->
+                startActivity(new Intent(AdminDashboardActivity.this, AdminCommentsActivity.class)));
 
         findViewById(R.id.nav_profile_admin).setOnClickListener(v ->
                 startActivity(new Intent(AdminDashboardActivity.this, ProfileActivity.class)));

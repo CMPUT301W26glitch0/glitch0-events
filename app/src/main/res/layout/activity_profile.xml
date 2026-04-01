@@ -255,6 +255,82 @@
                     app:thumbTint="@color/primary_blue" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- Admin Role Switch (only visible for admin accounts) -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_role_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/rounded_input_bg"
+                android:padding="16dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/cl_dark_mode_settings">
+
+                <ImageView
+                    android:id="@+id/iv_role_switch_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_manage"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/primary_blue" />
+
+                <TextView
+                    android:id="@+id/tv_role_switch_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="View As"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_role_switch_icon"
+                    app:layout_constraintStart_toEndOf="@id/iv_role_switch_icon"
+                    app:layout_constraintTop_toTopOf="@id/iv_role_switch_icon" />
+
+                <LinearLayout
+                    android:id="@+id/ll_role_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/iv_role_switch_icon">
+
+                    <Button
+                        android:id="@+id/btn_role_admin"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="Admin"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp" />
+
+                    <Button
+                        android:id="@+id/btn_role_organizer"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:text="Organizer"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp" />
+
+                    <Button
+                        android:id="@+id/btn_role_entrant"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:text="Entrant"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        app:cornerRadius="8dp" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <Button
                 android:id="@+id/btn_save_profile"
                 android:layout_width="match_parent"
@@ -267,7 +343,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp"
-                app:layout_constraintTop_toBottomOf="@id/cl_dark_mode_settings" />
+                app:layout_constraintTop_toBottomOf="@id/cl_role_switch" />
 
             <Button
                 android:id="@+id/btn_logout"

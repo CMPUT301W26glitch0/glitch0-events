@@ -7,6 +7,7 @@ package com.example.cmput301_app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import androidx.core.content.ContextCompat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.util.Patterns;
 import android.widget.Toast;
+
+import com.example.cmput301_app.admin.AdminDashboardActivity;
+import com.example.cmput301_app.entrant.DashboardActivity;
+import com.example.cmput301_app.organizer.OrganizerDashboardActivity;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -48,6 +53,8 @@ public class ProfileActivity extends AppCompatActivity {
     private SwitchMaterial switchNotifications;
     private SwitchMaterial switchDarkMode;
     private View btnBack;
+    private View clRoleSwitch;
+    private Button btnRoleAdmin, btnRoleOrganizer, btnRoleEntrant;
     private Uri imageUri;
     private String userRole = "entrant"; // Default
 
@@ -106,6 +113,11 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
+        clRoleSwitch = findViewById(R.id.cl_role_switch);
+        btnRoleAdmin = findViewById(R.id.btn_role_admin);
+        btnRoleOrganizer = findViewById(R.id.btn_role_organizer);
+        btnRoleEntrant = findViewById(R.id.btn_role_entrant);
+
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
         View.OnClickListener pickImageListener = v -> {
@@ -152,6 +164,9 @@ public class ProfileActivity extends AppCompatActivity {
             db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
                     userRole = documentSnapshot.getString("role");
+                    if ("admin".equalsIgnoreCase(userRole)) {
+                        setupAdminRoleSwitch();
+                    }
                     etName.setText(documentSnapshot.getString("name"));
                     etEmail.setText(documentSnapshot.getString("email"));
                     etPhone.setText(documentSnapshot.getString("phoneNumber"));
@@ -232,6 +247,49 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
             });
         });
+    }
+
+    private void setupAdminRoleSwitch() {
+        clRoleSwitch.setVisibility(View.VISIBLE);
+        String currentMode = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .getString("adminViewMode", "admin");
+        updateRoleButtonStyles(currentMode);
+
+        btnRoleAdmin.setOnClickListener(v -> switchAdminViewMode("admin"));
+        btnRoleOrganizer.setOnClickListener(v -> switchAdminViewMode("organizer"));
+        btnRoleEntrant.setOnClickListener(v -> switchAdminViewMode("entrant"));
+    }
+
+    private void updateRoleButtonStyles(String selectedMode) {
+        Button[] buttons = {btnRoleAdmin, btnRoleOrganizer, btnRoleEntrant};
+        String[] modes = {"admin", "organizer", "entrant"};
+        for (int i = 0; i < buttons.length; i++) {
+            if (modes[i].equals(selectedMode)) {
+                buttons[i].setBackgroundColor(ContextCompat.getColor(this, R.color.primary_blue));
+                buttons[i].setTextColor(ContextCompat.getColor(this, R.color.white));
+            } else {
+                buttons[i].setBackgroundColor(ContextCompat.getColor(this, R.color.card_bg));
+                buttons[i].setTextColor(ContextCompat.getColor(this, R.color.gray_text));
+            }
+        }
+    }
+
+    private void switchAdminViewMode(String mode) {
+        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .edit().putString("adminViewMode", mode).apply();
+        Intent intent;
+        switch (mode) {
+            case "organizer":
+                intent = new Intent(this, OrganizerDashboardActivity.class);
+                break;
+            case "entrant":
+                intent = new Intent(this, DashboardActivity.class);
+                break;
+            default:
+                intent = new Intent(this, AdminDashboardActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     private void logout() {

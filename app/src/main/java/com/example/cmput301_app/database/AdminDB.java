@@ -5,6 +5,8 @@
  */
 package com.example.cmput301_app.database;
 
+import com.example.cmput301_app.admin.AdminCommentEntry;
+import com.example.cmput301_app.model.Comment;
 import com.example.cmput301_app.model.Event;
 import com.example.cmput301_app.model.Notification;
 import com.example.cmput301_app.model.Profile;
@@ -89,6 +91,7 @@ public class AdminDB {
         data.put("name", name);
         data.put("email", email);
         data.put("adminId", uid);
+        data.put("createdAt", Timestamp.now());
 
         db.collection(USERS_COLLECTION)
                 .document(uid)
@@ -140,6 +143,11 @@ public class AdminDB {
                     List<Profile> profiles = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Profile profile = document.toObject(Profile.class);
+                        if (profile.getDeviceId() == null) {
+                            profile.setDeviceId(document.getId());
+                        }
+                        // Populate join date from the stored createdAt field (may be null for legacy accounts)
+                        profile.setJoinDate(document.getTimestamp("createdAt"));
                         profiles.add(profile);
                     }
                     successListener.onSuccess(profiles);
@@ -302,53 +310,217 @@ public class AdminDB {
     }
 
     /**
-     * TODO: Not required for the halfway checkpoint.
-     * Removes an organizer who violates app policy along with all their
-     * associated events, lottery pools, posters, and notifications.
-     * Coordinates across OrganizerDB, EventDB, LotteryDB, PosterDB,
-     * and NotificationDB.
-     * To be implemented in a future sprint.
+     * Removes an organizer and all data they own:
+     * 1. Fetches every event where organizerId == deviceId.
+     * 2. For each event, runs the full removeEvent() cascade:
+     *    - Sends a cancellation notification to every entrant on that event.
+     *    - Deletes all notifications tied to the event.
+     *    - Clears the poster (posterUrl is a base64 field, so no Storage delete needed).
+     *    - Deletes the event document.
+     * 3. After all events are removed, runs removeProfile() to clean up the
+     *    organizer's user document and any waiting-list memberships.
      *
-     * @param deviceId        the device ID of the organizer to remove
+     * All entrants associated with the removed events receive a cancellation
+     * notification before their event data is deleted.
+     *
+     * @param deviceId        the UID / document ID of the organizer to remove
      * @param successListener called when all operations complete successfully
      * @param failureListener called if any operation in the chain fails
      */
     public void removeOrganizer(String deviceId,
                                 OnSuccessListener<Void> successListener,
                                 OnFailureListener failureListener) {
-        // Not yet implemented
+        // Step 1: fetch all events owned by this organizer
+        db.collection(EVENTS_COLLECTION)
+                .whereEqualTo("organizerId", deviceId)
+                .get()
+                .addOnFailureListener(failureListener)
+                .addOnSuccessListener(querySnapshot -> {
+                    List<String> eventIds = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        eventIds.add(doc.getId());
+                    }
+
+                    if (eventIds.isEmpty()) {
+                        // No events — just remove the profile
+                        removeProfile(deviceId, successListener, failureListener);
+                        return;
+                    }
+
+                    // Step 2: cascade-remove each event, then remove the profile
+                    final int[] remaining = {eventIds.size()};
+                    final boolean[] alreadyFailed = {false};
+
+                    for (String eventId : eventIds) {
+                        removeEvent(eventId,
+                                aVoid -> {
+                                    synchronized (remaining) {
+                                        remaining[0]--;
+                                        if (remaining[0] == 0 && !alreadyFailed[0]) {
+                                            // All events gone — now remove the profile
+                                            removeProfile(deviceId, successListener, failureListener);
+                                        }
+                                    }
+                                },
+                                e -> {
+                                    synchronized (alreadyFailed) {
+                                        if (!alreadyFailed[0]) {
+                                            alreadyFailed[0] = true;
+                                            failureListener.onFailure(e);
+                                        }
+                                    }
+                                });
+                    }
+                });
     }
 
     /**
-     * TODO: Not required for the halfway checkpoint.
-     * Removes an inappropriate poster image by delegating to
-     * PosterDB.deletePoster(), which handles Firebase Storage deletion,
-     * Firestore document removal, and Event posterUrl sync.
-     * To be implemented in a future sprint.
+     * Fetches all events that have a non-empty posterUrl and returns them as a list.
+     * Used to populate the admin image management screen.
      *
-     * @param posterId        the ID of the poster to remove
-     * @param eventId         the ID of the event this poster belongs to
-     * @param successListener called when all operations complete successfully
-     * @param failureListener called if any operation in the chain fails
+     * @param successListener called with the filtered list of Event objects
+     * @param failureListener called if the operation fails
      */
-    public void removeImage(String posterId, String eventId,
+    public void getAllImages(OnSuccessListener<List<Event>> successListener,
+                             OnFailureListener failureListener) {
+        db.collection(EVENTS_COLLECTION)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Event> events = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Event event = document.toObject(Event.class);
+                        if (event != null) {
+                            event.setEventId(document.getId());
+                            if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                                events.add(event);
+                            }
+                        }
+                    }
+                    successListener.onSuccess(events);
+                })
+                .addOnFailureListener(failureListener);
+    }
+
+    /**
+     * Removes the poster image from an event by clearing its posterUrl field.
+     * The event itself is not deleted — it continues to exist and will show
+     * a placeholder image instead.
+     *
+     * @param eventId         the ID of the event whose poster should be removed
+     * @param successListener called when the operation completes successfully
+     * @param failureListener called if the operation fails
+     */
+    public void removeImage(String eventId,
                             OnSuccessListener<Void> successListener,
                             OnFailureListener failureListener) {
-        // Not yet implemented
+        db.collection(EVENTS_COLLECTION).document(eventId)
+                .update("posterUrl", "")
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
+    }
+
+    // -------------------------------------------------------------------------
+    // Comment Operations
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fetches all events from Firestore and extracts every comment, pairing each
+     * one with its source event ID and name. The resulting list is sorted newest-first.
+     *
+     * @param successListener called with the full list of {@link AdminCommentEntry} objects
+     * @param failureListener called if the Firestore query fails
+     */
+    public void getAllComments(OnSuccessListener<List<AdminCommentEntry>> successListener,
+                               OnFailureListener failureListener) {
+        db.collection(EVENTS_COLLECTION)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<AdminCommentEntry> entries = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Event event = doc.toObject(Event.class);
+                        if (event == null) continue;
+                        event.setEventId(doc.getId());
+                        String eventName = event.getName() != null ? event.getName() : "Unknown Event";
+                        List<com.example.cmput301_app.model.Comment> comments = event.getComments();
+                        if (comments == null) continue;
+                        for (com.example.cmput301_app.model.Comment comment : comments) {
+                            entries.add(new AdminCommentEntry(comment, event.getEventId(), eventName));
+                        }
+                    }
+                    // Sort newest-first (nulls last)
+                    entries.sort((a, b) -> {
+                        com.google.firebase.Timestamp ta = a.getComment().getTimestamp();
+                        com.google.firebase.Timestamp tb = b.getComment().getTimestamp();
+                        if (ta == null && tb == null) return 0;
+                        if (ta == null) return 1;
+                        if (tb == null) return -1;
+                        return tb.compareTo(ta);
+                    });
+                    successListener.onSuccess(entries);
+                })
+                .addOnFailureListener(failureListener);
     }
 
     /**
-     * TODO: Not required for the halfway checkpoint.
-     * Fetches the full notification log by delegating to
-     * NotificationDB.getAllNotifications().
-     * Used for the admin notification log screen (US 03.08.01).
-     * To be implemented in a future sprint.
+     * Removes a single comment from the specified event's comments array and
+     * writes an audit record to the {@code deleted_comments_log} collection.
      *
-     * @param successListener called with the list of Notification objects
+     * @param eventId         the ID of the event that contains the comment
+     * @param comment         the comment to remove (must match stored fields exactly)
+     * @param eventName       human-readable event name, stored in the audit log
+     * @param successListener called when the removal completes successfully
+     * @param failureListener called if the removal fails
+     */
+    public void deleteComment(String eventId,
+                              Comment comment,
+                              String eventName,
+                              OnSuccessListener<Void> successListener,
+                              OnFailureListener failureListener) {
+        EventDB eventDB = new EventDB();
+        eventDB.deleteComment(eventId, comment,
+                unused -> {
+                    // Write audit log entry (fire-and-forget)
+                    java.util.Map<String, Object> logEntry = new java.util.HashMap<>();
+                    logEntry.put("commentId",          comment.getId());
+                    logEntry.put("eventId",            eventId);
+                    logEntry.put("eventName",          eventName);
+                    logEntry.put("authorName",         comment.getAuthorName());
+                    logEntry.put("content",            comment.getContent());
+                    logEntry.put("originalTimestamp",  comment.getTimestamp());
+                    logEntry.put("organizerComment",   comment.isOrganizerComment());
+                    logEntry.put("deletedAt",          Timestamp.now());
+                    logEntry.put("deletedBy",          "admin");
+
+                    db.collection("deleted_comments_log")
+                            .add(logEntry)
+                            .addOnSuccessListener(ref -> successListener.onSuccess(null))
+                            .addOnFailureListener(e -> {
+                                // Audit log failure is non-fatal — the comment is already removed
+                                successListener.onSuccess(null);
+                            });
+                },
+                failureListener);
+    }
+
+    /**
+     * Fetches all notifications from Firestore and returns them sorted in
+     * reverse chronological order (newest first).
+     * Used for the admin notification log screen.
+     *
+     * @param successListener called with the sorted list of Notification objects
      * @param failureListener called if the operation fails
      */
     public void getNotificationLog(OnSuccessListener<List<Notification>> successListener,
                                    OnFailureListener failureListener) {
-        // Not yet implemented
+        notificationDB.getAllNotifications(notifications -> {
+            // Sort newest first
+            notifications.sort((a, b) -> {
+                if (a.getTimestamp() == null && b.getTimestamp() == null) return 0;
+                if (a.getTimestamp() == null) return 1;
+                if (b.getTimestamp() == null) return -1;
+                return b.getTimestamp().compareTo(a.getTimestamp());
+            });
+            successListener.onSuccess(notifications);
+        }, failureListener);
     }
 }
