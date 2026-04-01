@@ -80,6 +80,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         adapter = new AdminEventAdapter(eventList, this, this::onRemoveConfirmed);
         rvEvents.setAdapter(adapter);
 
+        findViewById(R.id.nav_users_admin).setOnClickListener(v ->
+                startActivity(new Intent(AdminDashboardActivity.this, AdminProfilesActivity.class)));
+
         findViewById(R.id.nav_profile_admin).setOnClickListener(v ->
                 startActivity(new Intent(AdminDashboardActivity.this, ProfileActivity.class)));
 
@@ -132,4 +135,3 @@ public class AdminDashboardActivity extends AppCompatActivity {
         );
     }
 }
-

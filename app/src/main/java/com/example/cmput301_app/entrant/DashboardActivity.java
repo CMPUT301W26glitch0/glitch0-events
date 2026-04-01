@@ -40,7 +40,9 @@ import com.example.cmput301_app.database.NotificationDB;
 import com.example.cmput301_app.model.Entrant;
 import com.example.cmput301_app.model.Event;
 import com.example.cmput301_app.model.Notification;
+import com.example.cmput301_app.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -286,6 +288,28 @@ public class DashboardActivity extends AppCompatActivity {
         intent.putExtra(FilterEventsActivity.EXTRA_WAITLIST_AVAILABILITY, filterWaitlist);
         intent.putExtra(FilterEventsActivity.EXTRA_HIDE_FULL, filterHideFull);
         filterLauncher.launch(intent);
+    }
+
+    /**
+     * Checks on each resume whether the current user's Firestore document still exists.
+     * If an admin has deleted this profile, the document will be gone and we sign the user out.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        mAuth.signOut();
+                        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                                .edit().remove("last_uid").apply();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                });
     }
 
     private void applyLocalFilters() {

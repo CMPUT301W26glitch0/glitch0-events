@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cmput301_app.MainActivity;
 import com.example.cmput301_app.ProfileActivity;
 import com.example.cmput301_app.R;
 import com.example.cmput301_app.database.EventDB;
@@ -76,6 +77,28 @@ public class OrganizerDashboardActivity extends AppCompatActivity {
         });
 
         loadOrganizedEvents();
+    }
+
+    /**
+     * Checks on each start whether the current user's Firestore document still exists.
+     * If an admin has deleted this profile, the document will be gone and we sign the user out.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+        mDb.collection("users").document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        mAuth.signOut();
+                        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                                .edit().remove("last_uid").apply();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                });
     }
 
     private void loadOrganizedEvents() {

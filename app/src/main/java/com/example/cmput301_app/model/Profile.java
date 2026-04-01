@@ -33,6 +33,9 @@ public class Profile {
     /** Firebase Storage download URL for the user's profile photo */
     private String profileImageUrl;
 
+    /** Role of this user: "entrant", "organizer", or "admin" */
+    private String role;
+
     // -------------------------------------------------------------------------
     // Constructors
     // -------------------------------------------------------------------------
@@ -172,4 +175,7 @@ public class Profile {
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }

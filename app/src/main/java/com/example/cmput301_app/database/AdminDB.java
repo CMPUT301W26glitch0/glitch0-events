@@ -236,20 +236,69 @@ public class AdminDB {
     }
 
     /**
-     * Removes a user profile from Firestore. Determines whether the profile
-     * belongs to an entrant or organizer and delegates to the appropriate
-     * DB class. If the profile belongs to an organizer, all associated events
-     * are also removed.
-     * To be implemented in a future sprint.
+     * Removes a user profile and all associated waiting list records:
+     * 1. Fetches the user document to read their waitingListIds and profileImageUrl.
+     * 2. For each event the user is waiting on, removes their deviceId from
+     *    that event's waitingListIds array and decrements waitingListCount.
+     * 3. Deletes the profile image from Firebase Storage (if a Storage URL is set).
+     * 4. Deletes the user document from Firestore.
      *
-     * @param deviceId        the device ID of the profile to remove
-     * @param successListener called when the operation completes successfully
-     * @param failureListener called if the operation fails
+     * Note: active devices will be signed out on their next app resume because
+     * DashboardActivity and OrganizerDashboardActivity check whether the user's
+     * Firestore document still exists and call FirebaseAuth.signOut() if not.
+     *
+     * @param deviceId        the UID / document ID of the profile to remove
+     * @param successListener called when all operations complete successfully
+     * @param failureListener called if any operation in the chain fails
      */
     public void removeProfile(String deviceId,
                               OnSuccessListener<Void> successListener,
                               OnFailureListener failureListener) {
-        // Not yet implemented
+        db.collection(USERS_COLLECTION).document(deviceId).get()
+                .addOnFailureListener(failureListener)
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        successListener.onSuccess(null);
+                        return;
+                    }
+
+                    // Collect waiting list event IDs to clean up
+                    @SuppressWarnings("unchecked")
+                    List<String> waitingListIds = (List<String>) doc.get("waitingListIds");
+                    String profileImageUrl = doc.getString("profileImageUrl");
+
+                    // Step 1: remove user from each event's waitingListIds (fire-and-forget)
+                    if (waitingListIds != null && !waitingListIds.isEmpty()) {
+                        EventDB eventDB = new EventDB();
+                        for (String eventId : waitingListIds) {
+                            eventDB.removeFromWaitingList(eventId, deviceId, v -> {}, e -> {});
+                        }
+                    }
+
+                    // Step 2: delete profile image from Firebase Storage if present
+                    if (profileImageUrl != null && profileImageUrl.startsWith("https://")) {
+                        try {
+                            StorageReference ref = FirebaseStorage.getInstance()
+                                    .getReferenceFromUrl(profileImageUrl);
+                            ref.delete().addOnCompleteListener(task ->
+                                    deleteUserDocument(deviceId, successListener, failureListener));
+                        } catch (IllegalArgumentException e) {
+                            deleteUserDocument(deviceId, successListener, failureListener);
+                        }
+                    } else {
+                        deleteUserDocument(deviceId, successListener, failureListener);
+                    }
+                });
+    }
+
+    /** Deletes the user Firestore document as the final step of removeProfile(). */
+    private void deleteUserDocument(String deviceId,
+                                    OnSuccessListener<Void> successListener,
+                                    OnFailureListener failureListener) {
+        db.collection(USERS_COLLECTION).document(deviceId)
+                .delete()
+                .addOnSuccessListener(successListener)
+                .addOnFailureListener(failureListener);
     }
 
     /**
