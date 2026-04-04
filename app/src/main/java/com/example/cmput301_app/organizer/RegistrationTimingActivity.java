@@ -41,7 +41,7 @@ import com.google.firebase.Timestamp;
 
 import java.util.Calendar;
 import java.util.Date;
-
+//
 public class RegistrationTimingActivity extends AppCompatActivity {
 
     private String eventId;

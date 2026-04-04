@@ -1,0 +1,750 @@
+[debug] [2026-03-22T19:51:19.389Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:19.390Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:19.390Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:19.390Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:19.397Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:19.397Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:19.408Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.408Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.409Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.409Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.409Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.410Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.410Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.410Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.410Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.410Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.411Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.411Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.411Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.411Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.411Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.510Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.510Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.510Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-22T19:51:19.510Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-22T19:51:19.511Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.511Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.511Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-22T19:51:19.511Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-22T19:51:19.531Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.532Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.532Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-22T19:51:19.532Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-22T19:51:19.936Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-22T19:51:19.936Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-22T19:51:19.936Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-22T19:51:19.936Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.936Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.936Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.936Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.936Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.937Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-22T19:51:19.937Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-22T19:51:19.937Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-22T19:51:19.938Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.938Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.938Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.938Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.938Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.944Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-22T19:51:19.944Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-22T19:51:19.944Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-22T19:51:19.944Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.944Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-22T19:51:19.944Z] > refreshing access token with scopes: []
+[debug] [2026-03-22T19:51:19.944Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-22T19:51:19.944Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.982Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.982Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.986Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.986Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:19.987Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-22T19:51:19.988Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-22T19:51:20.018Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:20.019Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:20.019Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:20.020Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:20.020Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:20.021Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-22T19:51:20.021Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-22T19:51:20.021Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-22T19:51:20.210Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-22T19:51:20.210Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-22T19:51:20.213Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-22T19:51:20.213Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:16.979Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:16.980Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:16.980Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:16.980Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:16.986Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:16.986Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:16.999Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:16.999Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:16.999Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.000Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.000Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.001Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.001Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.001Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.001Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.001Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.001Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.001Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.001Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.002Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.002Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.121Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.121Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.121Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T04:39:17.121Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T04:39:17.124Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.124Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.124Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T04:39:17.124Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T04:39:17.125Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.125Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.125Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T04:39:17.125Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T04:39:17.302Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T04:39:17.302Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T04:39:17.302Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T04:39:17.302Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.302Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.302Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.303Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.303Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.304Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T04:39:17.304Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T04:39:17.304Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T04:39:17.304Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.304Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.304Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.304Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.304Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.307Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T04:39:17.307Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T04:39:17.307Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T04:39:17.307Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.307Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T04:39:17.307Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T04:39:17.307Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T04:39:17.307Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.352Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.352Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.356Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.356Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.357Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T04:39:17.357Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T04:39:17.386Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:17.386Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:17.387Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:17.387Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:17.388Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:17.388Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T04:39:17.388Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-23T04:39:17.388Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-23T04:39:17.589Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-23T04:39:17.589Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-23T04:39:17.591Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T04:39:17.591Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.155Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.156Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.156Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.156Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.162Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.163Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.175Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.175Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.175Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.175Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.175Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.176Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.177Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.177Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.177Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.177Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.177Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.177Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.177Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.177Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.177Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.435Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.435Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.435Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T17:35:22.435Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T17:35:22.445Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.445Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.445Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T17:35:22.445Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T17:35:22.448Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.448Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.448Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-23T17:35:22.448Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-23T17:35:22.766Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T17:35:22.767Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T17:35:22.767Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T17:35:22.767Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.767Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.767Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.767Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.767Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.821Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T17:35:22.821Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T17:35:22.821Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T17:35:22.821Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.821Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.821Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.821Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.821Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.822Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-23T17:35:22.822Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-23T17:35:22.822Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-23T17:35:22.822Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.822Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-23T17:35:22.822Z] > refreshing access token with scopes: []
+[debug] [2026-03-23T17:35:22.822Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-23T17:35:22.822Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.872Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.872Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.925Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.925Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.931Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-23T17:35:22.931Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-23T17:35:22.992Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.992Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.993Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-23T17:35:22.993Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-23T17:35:22.997Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.998Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:22.998Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:22.998Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-23T17:35:23.408Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-23T17:35:23.408Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-23T17:35:23.411Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T17:35:23.412Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:35.240Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:35.241Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:35.241Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:35.241Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:35.248Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:35.248Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:35.260Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.260Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.260Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:35.260Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:35.260Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.261Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.261Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.261Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:35.261Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:35.261Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.262Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.262Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.262Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:35.262Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:35.262Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.482Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:35.482Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.483Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T17:37:35.483Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T17:37:35.484Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:35.484Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.484Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T17:37:35.484Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T17:37:35.484Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:35.484Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.484Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T17:37:35.484Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T17:37:35.809Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T17:37:35.809Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T17:37:35.809Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T17:37:35.809Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.810Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:35.810Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:35.810Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:35.810Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.896Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:35.896Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:35.969Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:35.970Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:35.970Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:35.970Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:36.035Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T17:37:36.035Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T17:37:36.035Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T17:37:36.035Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:36.035Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:36.035Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:36.035Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:36.035Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:36.043Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T17:37:36.043Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T17:37:36.043Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T17:37:36.043Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:36.043Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T17:37:36.043Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T17:37:36.043Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T17:37:36.043Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:36.118Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:36.118Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:36.126Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T17:37:36.126Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T17:37:36.200Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:36.201Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T17:37:36.202Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-24T17:37:36.202Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-24T17:37:36.515Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-24T17:37:36.515Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-24T17:37:36.516Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T17:37:36.516Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:40.697Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:40.720Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:40.720Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:40.720Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:40.755Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:40.755Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:40.775Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.775Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.775Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:40.776Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:40.776Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.779Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.779Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.779Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:40.779Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:40.779Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.781Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.781Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:40.781Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:40.781Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:40.781Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.892Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:40.892Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.892Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T20:58:40.892Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T20:58:40.901Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:40.901Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.901Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T20:58:40.901Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T20:58:40.902Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:40.902Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:40.902Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-24T20:58:40.902Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-24T20:58:41.323Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T20:58:41.323Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T20:58:41.323Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T20:58:41.323Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.323Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.323Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:41.323Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:41.323Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.373Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:41.373Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.432Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T20:58:41.432Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T20:58:41.432Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T20:58:41.432Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.432Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.432Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:41.433Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:41.433Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.479Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:41.479Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.517Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:41.517Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:41.518Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:41.518Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:41.624Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-24T20:58:41.624Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-24T20:58:41.624Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-24T20:58:41.624Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.624Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-24T20:58:41.624Z] > refreshing access token with scopes: []
+[debug] [2026-03-24T20:58:41.624Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-24T20:58:41.624Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.673Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-24T20:58:41.673Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-24T20:58:41.707Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:41.707Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-24T20:58:41.708Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-24T20:58:41.708Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-24T20:58:41.913Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-24T20:58:41.914Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-24T20:58:41.915Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-24T20:58:41.915Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:30.202Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:30.203Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:30.203Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:30.203Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:30.211Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:30.211Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:30.223Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.223Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.223Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.224Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.224Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.225Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.225Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.225Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.225Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.225Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.226Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.226Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.226Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.226Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.226Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.459Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:30.459Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.459Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-25T22:49:30.459Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-25T22:49:30.460Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:30.460Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.460Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-25T22:49:30.460Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-25T22:49:30.462Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:30.462Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.462Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-25T22:49:30.462Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-25T22:49:30.800Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-25T22:49:30.800Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-25T22:49:30.800Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-25T22:49:30.800Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.800Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.801Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.801Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.801Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.842Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-25T22:49:30.842Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-25T22:49:30.842Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-25T22:49:30.842Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.843Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.843Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.843Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.843Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.885Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:30.885Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.918Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-25T22:49:30.918Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-25T22:49:30.918Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-25T22:49:30.918Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.918Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-25T22:49:30.918Z] > refreshing access token with scopes: []
+[debug] [2026-03-25T22:49:30.918Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-25T22:49:30.918Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.924Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:30.924Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:30.974Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:30.974Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:30.976Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:30.976Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:31.002Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-25T22:49:31.002Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-25T22:49:31.092Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:31.092Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-25T22:49:31.093Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-25T22:49:31.093Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-25T22:49:31.540Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-25T22:49:31.540Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-25T22:49:31.541Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-25T22:49:31.541Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:39.558Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:39.559Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:39.559Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:39.559Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:39.565Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:39.565Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:39.578Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.578Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.578Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:39.578Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:39.578Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.579Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.579Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.579Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:39.579Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:39.579Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.580Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.580Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:39.580Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:39.580Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:39.580Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.705Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:39.706Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.706Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T02:58:39.706Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T02:58:39.723Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:39.724Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.724Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T02:58:39.724Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T02:58:39.730Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:39.730Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:39.730Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T02:58:39.730Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T02:58:40.172Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T02:58:40.172Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T02:58:40.172Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T02:58:40.172Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.172Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.172Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:40.173Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:40.173Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.222Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:40.223Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.491Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T02:58:40.491Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T02:58:40.491Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T02:58:40.491Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.491Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.491Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:40.491Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:40.491Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.496Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T02:58:40.496Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T02:58:40.496Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T02:58:40.496Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.496Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T02:58:40.496Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T02:58:40.497Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T02:58:40.497Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.551Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:40.551Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.553Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T02:58:40.553Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T02:58:40.604Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:40.604Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:40.604Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-26T02:58:40.604Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-26T02:58:40.606Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:40.606Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:40.606Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:40.606Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T02:58:40.908Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-26T02:58:40.908Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-26T02:58:40.910Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T02:58:40.910Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:03.779Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:03.780Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:03.780Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:03.780Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:03.788Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:03.788Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:03.803Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.803Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.803Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:03.804Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:03.804Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:03.805Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.805Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.805Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:03.805Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:03.805Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:03.806Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.806Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:03.806Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:03.806Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:03.806Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.085Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.086Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.086Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T17:16:04.086Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T17:16:04.087Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.087Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.087Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T17:16:04.087Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T17:16:04.088Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.088Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.088Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-26T17:16:04.088Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-26T17:16:04.477Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T17:16:04.477Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T17:16:04.477Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T17:16:04.477Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.477Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.477Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:04.477Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:04.477Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.484Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T17:16:04.484Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T17:16:04.484Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T17:16:04.484Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.484Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.484Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:04.485Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:04.485Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.517Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-26T17:16:04.517Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-26T17:16:04.517Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-26T17:16:04.517Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.517Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-26T17:16:04.517Z] > refreshing access token with scopes: []
+[debug] [2026-03-26T17:16:04.517Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-26T17:16:04.517Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.572Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.572Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.574Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.574Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:04.603Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:04.603Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:04.604Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-26T17:16:04.604Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-26T17:16:04.605Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:04.605Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:04.609Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:04.609Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-26T17:16:04.617Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-26T17:16:04.618Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-26T17:16:05.024Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-26T17:16:05.024Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-26T17:16:05.025Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-26T17:16:05.025Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:00.020Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:00.022Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:00.022Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:00.022Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:00.028Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:00.028Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:00.041Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.041Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.041Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.042Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.042Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.043Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.043Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.043Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.043Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.043Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.044Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.044Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.044Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.044Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.044Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.178Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:00.178Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.178Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T03:12:00.178Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T03:12:00.180Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:00.180Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.180Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T03:12:00.180Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T03:12:00.196Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:00.196Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.196Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T03:12:00.196Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T03:12:00.650Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T03:12:00.650Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T03:12:00.650Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T03:12:00.650Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.650Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.650Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.650Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.650Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.712Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:00.712Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.973Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T03:12:00.973Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T03:12:00.973Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T03:12:00.973Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.973Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.973Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.973Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.973Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:00.979Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T03:12:00.979Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T03:12:00.979Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T03:12:00.979Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.979Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T03:12:00.979Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T03:12:00.979Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T03:12:00.979Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:01.037Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:01.037Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:01.040Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T03:12:01.040Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T03:12:01.072Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:01.072Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:01.073Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:01.073Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:01.074Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:01.074Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T03:12:01.074Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-27T03:12:01.074Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-27T03:12:01.347Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-27T03:12:01.347Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-27T03:12:01.348Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T03:12:01.348Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:10.383Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:10.384Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:10.384Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:10.384Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:10.391Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:10.391Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:10.408Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.408Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.408Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.409Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.410Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.412Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.412Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.412Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.412Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.412Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.413Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.413Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.413Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.413Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.413Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.528Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.528Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.529Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T05:03:10.529Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T05:03:10.532Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.532Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.532Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T05:03:10.532Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T05:03:10.533Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.533Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.533Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [none]
+[debug] [2026-03-27T05:03:10.533Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com  x-goog-user-project=
+[debug] [2026-03-27T05:03:10.927Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T05:03:10.927Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T05:03:10.927Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T05:03:10.927Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.927Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.927Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.927Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.927Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.932Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T05:03:10.932Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T05:03:10.932Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T05:03:10.932Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.932Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.933Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.933Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.933Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.936Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com 401
+[debug] [2026-03-27T05:03:10.936Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects//services/firebaseappdistribution.googleapis.com [omitted]
+[debug] [2026-03-27T05:03:10.936Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-03-27T05:03:10.936Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.936Z] Checked if tokens are valid: false, expires at: 1740030127406
+[debug] [2026-03-27T05:03:10.936Z] > refreshing access token with scopes: []
+[debug] [2026-03-27T05:03:10.937Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-03-27T05:03:10.937Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.979Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.979Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.980Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.981Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:10.982Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-03-27T05:03:10.983Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-03-27T05:03:11.013Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:11.013Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:11.013Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:11.013Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:11.015Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:11.015Z] > authorizing via signed-in user (leoshim9@gmail.com)
+[debug] [2026-03-27T05:03:11.015Z] >>> [apiv2][query] POST https://developerknowledge.googleapis.com/mcp [none]
+[debug] [2026-03-27T05:03:11.015Z] >>> [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"method":"tools/list","jsonrpc":"2.0","id":1}
+[debug] [2026-03-27T05:03:11.192Z] <<< [apiv2][status] POST https://developerknowledge.googleapis.com/mcp 200
+[debug] [2026-03-27T05:03:11.192Z] <<< [apiv2][body] POST https://developerknowledge.googleapis.com/mcp {"id":1,"jsonrpc":"2.0","result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to find documentation about Google developer products. The documents contain official APIs, code snippets, release notes, best practices, guides, debugging info, and more. It covers the following products and domains:\n\n* Android: developer.android.com\n* Apigee: docs.apigee.com\n* Chrome: developer.chrome.com\n* Firebase: firebase.google.com\n* Fuchsia: fuchsia.dev\n* Google AI: ai.google.dev\n* Google Cloud: docs.cloud.google.com\n* Google Developers, Ads, Search, Google Maps, Youtube: developers.google.com\n* Google Home: developers.home.google.com\n* TensorFlow: www.tensorflow.org\n* Web: web.dev\n\nThis tool returns chunks of text, names, and URLs for matching documents. If the returned chunks are not detailed enough to answer the user's question, use `get_documents` with the `parent` from this tool's output to retrieve the full document content.","inputSchema":{"description":"Request schema for search_documents. Use the query field to search for related Google developer documentation.","properties":{"query":{"description":"Required. The raw query string provided by the user, such as \"How to create a Cloud Storage bucket?\".","type":"string"}},"required":["query"],"type":"object"},"name":"search_documents","outputSchema":{"$defs":{"DocumentChunk":{"description":"A DocumentChunk represents a piece of content from a Document in the DeveloperKnowledge corpus. To fetch the entire document content, pass the `parent` to get_document or batch_get_documents.","properties":{"content":{"description":"Output only. The content of the document chunk.","readOnly":true,"type":"string"},"id":{"description":"Output only. The ID of this chunk within the document. The chunk ID is unique within a document, but not globally unique across documents. The chunk ID is not stable and may change over time.","readOnly":true,"type":"string"},"parent":{"description":"Output only. The resource name of the document this chunk is from. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for search_documents.","properties":{"results":{"description":"The search results for the given query. Each Document in this list contains a snippet of content relevant to the search query. Use the DocumentChunk.name field of each result with get_documents to retrieve the full document content.","items":{"$ref":"#/$defs/DocumentChunk"},"type":"array"}},"type":"object"}},{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":false,"readOnlyHint":true},"description":"Use this tool to retrieve the full content of a single document or up to 20 documents in a single call. The document names should be obtained from the `parent` field of results from a call to the `search_documents` tool. Set the `names` parameter to a list of document names.","inputSchema":{"description":"Request schema for get_documents.","properties":{"names":{"description":"Required. The names of the documents to retrieve, as returned by search_documents. A maximum of 20 documents can be retrieved in one call. The documents are returned in the same order as the `names` in the request. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","items":{"type":"string"},"type":"array"}},"required":["names"],"type":"object"},"name":"get_documents","outputSchema":{"$defs":{"Document":{"description":"A Document represents a piece of content from the Developer Knowledge corpus.","properties":{"content":{"description":"Output only. The content of the document in Markdown format.","readOnly":true,"type":"string"},"description":{"description":"Output only. A description of the document.","readOnly":true,"type":"string"},"name":{"description":"Identifier. The resource name of the document. Format: `documents/{uri_without_scheme}` Example: `documents/docs.cloud.google.com/storage/docs/creating-buckets`","type":"string","x-google-identifier":true},"title":{"description":"Output only. The title of the document.","readOnly":true,"type":"string"},"uri":{"description":"Output only. The URI of the content, such as `https://cloud.google.com/storage/docs/creating-buckets`.","readOnly":true,"type":"string"}},"type":"object"}},"description":"Response schema for get_documents.","properties":{"documents":{"description":"Documents requested.","items":{"$ref":"#/$defs/Document"},"type":"array"}},"type":"object"}}]}}
+[debug] [2026-03-27T05:03:11.193Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-27T05:03:11.193Z] > authorizing via signed-in user (leoshim9@gmail.com)
