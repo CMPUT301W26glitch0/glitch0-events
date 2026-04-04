@@ -7,6 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="@color/card_bg"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp">
 
@@ -57,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:textColor="#9CA3AF"
+                android:textColor="@color/gray_text"
                 android:textSize="11sp" />
 
             <ImageButton

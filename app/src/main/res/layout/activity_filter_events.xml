@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/page_bg"
     android:fitsSystemWindows="true"
     android:fillViewport="true">
 
@@ -27,7 +27,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:text="Cancel"
-                android:textColor="#3366CC"
+                android:textColor="@color/primary_blue"
                 android:textSize="16sp" />
 
             <TextView
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Filter Lessons"
-                android:textColor="#000000"
+                android:textColor="@color/dark_blue"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -46,7 +46,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:text="Apply"
-                android:textColor="#3366CC"
+                android:textColor="@color/primary_blue"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </RelativeLayout>
@@ -54,7 +54,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#EAECF0" />
+            android:background="@color/divider_color" />
 
         <!-- ─── AVAILABILITY Section ─── -->
         <TextView
@@ -63,7 +63,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:text="AVAILABILITY"
-            android:textColor="#3366CC"
+            android:textColor="@color/primary_blue"
             android:textSize="13sp"
             android:textStyle="bold"
             android:letterSpacing="0.08" />
@@ -75,7 +75,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="16dp"
             android:text="Preferred Days"
-            android:textColor="#344054"
+            android:textColor="@color/dark_blue"
             android:textSize="15sp" />
 
         <com.google.android.material.chip.ChipGroup
@@ -96,7 +96,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -108,7 +108,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -120,7 +120,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -132,7 +132,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -144,7 +144,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -156,7 +156,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
 
             <com.google.android.material.chip.Chip
@@ -168,7 +168,7 @@
                 android:textColor="@color/chip_day_text_color"
                 app:chipBackgroundColor="@color/chip_day_bg_color"
                 app:chipStrokeWidth="1dp"
-                app:chipStrokeColor="#D0D5DD"
+                app:chipStrokeColor="@color/input_border"
                 app:checkedIconVisible="false" />
         </com.google.android.material.chip.ChipGroup>
 
@@ -179,7 +179,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:text="Time of Day"
-            android:textColor="#344054"
+            android:textColor="@color/dark_blue"
             android:textSize="15sp" />
 
         <!-- Morning row -->
@@ -198,14 +198,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Morning (Before 12pm)"
-                android:textColor="#344054"
+                android:textColor="@color/dark_blue"
                 android:textSize="15sp" />
 
             <CheckBox
                 android:id="@+id/cb_morning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#3366CC" />
+                android:buttonTint="@color/primary_blue" />
         </LinearLayout>
 
         <!-- Afternoon row -->
@@ -224,14 +224,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Afternoon (12pm - 4pm)"
-                android:textColor="#344054"
+                android:textColor="@color/dark_blue"
                 android:textSize="15sp" />
 
             <CheckBox
                 android:id="@+id/cb_afternoon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#3366CC" />
+                android:buttonTint="@color/primary_blue" />
         </LinearLayout>
 
         <!-- Evening row -->
@@ -250,14 +250,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Evening (After 4pm)"
-                android:textColor="#344054"
+                android:textColor="@color/dark_blue"
                 android:textSize="15sp" />
 
             <CheckBox
                 android:id="@+id/cb_evening"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:buttonTint="#3366CC" />
+                android:buttonTint="@color/primary_blue" />
         </LinearLayout>
 
         <!-- ─── EVENT CAPACITY Section ─── -->
@@ -267,7 +267,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
             android:text="EVENT CAPACITY"
-            android:textColor="#667085"
+            android:textColor="@color/gray_text"
             android:textSize="13sp"
             android:textStyle="bold"
             android:letterSpacing="0.08" />
@@ -294,7 +294,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Waitlist Availability"
-                    android:textColor="#344054"
+                    android:textColor="@color/dark_blue"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -303,7 +303,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Show only events with space on waitlist"
-                    android:textColor="#667085"
+                    android:textColor="@color/gray_text"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -337,7 +337,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Hide Full Events"
-                    android:textColor="#344054"
+                    android:textColor="@color/dark_blue"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -346,7 +346,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Do not show lessons that are 100% full"
-                    android:textColor="#667085"
+                    android:textColor="@color/gray_text"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -373,7 +373,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ℹ"
-                android:textColor="#3366CC"
+                android:textColor="@color/primary_blue"
                 android:textSize="18sp"
                 android:layout_marginEnd="10dp"
                 android:layout_gravity="top" />
@@ -388,7 +388,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="KIDS SWIMMING LESSONS"
-                    android:textColor="#344054"
+                    android:textColor="@color/dark_blue"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -397,7 +397,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Filtering applies to Level 1-4 sessions. High demand events may require lottery entry even if waitlist space is available."
-                    android:textColor="#3366CC"
+                    android:textColor="@color/primary_blue"
                     android:textSize="12sp"
                     android:lineSpacingExtra="3dp" />
             </LinearLayout>
@@ -416,7 +416,7 @@
             android:layout_height="52dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="#3366CC"
+            android:backgroundTint="@color/primary_blue"
             android:text="Show Matches"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
@@ -433,7 +433,7 @@
             android:layout_marginBottom="24dp"
             android:padding="8dp"
             android:text="Reset all filters"
-            android:textColor="#667085"
+            android:textColor="@color/gray_text"
             android:textSize="14sp" />
 
     </LinearLayout>

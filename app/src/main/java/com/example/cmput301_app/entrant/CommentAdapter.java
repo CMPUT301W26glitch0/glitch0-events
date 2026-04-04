@@ -1,3 +1,8 @@
+/*
+ * Purpose: RecyclerView adapter for rendering entrant-posted comments in EventDetailsActivity.
+ * Design Pattern: Standard Android RecyclerView Adapter
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.view.LayoutInflater;

@@ -13,4 +13,6 @@
     <color name="warning_card_bg">#2D1515</color>
     <color name="success_card_bg">#152D15</color>
     <color name="purple_card_bg">#1E1A2E</color>
+    <color name="badge_purple_bg">#2D2250</color>
+    <color name="badge_purple_text">#B39DFF</color>
 </resources>

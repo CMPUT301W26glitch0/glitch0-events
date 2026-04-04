@@ -1,3 +1,10 @@
+/*
+ * Purpose: RecyclerView adapter for displaying and deleting comments in OrganizerEventDetailsActivity.
+ *          Each row shows the comment author, timestamp, and text, with a delete button that
+ *          fires an OnDeleteClickListener callback so the host activity can remove the comment.
+ * Design Pattern: Standard Android RecyclerView Adapter
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.view.LayoutInflater;

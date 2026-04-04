@@ -1,3 +1,10 @@
+/*
+ * Purpose: RecyclerView adapter for rendering notification items in the entrant dashboard's
+ *          notification dropdown popup. Each row shows the notification icon, title, message,
+ *          and timestamp, and fires an OnNotificationClickListener callback on tap.
+ * Design Pattern: Standard Android RecyclerView Adapter
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.entrant;
 
 import android.view.LayoutInflater;

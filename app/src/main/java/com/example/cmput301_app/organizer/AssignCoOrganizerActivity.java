@@ -1,3 +1,10 @@
+/*
+ * Purpose: Lets an organizer search all registered users and directly assign one as a
+ *          co-organizer for their event. Sends a CO_ORGANIZER_INVITATION in-app notification
+ *          to the assigned user and updates coOrganizerIds in the event document.
+ * Design Pattern: Standard Android structure
+ * Outstanding Issues: None
+ */
 package com.example.cmput301_app.organizer;
 
 import android.os.Bundle;

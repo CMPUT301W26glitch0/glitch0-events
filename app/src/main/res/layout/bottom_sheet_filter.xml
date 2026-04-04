@@ -36,7 +36,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="16dp"
-        android:background="#E5E7EB" />
+        android:background="@color/divider_color" />
 
     <!-- Date Range -->
     <TextView
@@ -45,7 +45,7 @@
         android:text="Date Range"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#111827" />
+        android:textColor="@color/dark_blue" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -102,7 +102,7 @@
         android:text="Location"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#111827" />
+        android:textColor="@color/dark_blue" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_location"
@@ -128,7 +128,7 @@
         android:text="Category"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#111827" />
+        android:textColor="@color/dark_blue" />
 
     <!-- Category chips -->
     <com.google.android.material.chip.ChipGroup
