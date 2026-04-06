@@ -53,6 +53,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private View llInvitationActions;
     private Button btnAccept, btnDecline;
     private TextView tvInvitationStatus;
+    private TextView tvDisclaimer;
 
 
     // added for joinWaitingList method
@@ -98,7 +99,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         btnAccept = findViewById(R.id.btn_accept_invitation);
         btnDecline = findViewById(R.id.btn_decline_invitation);
         tvInvitationStatus = findViewById(R.id.tv_invitation_status);
-        
+        tvDisclaimer = findViewById(R.id.tv_disclaimer);
+
         btnEdit = findViewById(R.id.btn_edit_event);
         ivHeader = findViewById(R.id.iv_header);
 
@@ -315,6 +317,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void showInvitationActions() {
         if (btnJoin != null) btnJoin.setVisibility(View.GONE);
         if (tvInvitationStatus != null) tvInvitationStatus.setVisibility(View.GONE);
+        if (tvDisclaimer != null) tvDisclaimer.setVisibility(View.GONE);
         if (llInvitationActions != null) {
             llInvitationActions.setVisibility(View.VISIBLE);
             
@@ -344,6 +347,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void showInvitationStatus(String message) {
         if (btnJoin != null) btnJoin.setVisibility(View.GONE);
         if (llInvitationActions != null) llInvitationActions.setVisibility(View.GONE);
+        if (tvDisclaimer != null) tvDisclaimer.setVisibility(View.GONE);
         if (tvInvitationStatus != null) {
             tvInvitationStatus.setVisibility(View.VISIBLE);
             tvInvitationStatus.setText(message);
