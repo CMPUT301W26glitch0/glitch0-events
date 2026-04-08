@@ -215,6 +215,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         }
 
         btnPostComment.setEnabled(false);
+        etCommentInput.setText("");
         entrantDB.getEntrant(uid, entrant -> {
             String authorName = (entrant != null && entrant.getName() != null) ? entrant.getName() : "Unknown Entrant";
             Comment newComment = new Comment(java.util.UUID.randomUUID().toString(), content, authorName, com.google.firebase.Timestamp.now(), false);
@@ -222,7 +223,6 @@ public class EventDetailsActivity extends AppCompatActivity {
             db.collection("events").document(eventId)
                     .update("comments", FieldValue.arrayUnion(newComment))
                     .addOnSuccessListener(aVoid -> {
-                        etCommentInput.setText("");
                         btnPostComment.setEnabled(true);
                         // The snapshot listener will automatically update the UI with the new comment
                     })

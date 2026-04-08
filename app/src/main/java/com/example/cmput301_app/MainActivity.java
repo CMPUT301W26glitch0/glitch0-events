@@ -100,16 +100,23 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            btnLogin.setEnabled(false);
+            setLoginLoading(true, btnLogin, btnDeviceLogin);
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
-                        btnLogin.setEnabled(true);
                         if (task.isSuccessful()) {
                             String uid = mAuth.getCurrentUser().getUid();
-                            checkUserAndNavigate(uid);
+                            checkUserAndNavigate(uid, btnLogin, btnDeviceLogin);
                         } else {
-                            String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                            Toast.makeText(this, "Login Failed: " + error, Toast.LENGTH_SHORT).show();
+                            setLoginLoading(false, btnLogin, btnDeviceLogin);
+                            String msg = task.getException() != null
+                                    ? task.getException().getMessage() : "Unknown error";
+                            boolean isNetwork = msg != null && (msg.toLowerCase().contains("network")
+                                    || msg.toLowerCase().contains("timeout")
+                                    || msg.toLowerCase().contains("connection"));
+                            String display = isNetwork
+                                    ? "No internet connection. Check your network and try again."
+                                    : "Login Failed: " + msg;
+                            Toast.makeText(this, display, Toast.LENGTH_LONG).show();
                         }
                     });
         });
@@ -119,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
                 String lastUid = prefs.getString("last_uid", null);
                 if (lastUid != null) {
-                    checkUserAndNavigate(lastUid);
+                    setLoginLoading(true, btnLogin, btnDeviceLogin);
+                    checkUserAndNavigate(lastUid, btnLogin, btnDeviceLogin);
                 } else {
                     Toast.makeText(this, "No previous session found. Log in with email first.", Toast.LENGTH_LONG).show();
                 }
@@ -130,7 +138,17 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, RegisterActivity.class)));
     }
 
+    private void setLoginLoading(boolean loading, Button btnLogin, Button btnDeviceLogin) {
+        btnLogin.setEnabled(!loading);
+        btnLogin.setText(loading ? "Logging in..." : "Login");
+        if (btnDeviceLogin != null) btnDeviceLogin.setEnabled(!loading);
+    }
+
     private void checkUserAndNavigate(String uid) {
+        checkUserAndNavigate(uid, null, null);
+    }
+
+    private void checkUserAndNavigate(String uid, Button btnLogin, Button btnDeviceLogin) {
         mDb.collection("users").document(uid).get().addOnSuccessListener(doc -> {
             // Save UID for device login convenience
             getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
@@ -166,13 +184,23 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             } else {
                 // No profile found — clear stale SharedPreferences and send to registration
+                if (btnLogin != null) setLoginLoading(false, btnLogin, btnDeviceLogin);
                 getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
                         .edit().remove("last_uid").apply();
                 mAuth.signOut();
                 Toast.makeText(this, "No account found. Please register.", Toast.LENGTH_LONG).show();
             }
         }).addOnFailureListener(e -> {
-            Toast.makeText(this, "Connection error. Please try again.", Toast.LENGTH_SHORT).show();
+            if (btnLogin != null) setLoginLoading(false, btnLogin, btnDeviceLogin);
+            String msg = e.getMessage();
+            boolean isNetwork = msg != null && (msg.toLowerCase().contains("network")
+                    || msg.toLowerCase().contains("timeout")
+                    || msg.toLowerCase().contains("connection")
+                    || msg.toLowerCase().contains("unavailable"));
+            String display = isNetwork
+                    ? "No internet connection. Check your network and try again."
+                    : "Connection error. Please try again.";
+            Toast.makeText(this, display, Toast.LENGTH_LONG).show();
         });
     }
 }

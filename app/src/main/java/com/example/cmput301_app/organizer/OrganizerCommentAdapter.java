@@ -66,10 +66,12 @@ public class OrganizerCommentAdapter extends RecyclerView.Adapter<OrganizerComme
 
         if (comment.isOrganizerComment()) {
             holder.tvOrganizerBadge.setVisibility(View.VISIBLE);
-            holder.cardView.setCardBackgroundColor(0xFFF4F3FF); // light purple
+            holder.cardView.setCardBackgroundColor(
+                    holder.itemView.getContext().getColor(com.example.cmput301_app.R.color.purple_card_bg));
         } else {
             holder.tvOrganizerBadge.setVisibility(View.GONE);
-            holder.cardView.setCardBackgroundColor(0xFFF9FAFB); // light gray
+            holder.cardView.setCardBackgroundColor(
+                    holder.itemView.getContext().getColor(com.example.cmput301_app.R.color.card_bg));
         }
 
         holder.btnDelete.setOnClickListener(v -> deleteListener.onDeleteClick(comment));

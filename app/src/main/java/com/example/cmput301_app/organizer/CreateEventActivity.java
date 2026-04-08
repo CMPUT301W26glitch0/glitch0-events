@@ -365,8 +365,7 @@ public class CreateEventActivity extends AppCompatActivity {
         event.setPrivate(swPrivateEvent != null && swPrivateEvent.isChecked());
 
         if (existingEvent == null) {
-            String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-            event.setOrganizerId(uid);
+            event.setOrganizerId(resolveUid());
         }
 
         showLoading(true);
@@ -399,8 +398,13 @@ public class CreateEventActivity extends AppCompatActivity {
         saveEventToFirestore(event);
     }
 
+    private String resolveUid() {
+        if (mAuth.getCurrentUser() != null) return mAuth.getCurrentUser().getUid();
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+    }
+
     private void saveEventToFirestore(Event event) {
-        String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        String uid = resolveUid();
         if (event.getOrganizerId() == null)
             event.setOrganizerId(uid);
 
@@ -409,6 +413,13 @@ public class CreateEventActivity extends AppCompatActivity {
                 String orgId = savedEvent.getOrganizerId();
                 if (orgId == null)
                     orgId = uid;
+
+                if (orgId == null) {
+                    // No UID available — skip the organizedEventIds update and go straight to QR
+                    showLoading(false);
+                    navigateToQRDisplay(savedEvent.getEventId());
+                    return;
+                }
 
                 organizerDB.addOrganizedEvent(orgId, savedEvent.getEventId(),
                         aVoid -> {

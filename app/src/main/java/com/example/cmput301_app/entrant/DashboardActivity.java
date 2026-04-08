@@ -376,17 +376,23 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void showTab(boolean showMyEvents) {
+        int blue = getResources().getColor(R.color.primary_blue, getTheme());
+        int gray = getResources().getColor(R.color.gray_text, getTheme());
         if (showMyEvents) {
             clBrowseContent.setVisibility(View.GONE);
             clMyEventsContent.setVisibility(View.VISIBLE);
-            tvTabBrowse.setAlpha(0.5f);
-            tvTabMyEvents.setAlpha(1.0f);
+            tvTabBrowse.setTextColor(gray);
+            tvTabBrowse.setBackgroundResource(0);
+            tvTabMyEvents.setTextColor(blue);
+            tvTabMyEvents.setBackgroundResource(R.drawable.tab_indicator_selected);
             if (!myEventsLoaded) { myEventsLoaded = true; loadMyEvents(); }
         } else {
             clBrowseContent.setVisibility(View.VISIBLE);
             clMyEventsContent.setVisibility(View.GONE);
-            tvTabBrowse.setAlpha(1.0f);
-            tvTabMyEvents.setAlpha(0.5f);
+            tvTabBrowse.setTextColor(blue);
+            tvTabBrowse.setBackgroundResource(R.drawable.tab_indicator_selected);
+            tvTabMyEvents.setTextColor(gray);
+            tvTabMyEvents.setBackgroundResource(0);
         }
     }
 

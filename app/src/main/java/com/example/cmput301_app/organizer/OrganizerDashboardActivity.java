@@ -86,8 +86,8 @@ public class OrganizerDashboardActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mAuth.getCurrentUser() == null) return;
-        String uid = mAuth.getCurrentUser().getUid();
+        String uid = resolveUid();
+        if (uid == null) return;
         mDb.collection("users").document(uid).get()
                 .addOnSuccessListener(doc -> {
                     if (!doc.exists()) {
@@ -101,9 +101,14 @@ public class OrganizerDashboardActivity extends AppCompatActivity {
                 });
     }
 
+    private String resolveUid() {
+        if (mAuth.getCurrentUser() != null) return mAuth.getCurrentUser().getUid();
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE).getString("last_uid", null);
+    }
+
     private void loadOrganizedEvents() {
-        if (mAuth.getCurrentUser() == null) return;
-        String uid = mAuth.getCurrentUser().getUid();
+        String uid = resolveUid();
+        if (uid == null) return;
         Log.d(TAG, "Loading events for organizer: " + uid);
 
         eventDB.getEventsByOrganizer(uid, (value, error) -> {
